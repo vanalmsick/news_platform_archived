@@ -76,13 +76,13 @@ def homeView(request):
     alreadyRefreshed = cache.get('alreadyRefreshed')
     currentlyRefresing = cache.get('currentlyRefresing')
     if alreadyRefreshed or currentlyRefresing:
-        print('Not refreshing artciles as already refreshed.')
+        print('Not refreshing articles as already refreshed or crrently refreshing.')
         articles = cache.get('homepage')
         lastRefreshed = cache.get('lastRefreshed')
     else:
         print('Refreshing articles')
         cache.set('currentlyRefresing', True, 30)
-        #update_feeds()
+        update_feeds()
         articles = Article.objects.filter(max_importance__gte=2).exclude(main_genre='sport').order_by('-max_importance', 'min_feed_position')
         cache.set('homepage', articles, 60 * 10)
         cache.set('currentlyRefresing', False, 30)
@@ -92,5 +92,6 @@ def homeView(request):
 
     return render(request, 'home.html', {
         'articles': articles,
-        'lastRefreshed': getDuration(lastRefreshed, datetime.datetime.now(), 'short')
+        'lastRefreshed': 'Never' if lastRefreshed is None else getDuration(lastRefreshed, datetime.datetime.now(), 'short'),
+        'loaading': currentlyRefresing
         })
