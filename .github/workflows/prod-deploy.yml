@@ -8,6 +8,7 @@ jobs:
 
   autotag:
     runs-on: ubuntu-latest
+    permissions: write-all
     strategy:
       matrix:
         node-version:
