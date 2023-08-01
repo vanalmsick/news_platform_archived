@@ -15,20 +15,19 @@ RUN pip3 install --no-cache-dir -r /feed_aggregator/requirements.txt \
   && useradd -U app_user \
   && install -d -m 0755 -o app_user -g app_user /feed_aggregator
 
+USER app_user:app_user
 
 COPY --chown=app_user:app_user / /feed_aggregator/
-#RUN chmod +x /src/*.sh
 
 WORKDIR /feed_aggregator
-USER app_user:app_user
+
 RUN chown -R app_user:app_user /feed_aggregator
 RUN chmod 755 /feed_aggregator
 
 LABEL org.opencontainers.image.title="vA News Plattform"
-LABEL version="0.0.1"
 
 EXPOSE 80
-VOLUME /data
+VOLUME /feed_aggregator/data
 HEALTHCHECK --interval=20m --timeout=60s --retries=3 \
   CMD echo Successful Docker Container Healthcheck && curl --max-time 30 --connect-timeout 30 --silent --output /dev/null --show-error --fail http://localhost:80/ || exit 1
 
