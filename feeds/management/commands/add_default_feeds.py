@@ -24,9 +24,9 @@ class Command(BaseCommand):
              'renowned': 1,
              'img_scrape_urls': 'https://www.reuters.com'},
             {'name': 'Detsche Welle',
-             'link': 'https://www.dw.com\nhttps://www.dw.com/en/headlines/headlines-en',
+             'link': 'https://www.dw.com',
              'renowned': 1,
-             'img_scrape_urls': 'https://www.dw.com'}
+             'img_scrape_urls': 'https://www.dw.com\nhttps://www.dw.com/en/headlines/headlines-en'}
         ]
 
         for publisher in initial_publishers:

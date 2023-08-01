@@ -22,7 +22,7 @@ class Article(models.Model):
     full_text = models.TextField(null=True)
     author = models.CharField(max_length=50, null=True)
     link = models.URLField(null=True)
-    pub_date = models.DateTimeField(null=True)
+    pub_date = models.DateTimeField(null=True, auto_now_add=True)
     guid = models.CharField(max_length=50, null=True)
     image_html = models.TextField(null=True)
     min_feed_position = models.SmallIntegerField(null=True)

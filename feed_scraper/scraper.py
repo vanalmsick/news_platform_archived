@@ -99,6 +99,8 @@ def fetch_feed(feed):
         article_kwargs['hash'] = f'{feed.id}_' + article_kwargs['guid']
         if hasattr(article, 'published_parsed'):
             article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(time.mktime(article.published_parsed))
+        elif hasattr(fetched_feed, 'feed') and hasattr(fetched_feed.feed, 'updated_parsed'):
+            article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(time.mktime(fetched_feed.feed.updated_parsed))
         if hasattr(article, 'tags'):
             article_kwargs['categories'] = ', '.join([i['term'] for i in article.tags])
         if hasattr(article, 'author'):

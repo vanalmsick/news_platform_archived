@@ -77,7 +77,7 @@
                                        target="_blank">{{ article.title }}</a>
                                 </h3>
                                 <div class="mb-1 text-muted"
-                                     style="font-family: Georgia, serif;">{{ article.publisher.name }} - Nov 12
+                                     style="font-family: Georgia, serif;">{{ article.publisher.name }} - {{ article.pub_date|date:'M jS' }}
                                 </div>
                                 <p class="card-text mb-auto"
                                    style="font-family: Georgia, serif;">{{ article.summary }}</p>
