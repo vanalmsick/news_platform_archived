@@ -29,4 +29,5 @@ VOLUME /data
 HEALTHCHECK --interval=20m --timeout=60s --retries=3 \
   CMD echo Successful Docker Container Healthcheck && curl --max-time 30 --connect-timeout 30 --silent --output /dev/null --show-error --fail http://localhost:80/ || exit 1
 
-CMD [ "python3", "manage.py", "runserver", "0.0.0.0:80" ]
+CMD [ "python3", "manage.py", "runserver", "0.0.0.0:80"]
+#, "--cert-file", "data/cert.pem", "--key-file", "data/key.pem"

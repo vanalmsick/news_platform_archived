@@ -2,11 +2,25 @@ import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher, NEWS_GENRES
 from urllib.parse import urlparse
+from django.core.cache import cache
+from django.db import connection
 
-import requests
+import requests, threading
 from bs4 import BeautifulSoup
 
+
+def postpone(function):
+    def decorator(*args, **kwargs):
+        t = threading.Thread(target = function, args=args, kwargs=kwargs)
+        t.daemon = True
+        t.start()
+    return decorator
+
+@postpone
 def update_feeds():
+
+    cache.set('currentlyRefresing', True, 60*60)
+
     feeds = Feed.objects.filter(active=True)
     added_articles = 0
     for feed in feeds:
@@ -19,6 +33,17 @@ def update_feeds():
         for publisher in publishers:
             fetched_pictures += fetch_pictures(publisher)
         print(f'Sccraped websites for {fetched_pictures} additional images')
+
+    cache.set('currentlyRefresing', False, 60 * 60)
+
+    articles = Article.objects.filter(max_importance__gte=2).exclude(main_genre='sport').order_by(
+        '-max_importance', 'min_feed_position')
+    cache.set('homepage', articles, 60 * 60 * 48)
+    lastRefreshed = datetime.datetime.now()
+    cache.set('lastRefreshed', lastRefreshed, 60 * 60 * 48)
+    cache.set('upToDate', True, 60 * 10)
+
+    connection.close()
 
 
 
@@ -154,8 +179,6 @@ def fetch_pictures(publisher):
                 if matched_article is not None:
                     for article in matched_article:
                         if article.image_html is None:
-                            if 'src' not in image:
-                                print('d')
                             url_img = None
                             try:
                                 url_img = image['src']

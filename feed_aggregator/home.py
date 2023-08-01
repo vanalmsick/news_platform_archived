@@ -73,22 +73,33 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
 
 def homeView(request):
 
-    alreadyRefreshed = cache.get('alreadyRefreshed')
+    upToDate = cache.get('upToDate')
     currentlyRefresing = cache.get('currentlyRefresing')
-    if alreadyRefreshed or currentlyRefresing:
-        print('Not refreshing articles as already refreshed or crrently refreshing.')
+
+    if currentlyRefresing:
+        print('Article refreshing in progress thus get latest available')
+
         articles = cache.get('homepage')
         lastRefreshed = cache.get('lastRefreshed')
+
     else:
-        print('Refreshing articles')
-        cache.set('currentlyRefresing', True, 30)
-        update_feeds()
-        articles = Article.objects.filter(max_importance__gte=2).exclude(main_genre='sport').order_by('-max_importance', 'min_feed_position')
-        cache.set('homepage', articles, 60 * 10)
-        cache.set('currentlyRefresing', False, 30)
-        lastRefreshed = datetime.datetime.now()
-        cache.set('lastRefreshed', lastRefreshed, 60 * 100)
-    cache.set('alreadyRefreshed', True, 60*10)
+
+        articles = cache.get('homepage')
+        lastRefreshed = cache.get('lastRefreshed')
+
+        if articles is None or len(articles) == 0:
+            print('Get articles not from cache but database')
+
+            articles = Article.objects.filter(max_importance__gte=2).exclude(main_genre='sport').order_by(
+                '-max_importance', 'min_feed_position')
+            cache.set('homepage', articles, 60 * 60 * 48)
+
+        if upToDate is not True:
+
+            print('News are being refreshed now')
+            update_feeds()
+
+
 
     return render(request, 'home.html', {
         'articles': articles,
