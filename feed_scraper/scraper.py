@@ -123,7 +123,7 @@ def fetch_feed(feed):
                 if len(images) > 0:
                     url_parts = urlparse(article.link)
                     image = images[0]['src']
-                    if len(image) > 3:
+                    if len(image) > 3 and any([i in str(image).lower() for i in ['.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.svg', '.webp']]):
                         if 'www.' not in image and 'http' not in image:
                             image = url_parts.scheme + '://' + url_parts.hostname + image
                         article_kwargs['image_html'] = image
