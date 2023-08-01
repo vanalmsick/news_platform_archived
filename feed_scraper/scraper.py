@@ -191,7 +191,7 @@ def fetch_pictures(publisher):
                                     url_img = image['data-src']
                                 except:
                                     pass
-                            if url_img is not None:
+                            if url_img is not None and any([i in str(url_img).lower() for i in ['.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.svg', '.webp']]):
                                 url_parts = urlparse(link)
                                 if 'www.' not in url_img and 'http' not in url_img:
                                     url_img = url_parts.scheme + '://' + url_parts.hostname + url_img
