@@ -96,7 +96,7 @@ def fetch_feed(feed):
             hash_obj.update(str(article.link).encode())
             hash_str = hash_obj.hexdigest()
             article_kwargs['guid'] = f'{hash_str}'
-        article_kwargs['hash'] = f'{feed.id}_' + article_kwargs['guid']
+        article_kwargs['hash'] = f'{feed.publisher.id}_' + article_kwargs['guid']
         if hasattr(article, 'published_parsed'):
             article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(time.mktime(article.published_parsed))
         elif hasattr(fetched_feed, 'feed') and hasattr(fetched_feed.feed, 'updated_parsed'):
@@ -168,7 +168,7 @@ def fetch_pictures(publisher):
             article_found = False
             item = image
             i = 0
-            while article_found is False and i < 6 and item is not None:
+            while article_found is False and i < 5 and item is not None:
                 item = item.parent
                 i += 1
                 matched_article = None
@@ -191,6 +191,11 @@ def fetch_pictures(publisher):
                                     url_img = image['data-src']
                                 except:
                                     pass
+                            try:
+                                if 'logo' in str(image['alt']).lower():
+                                    url_img = None
+                            except:
+                                pass
                             if url_img is not None and any([i in str(url_img).lower() for i in ['.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.svg', '.webp']]):
                                 url_parts = urlparse(link)
                                 if 'www.' not in url_img and 'http' not in url_img:

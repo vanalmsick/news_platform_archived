@@ -17,10 +17,10 @@
 </head>
 
 <body>
-
+<div class="bg-light">
 <header>
 
-    <nav class="navbar navbar-expand-xl p-3 border-bottom shadow-sm navbar-light">
+    <nav class="navbar navbar-expand-xl p-3 border-bottom shadow-sm bg-white navbar-light">
         <div class="container">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbar_robot_toggler">
@@ -50,19 +50,15 @@
     </nav>
 </header>
 
-{% if loading %}
-    <div>Loading...</div>
-{% endif %}
 
-<div class="album bg-light">
+<div class="album">
     <div class="container">
-
 
         <div class="my-3 p-3 bg-body rounded shadow-sm">
 
             <div class="row mb-2 flex-fill">
                 {% for article in articles %}
-                    <div class="col-md-4 col-lg-3 col-xxl-2 my-2">
+                    <div class="col-md-4 col-lg-3 my-2">
                         <div class="card mb-4 box-shadow h-100">
                             {% if article.image_html != Null %}
                                 <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
@@ -77,7 +73,7 @@
                                        target="_blank">{{ article.title }}</a>
                                 </h3>
                                 <div class="mb-1 text-muted"
-                                     style="font-family: Georgia, serif;">{{ article.publisher.name }} - {{ article.pub_date|date:'M jS' }}
+                                     style="font-family: Georgia, serif;">{{ article.publisher.name }} {% if article.main_genre != Null %}({{ article.main_genre|title }}) {% endif %}- {{ article.pub_date|date:'M jS' }}
                                 </div>
                                 <p class="card-text mb-auto"
                                    style="font-family: Georgia, serif;">{{ article.summary }}</p>
@@ -91,11 +87,11 @@
     </div>
 </div>
 
-
+</div>
 </body>
 <script>
     setTimeout(function () {
         window.location.reload();
-    }, 1000 * 60);
+    }, 1000 * 60 * 5);
 </script>
 </html>
