@@ -5,5 +5,4 @@ beautifulsoup4
 lxml
 html5lib
 django-extensions
-html
 #Werkzeug
