@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from django.core.cache import cache
 from django.db import connection
 
-import requests, threading
+import requests, threading, html
 from bs4 import BeautifulSoup
 
 
@@ -41,7 +41,13 @@ def update_feeds():
     cache.set('homepage', articles, 60 * 60 * 48)
     lastRefreshed = datetime.datetime.now()
     cache.set('lastRefreshed', lastRefreshed, 60 * 60 * 48)
-    cache.set('upToDate', True, 60 * 10)
+    now = datetime.datetime.now()
+    now_h = now.hour
+    if now_h >= 6 and now_h < 19:
+        refresh_time = 60 * 15
+    else:
+        refresh_time = 60 * 30
+    cache.set('upToDate', True, refresh_time)
 
     connection.close()
 
@@ -86,8 +92,10 @@ def fetch_feed(feed):
 
         if hasattr(article, 'title'):
             article_kwargs['title'] = article.title
+            if 'live news' in str(article_kwargs['title']).lower() or 'breaking' in str(article_kwargs['title']).lower():
+                article_kwargs['max_importance'] = importance = 4
         if hasattr(article, 'summary'):
-            article_kwargs['summary'] = article.summary
+            article_kwargs['summary'] = html.unescape(article.summary)
         if hasattr(article, 'link'):
             article_kwargs['link'] = article.link
         if hasattr(article, 'id') and 'http' not in article.id and 'www' not in article.id:
@@ -120,13 +128,26 @@ def fetch_feed(feed):
                 soup = BeautifulSoup(resp.content, 'html5lib')
                 body = soup.find('body')
                 images = body.find_all('img')
-                if len(images) > 0:
-                    url_parts = urlparse(article.link)
+                new_images = []
+                for i in images:
+                    i_alt = ''
+                    i_class = ''
+                    i_src = ''
+                    try:
+                        i_src = str(i['src']).lower()
+                        i_alt = str(i['alt']).lower()
+                        i_class = str(i['class']).lower()
+                    except:
+                        pass
+                    if len(i_src) > 3 and any([j in i_src for j in ['.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.svg', '.webp']]) and 'logo' not in i_class  and 'logo' not in i_alt and 'author' not in i_class  and 'author' not in i_alt:
+                        new_images.append(i)
+                if len(new_images) > 0:
+                    images = new_images
                     image = images[0]['src']
-                    if len(image) > 3 and any([i in str(image).lower() for i in ['.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.svg', '.webp']]):
-                        if 'www.' not in image and 'http' not in image:
-                            image = url_parts.scheme + '://' + url_parts.hostname + image
-                        article_kwargs['image_html'] = image
+                    if 'www.' not in image and 'http' not in image:
+                        url_parts = urlparse(article.link)
+                        image = url_parts.scheme + '://' + url_parts.hostname + image
+                    article_kwargs['image_html'] = image
 
         check_articles = Article.objects.filter(hash=article_kwargs['hash'])
 
@@ -192,7 +213,7 @@ def fetch_pictures(publisher):
                                 except:
                                     pass
                             try:
-                                if 'logo' in str(image['alt']).lower():
+                                if 'logo' in str(image['alt']).lower() or 'author' in str(image['alt']).lower() or 'logo' in str(image['class']).lower() or 'author' in str(image['class']).lower():
                                     url_img = None
                             except:
                                 pass
