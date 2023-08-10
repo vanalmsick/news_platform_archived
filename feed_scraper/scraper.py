@@ -36,8 +36,7 @@ def update_feeds():
 
     cache.set('currentlyRefresing', False, 60 * 60)
 
-    articles = Article.objects.filter(max_importance__gte=2).exclude(main_genre='sport').order_by(
-        '-max_importance', 'min_feed_position')
+    articles = Article.objects.all().exclude(main_genre='sport').exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:64]
     cache.set('homepage', articles, 60 * 60 * 48)
     lastRefreshed = datetime.datetime.now()
     cache.set('lastRefreshed', lastRefreshed, 60 * 60 * 48)
@@ -58,6 +57,7 @@ def delete_feed_positions(feed):
     all_articles = Article.objects.filter(feed_position__feed=feed)
     all_articles.update(min_feed_position=None)
     all_articles.update(max_importance=None)
+    all_articles.update(min_article_relevance=None)
     all_feedpositions = feed.feedposition_set.all()
     all_feedpositions.delete()
     print(f'Updating current artcile sorting for feed {feed.name}')
@@ -149,6 +149,13 @@ def fetch_feed(feed):
                         image = url_parts.scheme + '://' + url_parts.hostname + image
                     article_kwargs['image_html'] = image
 
+        article_relevance = round(feed_position *
+                             {3: 3 / 6, 2: 5 / 6, 1: 1, 0: 1, -1: 8 / 6, -2: 10 / 6, -3: 12 / 6}[article_kwargs['publisher'].renowned] *
+                             {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[importance],
+                             6)
+
+        article_kwargs['min_article_relevance'] = article_relevance
+
         check_articles = Article.objects.filter(hash=article_kwargs['hash'])
 
         if len(check_articles) == 0:
@@ -164,12 +171,18 @@ def fetch_feed(feed):
                 value = getattr(added_article, k)
                 if value is None and v is not None:
                     check_articles.update(**{f'{k}': v})
+                elif 'min' in k and v < value:
+                    check_articles.update(**{f'{k}': v})
+                elif 'max' in k and v > value:
+                    check_articles.update(**{f'{k}': v})
+
 
 
         added_feed_position = FeedPosition(
             feed = feed,
             position = feed_position,
             importance = importance,
+            relevance = article_relevance,
             genre = added_article.main_genre if feed.genre is None else feed.genre
         )
         added_feed_position.save()

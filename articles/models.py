@@ -8,6 +8,7 @@ class FeedPosition(models.Model):
     feed = models.ForeignKey(Feed, on_delete=models.CASCADE)
     position = models.SmallIntegerField()
     importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE)
+    relevance = models.SmallIntegerField(null=True)
     genre = models.CharField(choices=NEWS_GENRES, max_length=15, null=True)
 
     def __str__(self):
@@ -26,6 +27,7 @@ class Article(models.Model):
     guid = models.CharField(max_length=50, null=True)
     image_html = models.TextField(null=True)
     min_feed_position = models.SmallIntegerField(null=True)
+    min_article_relevance = models.DecimalField(null=True, decimal_places=6, max_digits=12)
     max_importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE, null=True)
     main_genre = models.CharField(choices=NEWS_GENRES, max_length=15, null=True)
     categories = models.CharField(max_length=250, null=True)
@@ -48,6 +50,7 @@ class ArticleGroup(models.Model):
     guid = models.CharField(max_length=50, null=True)
     image_html = models.TextField(null=True)
     min_feed_position = models.SmallIntegerField()
+    min_article_relevance = models.DecimalField(null=True, decimal_places=6, max_digits=12)
     max_importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE)
     main_genre = models.CharField(choices=NEWS_GENRES, max_length=15, null=True)
     categories = models.CharField(max_length=250, null=True)

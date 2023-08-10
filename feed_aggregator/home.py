@@ -90,8 +90,7 @@ def homeView(request):
         if articles is None or len(articles) == 0:
             print('Get articles not from cache but database')
 
-            articles = Article.objects.filter(max_importance__gte=2).exclude(main_genre='sport').order_by(
-                '-max_importance', 'min_feed_position')
+            articles = Article.objects.all().exclude(main_genre='sport').exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:64]
             cache.set('homepage', articles, 60 * 60 * 48)
 
         if upToDate is not True:
