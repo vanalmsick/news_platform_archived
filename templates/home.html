@@ -193,7 +193,8 @@
             publisher.innerText = myJson.publisher__name;
             title.innerText = myJson.title;
             summary.innerText = myJson.summary;
-            var img_in_html = (myJson.full_text.indexOf(myJson.image_url) != -1);
+            var img_in_html = (myJson.full_text.indexOf(myJson.image_url.split('?')[0]) != -1);
+            console.log(img_in_html);
             if (img_in_html) {
                 img_html.innerHTML = '';
             } else {
