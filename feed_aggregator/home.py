@@ -96,7 +96,7 @@ def homeView(request):
         if upToDate is not True:
 
             print('News are being refreshed now')
-            #update_feeds()
+            update_feeds()
 
 
 
