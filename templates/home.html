@@ -15,23 +15,26 @@
             crossorigin="anonymous"></script>
 
     <style>
-      /* unvisited link */
-      a:link {
-        color: #3A3B3C;
-      }
-      /* visited link */
-      a:visited {
-        color: #800080;
-      }
-      /* mouse over link */
-      a:hover {
-        color: #0a58ca;
-      }
-      /* selected link */
-      a:active {
-        color: #800000;
-      }
-      </style>
+        /* unvisited link */
+        a:link {
+            color: #3A3B3C;
+        }
+
+        /* visited link */
+        a:visited {
+            color: #800080;
+        }
+
+        /* mouse over link */
+        a:hover {
+            color: #0a58ca;
+        }
+
+        /* selected link */
+        a:active {
+            color: #800000;
+        }
+    </style>
 
 </head>
 
@@ -86,20 +89,21 @@
                         <div id="modalSummary" class="lead pb-2" style="font-family: Georgia, serif;"></div>
                         <div id="modalIMG" class="pb-2" style="text-align: center;"></div>
                         <div id="modalFullText" style="font-family: Georgia, serif;"></div>
-                        </div>
+                    </div>
                 </div>
 
                 <div class=" modal-footer
                         ">
-                        <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal" onclick="closeModal()">
-                            Close
-                        </button>
-                    <a id="modalLink" class="btn btn-primary" href="/" role="button" style="color: #FFFFFF;" target="_blank" onclick="closeModal()">Go to Article</a>
-                    </div>
+                    <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal" onclick="closeModal()">
+                        Close
+                    </button>
+                    <a id="modalLink" class="btn btn-primary" href="/" role="button" style="color: #FFFFFF;"
+                       target="_blank">Go to Article</a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </div>
 
 
@@ -174,10 +178,12 @@
                 img_html.innerHTML = '';
             } else {
                 img_html.innerHTML = '<img src="' + myJson.image_url + '" style="max-width: 100%; max-height: 80vh; object-fit: cover;">';
-            };
+            }
+            ;
             fullText.innerHTML = myJson.full_text;
             fullLink.href = myJson.link;
-        };
+        }
+        ;
     }
 
     // Get the modal

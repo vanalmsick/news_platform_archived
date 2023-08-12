@@ -60,7 +60,7 @@ def update_feeds():
         publishers = Publisher.objects.all()
         for publisher in publishers:
             fetched_pictures += fetch_pictures(publisher)
-        print(f'Sccraped websites for {fetched_pictures} additional images')
+        print(f'Scraped websites for {fetched_pictures} additional images')
 
     cache.set('currentlyRefresing', False, 60 * 60)
 
