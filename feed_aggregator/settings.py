@@ -24,6 +24,7 @@ SECRET_KEY = 'django-insecure-ut^e0pt(8g)wzhok&0hjitv#)c^pcq=#0jj9nx0vx%w_xslr(3
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.environ.get('DEBUG') is None else str(os.environ.get('DEBUG')).lower() == 'true'
+DEBUG = True
 print(f'Debug modus is turned {"on" if DEBUG else "off"}')
 
 CSRF_TRUSTED_ORIGINS = 'http://localhost:3000/',
@@ -164,6 +165,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 FULL_TEXT_URL = os.environ.get('FULL_TEXT_URL')
 FEED_CREATOR_URL = os.environ.get('FEED_CREATOR_URL')
 
-if DEBUG:
+if False: #DEBUG:
     FULL_TEXT_URL = 'http://192.168.1.201:9380/full-text-rss/'
     FEED_CREATOR_URL = 'http://192.168.1.201:9380/feed-creator/'
