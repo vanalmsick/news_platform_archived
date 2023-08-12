@@ -46,6 +46,10 @@ if __name__ == '__main__':
         if len(User.objects.filter(username='admin')) == 0:
             print('Create super user "admin"')
             User.objects.create_superuser('admin', '', 'Sven1006')
+        if len(User.objects.filter(username='user')) == 0:
+            print('Create normal user "user"')
+            sys.argv = [INITIAL_ARGV[0], 'create_normal_user']
+            main()
 
     else:
         print('Django auto-reloader process executes second instance of django. Please turn-off for production usage by executing: "python manage.py runserver --noreload"')

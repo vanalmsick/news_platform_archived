@@ -1,12 +1,40 @@
 import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher, NEWS_GENRES
+import urllib, requests
 from urllib.parse import urlparse
 from django.core.cache import cache
 from django.db import connection
+from django.conf import settings
 
 import requests, threading, html
 from bs4 import BeautifulSoup
+
+
+def article_get_full_text(**kwargs):
+    request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(kwargs["link"], safe="")}'
+    response = requests.get(request_url)
+    if response.status_code == 200:
+        data = response.json()
+        if 'summary' not in kwargs or len(kwargs['summary']) < 20:
+            kwargs['summary'] = data['excerpt']
+        if 'author' not in kwargs or len(kwargs['author']) < 4:
+            kwargs['author'] = data['author']
+        if 'image_url' not in kwargs or len(kwargs['image_url']) < 4:
+            kwargs['image_url'] = data['og_image']
+        if 'full_text' not in kwargs or len(kwargs['full_text']) < 20:
+            full_text = data['content']
+            soup = BeautifulSoup(full_text, "html.parser")
+            for img in soup.find_all('img'):
+                img['style'] = 'max-width: 100%; max-height: 80vh;'
+            for a in soup.find_all('a'):
+                a['target'] = '_blank'
+            kwargs['full_text'] = soup.prettify()
+        if 'language' not in kwargs or len(kwargs['language']) < 20:
+            kwargs['language'] = data['language']
+    else:
+        print(f'Full Text Fetch Error response {response.status_code}')
+    return kwargs
 
 
 def postpone(function):
@@ -121,7 +149,7 @@ def fetch_feed(feed):
             article_kwargs['main_genre'] = feed.genre
 
         if hasattr(article, 'image'):
-            article_kwargs['image_html'] = 'included'
+            article_kwargs['image_url'] = 'included'
         else:
             if feed.full_text_fetch == 'Y':
                 resp = requests.get(article.link)
@@ -147,7 +175,7 @@ def fetch_feed(feed):
                     if 'www.' not in image and 'http' not in image:
                         url_parts = urlparse(article.link)
                         image = url_parts.scheme + '://' + url_parts.hostname + image
-                    article_kwargs['image_html'] = image
+                    article_kwargs['image_url'] = image
 
         article_relevance = round(feed_position *
                              {3: 3 / 6, 2: 5 / 6, 1: 1, 0: 1, -1: 8 / 6, -2: 10 / 6, -3: 12 / 6}[article_kwargs['publisher'].renowned] *
@@ -159,6 +187,10 @@ def fetch_feed(feed):
         check_articles = Article.objects.filter(hash=article_kwargs['hash'])
 
         if len(check_articles) == 0:
+
+            if settings.FULL_TEXT_URL is not None:
+                article_kwargs = article_get_full_text(**article_kwargs)
+
 
             added_article = Article(**article_kwargs)
             added_article.save()
@@ -214,7 +246,7 @@ def fetch_pictures(publisher):
                     pass
                 if matched_article is not None:
                     for article in matched_article:
-                        if article.image_html is None:
+                        if article.image_url is None:
                             url_img = None
                             try:
                                 url_img = image['src']
@@ -234,7 +266,7 @@ def fetch_pictures(publisher):
                                 url_parts = urlparse(link)
                                 if 'www.' not in url_img and 'http' not in url_img:
                                     url_img = url_parts.scheme + '://' + url_parts.hostname + url_img
-                                article.image_html = url_img
+                                article.image_url = url_img
                                 article.save()
                                 fetched_pictures += 1
     return fetched_pictures

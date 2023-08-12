@@ -23,9 +23,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ut^e0pt(8g)wzhok&0hjitv#)c^pcq=#0jj9nx0vx%w_xslr(3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if os.environ.get('DEBUG') is None else str(os.environ.get('DEBUG')).lower() == 'true'
+print(f'Debug modus is turned {"on" if DEBUG else "off"}')
 
+CSRF_TRUSTED_ORIGINS = 'http://localhost:3000/',
 ALLOWED_HOSTS = ['*']
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://localhost:3000",
+    'http://localhost:8000',
+]
 
 
 # Application definition
@@ -37,10 +44,29 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
     'django_extensions',
+    'djoser',
     'articles',
     'feeds',
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+   'AUTH_HEADER_TYPES': ('JWT',),
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -132,3 +158,12 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Custom Variables
+FULL_TEXT_URL = os.environ.get('FULL_TEXT_URL')
+FEED_CREATOR_URL = os.environ.get('FEED_CREATOR_URL')
+
+if DEBUG:
+    FULL_TEXT_URL = 'http://192.168.1.201:9380/full-text-rss/'
+    FEED_CREATOR_URL = 'http://192.168.1.201:9380/feed-creator/'
