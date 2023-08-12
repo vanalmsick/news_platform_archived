@@ -3,7 +3,7 @@
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 
     <title>vA News Platform</title>
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}">
@@ -33,6 +33,26 @@
         /* selected link */
         a:active {
             color: #800000;
+        }
+
+
+
+        /* small  Modal */
+        @media screen and (max-width: 600px) {
+            #modaltext {
+                width: inherit;
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+
+        /* normal widescreen Modal */
+        @media screen and (min-width: 601px) {
+            #modaltext {
+                max-width: 800px;
+                width: 80%;
+                padding: 48px;
+            }
         }
     </style>
 
@@ -84,7 +104,7 @@
                             onclick="closeModal()"></button>
                 </div>
                 <div class="modal-body bg-light">
-                    <div class="mx-auto my-3 p-5 bg-body rounded shadow-sm" style="max-width: 800px; width: 80%;">
+                    <div id="modaltext" class="mx-auto my-3 bg-body rounded shadow-sm">
                         <h2 id="modalTitle" style="font-family: Georgia, serif; font-weight: bold;"></h2>
                         <div id="modalSummary" class="lead pb-2" style="font-family: Georgia, serif;"></div>
                         <div id="modalIMG" class="pb-2" style="text-align: center;"></div>
