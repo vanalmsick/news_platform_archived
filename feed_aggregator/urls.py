@@ -29,5 +29,5 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     #path('restapi/v1/accounts/', transactions.api_views.AccountList.as_view()),
-    #path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('favicon.ico')))
+    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('favicon.ico')))
 ]

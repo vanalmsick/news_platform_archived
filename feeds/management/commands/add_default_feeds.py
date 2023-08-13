@@ -97,7 +97,7 @@ class Command(BaseCommand):
              'genre': 'finance'},
             {'name': 'Reuters - Next',
              'publisher': Publisher.objects.get(name='Reuters'),
-             'url': 'http://FEED-CREATOR.local/feed-creator/extract.php?url=https%3A%2F%2Fwww.reuters.com%2Fworld%2Freuters-next%2F&in_id_or_class=content-layout__item__SC_GG&max=20&order=document&guid=0&strip=.label__label__f9Hew%2C.events__data__18XBG&keep_qs_params=',
+             'url': 'http://FEED-CREATOR.local/extract.php?url=https%3A%2F%2Fwww.reuters.com%2Fworld%2Freuters-next%2F&in_id_or_class=content-layout__item__SC_GG&max=10&order=document&guid=0&strip=.label__label__f9Hew%2C.events__data__18XBG&keep_qs_params=',
              'active': True,
              'paywall': 'N',
              'feed_ordering': 'r',

@@ -77,7 +77,7 @@ def homeView(request):
     currentlyRefresing = cache.get('currentlyRefresing')
 
     if currentlyRefresing:
-        print('Article refreshing in progress thus get latest available')
+        print('Article refreshing in progress thus get latest cached')
 
         articles = cache.get('homepage')
         lastRefreshed = cache.get('lastRefreshed')
