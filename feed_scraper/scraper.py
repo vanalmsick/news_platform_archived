@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 from django.core.cache import cache
 from django.db import connection
 from django.conf import settings
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 import requests, threading, html
 from bs4 import BeautifulSoup
@@ -334,50 +336,56 @@ def fetch_feed(feed):
 
 def fetch_pictures(publisher):
     fetched_pictures = 0
-    for link in publisher.img_scrape_urls.split('\n'):
-        resp = requests.get(link)
-        soup = BeautifulSoup(resp.content, 'html5lib')
-        body = soup.find('body')
-        images = body.find_all('img')
-        for image in images:
-            article_found = False
-            item = image
-            i = 0
-            while article_found is False and i < 5 and item is not None:
-                item = item.parent
-                i += 1
-                matched_article = None
-                try:
-                    href_value = item['href']
-                    article_found = True
-                    matched_article = publisher.article_set.filter(link__contains=href_value)
-                except:
-                    pass
-                if matched_article is not None:
-                    for article in matched_article:
-                        if article.image_url is None:
-                            url_img = None
-                            try:
-                                url_img = image['src']
-                            except:
-                                pass
-                            if url_img is None:
+    validate = URLValidator()
+
+    for link in publisher.img_scrape_urls.replace('%0d', '\r').replace('\r', '\n').replace('%0a', '\n').split('\n'):
+        try:
+            validate(link)
+            resp = requests.get(link)
+            soup = BeautifulSoup(resp.content, 'html5lib')
+            body = soup.find('body')
+            images = body.find_all('img')
+            for image in images:
+                article_found = False
+                item = image
+                i = 0
+                while article_found is False and i < 5 and item is not None:
+                    item = item.parent
+                    i += 1
+                    matched_article = None
+                    try:
+                        href_value = item['href']
+                        article_found = True
+                        matched_article = publisher.article_set.filter(link__contains=href_value)
+                    except:
+                        pass
+                    if matched_article is not None:
+                        for article in matched_article:
+                            if article.image_url is None:
+                                url_img = None
                                 try:
-                                    url_img = image['data-src']
+                                    url_img = image['src']
                                 except:
                                     pass
-                            try:
-                                if 'logo' in str(image['alt']).lower() or 'author' in str(image['alt']).lower() or 'logo' in str(image['class']).lower() or 'author' in str(image['class']).lower():
-                                    url_img = None
-                            except:
-                                pass
-                            if url_img is not None and any([i in str(url_img).lower() for i in ['.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.svg', '.webp']]):
-                                url_parts = urlparse(link)
-                                if 'www.' not in url_img and 'http' not in url_img:
-                                    url_img = url_parts.scheme + '://' + url_parts.hostname + url_img
-                                article.image_url = url_img
-                                article.save()
-                                fetched_pictures += 1
+                                if url_img is None:
+                                    try:
+                                        url_img = image['data-src']
+                                    except:
+                                        pass
+                                try:
+                                    if 'logo' in str(image['alt']).lower() or 'author' in str(image['alt']).lower() or 'logo' in str(image['class']).lower() or 'author' in str(image['class']).lower():
+                                        url_img = None
+                                except:
+                                    pass
+                                if url_img is not None and any([i in str(url_img).lower() for i in ['.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.svg', '.webp']]):
+                                    url_parts = urlparse(link)
+                                    if 'www.' not in url_img and 'http' not in url_img:
+                                        url_img = url_parts.scheme + '://' + url_parts.hostname + url_img
+                                    article.image_url = url_img
+                                    article.save()
+                                    fetched_pictures += 1
+        except ValidationError as e:
+            print(f'Invalid image scraping url: "{link}"')
     return fetched_pictures
 
 
