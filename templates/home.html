@@ -39,7 +39,6 @@
         }
 
 
-
         /* small  Modal */
         @media screen and (max-width: 600px) {
             #modaltext {
@@ -61,72 +60,69 @@
 
 </head>
 
-<body>
-<div class="bg-light">
-    <header>
+<body class="bg-body-tertiary">
+<header>
 
-        <nav class="navbar navbar-expand-xl p-3 border-bottom shadow-sm bg-white navbar-light">
-            <div class="container">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#navbar_robot_toggler">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <a href="/" class="navbar-brand link-dark">van Almsick - News Platform</a>
-                <div class="collapse navbar-collapse" id="navbar_robot_toggler">
-                    <div class="navbar-nav ms-auto">
-                        <a class="nav-item nav-link link-dark" href="/" onclick="window.location.reload();">
+    <nav class="navbar navbar-expand-xl p-3 border-bottom shadow-sm bg-body navbar-light">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbar_robot_toggler">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a href="/" class="navbar-brand link-dark">van Almsick - News Platform</a>
+            <div class="collapse navbar-collapse" id="navbar_robot_toggler">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-item nav-link link-dark" href="/" onclick="window.location.reload();">
 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                      d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                            </svg>
-                            Refresh Page
-                            <span class="text-secondary font-italic">(Last: {{ lastRefreshed }})</span>
-                        </a>
-                        <!---<a class="nav-item nav-link link-dark" href="https://www.ft.com" target="_blank">Financial
-                            Times</a>
-                        <a class="nav-item nav-link link-dark" href="https://www.bloomberg.com"
-                           target="_blank">Bloomberg</a>--->
-                        <a class="nav-item nav-link link-dark" href="/admin/">Admin</a>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-
-    <!-- The Modal -->
-    <div id="myModal" class="modal">
-        <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalPublisher">Loading...</h5>
-                    <button type="button" class="btn-close close" data-mdb-dismiss="modal" aria-label="Close"
-                            onclick="closeModal()"></button>
-                </div>
-                <div class="modal-body bg-light">
-                    <div id="modaltext" class="mx-auto my-3 bg-body rounded shadow-sm">
-                        <h2 id="modalTitle" style="font-family: Georgia, serif; font-weight: bold;"></h2>
-                        <div id="modalSummary" class="lead pb-2" style="font-family: Georgia, serif;"></div>
-                        <div id="modalIMG" class="pb-2" style="text-align: center;"></div>
-                        <div id="modalFullText" style="font-family: Georgia, serif;"></div>
-                    </div>
-                </div>
-
-                <div class=" modal-footer
-                        ">
-                    <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal" onclick="closeModal()">
-                        Close
-                    </button>
-                    <a id="modalLink" class="btn btn-primary" href="/" role="button" style="color: #FFFFFF;"
-                       target="_blank">Go to Article</a>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                  d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                        </svg>
+                        Refresh Page
+                        <span class="text-secondary font-italic">(Last: {{ lastRefreshed }})</span>
+                    </a>
+                    <!---<a class="nav-item nav-link link-dark" href="https://www.ft.com" target="_blank">Financial
+                        Times</a>
+                    <a class="nav-item nav-link link-dark" href="https://www.bloomberg.com"
+                       target="_blank">Bloomberg</a>--->
+                    <a class="nav-item nav-link link-dark" href="/admin/">Admin</a>
                 </div>
             </div>
         </div>
+    </nav>
+</header>
+
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPublisher">Loading...</h5>
+                <button type="button" class="btn-close close" data-mdb-dismiss="modal" aria-label="Close"
+                        onclick="closeModal()"></button>
+            </div>
+            <div class="modal-body bg-body-tertiary">
+                <div id="modaltext" class="mx-auto my-3 bg-body rounded shadow-sm">
+                    <h2 id="modalTitle" style="font-family: Georgia, serif; font-weight: bold;"></h2>
+                    <div id="modalSummary" class="lead pb-2" style="font-family: Georgia, serif;"></div>
+                    <div id="modalIMG" class="pb-2" style="text-align: center;"></div>
+                    <div id="modalFullText" style="font-family: Georgia, serif;"></div>
+                </div>
+            </div>
+
+            <div class=" modal-footer
+                        ">
+                <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal" onclick="closeModal()">
+                    Close
+                </button>
+                <a id="modalLink" class="btn btn-primary" href="/" role="button" style="color: #FFFFFF;"
+                   target="_blank">Go to Article</a>
+            </div>
+        </div>
     </div>
-</div>
 </div>
 
 
@@ -169,12 +165,29 @@
     </div>
 </div>
 
-</div>
 </body>
 <script>
     setTimeout(function () {
         window.location.reload();
     }, 1000 * 60 * 5);
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // dark mode
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+        var links = document.getElementsByClassName('link-dark');
+        while (links.length > 0) {
+            links[0].classList.add("link-light");
+            links[0].classList.remove("link-dark");
+        }
+        var textlst = document.getElementsByClassName('text-dark');
+        while (textlst.length > 0) {
+            textlst[0].classList.add("text-light");
+            textlst[0].classList.remove("text-dark");
+        }
+    } else {
+        // light mode
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+    }
 
 
     const userAction = async (article_id) => {
