@@ -50,7 +50,7 @@ class Publisher(models.Model):
 class Feed(models.Model):
     name = models.CharField(max_length=30)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
-    url = models.URLField()
+    url = models.URLField(max_length=600)
     active = models.BooleanField(default=True)
     last_fetched = models.DateTimeField(null=True, blank=True)
     importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE)
