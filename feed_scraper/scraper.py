@@ -27,6 +27,8 @@ def article_get_full_text(**kwargs):
             soup = BeautifulSoup(full_text, "html.parser")
             for img in soup.find_all('img'):
                 img['style'] = 'max-width: 100%; max-height: 80vh;'
+                if img['src'] == 'src':
+                    img['src'] = img['data-url'].replace('${formatId}', '906')
             for a in soup.find_all('a'):
                 a['target'] = '_blank'
             for link in soup.find_all('link'):
