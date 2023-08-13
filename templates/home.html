@@ -178,7 +178,7 @@
 
 
     const userAction = async (article_id) => {
-        const response = await fetch('/article/' + article_id);
+        const response = await fetch('/article/' + article_id + '/');
         console.log(response);
         if (response.status == 403) {
             window.location.replace("/login");

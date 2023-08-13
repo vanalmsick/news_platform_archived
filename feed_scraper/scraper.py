@@ -30,7 +30,9 @@ def article_get_full_text(**kwargs):
             for a in soup.find_all('a'):
                 a['target'] = '_blank'
             for id in ['barrierContent', 'trial_print_message', 'print_blocked_message', 'copy_blocked_message']:
-                soup.find('div', id=id).decompose()
+                div = soup.find('div', id=id)
+                if div is not None:
+                    div.decompose()
             kwargs['full_text'] = soup.prettify()
         if 'language' not in kwargs or len(kwargs['language']) < 20:
             kwargs['language'] = data['language']
