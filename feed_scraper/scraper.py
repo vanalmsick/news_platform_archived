@@ -11,6 +11,71 @@ import requests, threading, html
 from bs4 import BeautifulSoup
 
 
+def getDuration(then, now=datetime.datetime.now(), interval="default"):
+    # Returns a duration as specified by variable interval
+    # Functions, except totalDuration, returns [quotient, remainder]
+
+    duration = now - then  # For build-in functions
+    duration_in_s = duration.total_seconds()
+
+    def years():
+        return divmod(duration_in_s, 31536000)  # Seconds in a year=31536000.
+
+    def days(seconds=None):
+        return divmod(seconds if seconds != None else duration_in_s, 86400)  # Seconds in a day = 86400
+
+    def hours(seconds=None):
+        return divmod(seconds if seconds != None else duration_in_s, 3600)  # Seconds in an hour = 3600
+
+    def minutes(seconds=None):
+        return divmod(seconds if seconds != None else duration_in_s, 60)  # Seconds in a minute = 60
+
+    def seconds(seconds=None):
+        if seconds != None:
+            return divmod(seconds, 1)
+        return duration_in_s
+
+    def totalDuration():
+        y = years()
+        d = days(y[1])  # Use remainder to calculate next variable
+        h = hours(d[1])
+        m = minutes(h[1])
+        s = seconds(m[1])
+
+        return "Time between dates: {} years, {} days, {} hours, {} minutes and {} seconds".format(int(y[0]), int(d[0]),
+                                                                                                   int(h[0]), int(m[0]),
+                                                                                                   int(s[0]))
+
+    def shortDuration():
+        y = years()
+        d = days(y[1])  # Use remainder to calculate next variable
+        h = hours(d[1])
+        m = minutes(h[1])
+        s = seconds(m[1])
+
+        if y[0] > 0:
+            return '{} years, {} days'.format(int(y[0]), int(d[0]))
+        elif d[0] > 0:
+            return '{} days, {} hours'.format(int(d[0]), int(h[0]))
+        elif h[0] > 0:
+            return '{}h {}min'.format(int(h[0]), int(m[0]))
+        elif m[0] > 0:
+            return '{}min {}s'.format(int(m[0]), int(s[0]))
+        else:
+            return '{}s'.format(int(s[0]))
+
+    return {
+        'years': int(years()[0]),
+        'days': int(days()[0]),
+        'hours': int(hours()[0]),
+        'minutes': int(minutes()[0]),
+        'seconds': int(seconds()),
+        'default': totalDuration(),
+        'short': shortDuration()
+    }[interval]
+
+
+
 def article_get_full_text(**kwargs):
     request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(kwargs["link"], safe="")}'
     response = requests.get(request_url)
@@ -63,6 +128,13 @@ def postpone(function):
 def update_feeds():
 
     cache.set('currentlyRefresing', True, 60*60)
+
+    old_articles = Article.objects.filter(min_article_relevance__isnull=True, pub_date__lte=settings.TIME_ZONE_OBJ.localize(datetime.datetime.now() - datetime.timedelta(days=3)))
+    if len(old_articles) > 0:
+        print(f'Delete {len(old_articles)} old articles')
+        old_articles.delete()
+    else:
+        print(f'No old articles to delete')
 
     feeds = Feed.objects.filter(active=True)
     added_articles = 0
@@ -158,6 +230,8 @@ def fetch_feed(feed):
             article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(time.mktime(article.published_parsed))
         elif hasattr(fetched_feed, 'feed') and hasattr(fetched_feed.feed, 'updated_parsed'):
             article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(time.mktime(fetched_feed.feed.updated_parsed))
+        else:
+            article_kwargs['pub_date'] = datetime.datetime.now()
         if hasattr(article, 'tags'):
             article_kwargs['categories'] = ', '.join([i['term'] for i in article.tags])
         if hasattr(article, 'author'):
@@ -200,15 +274,24 @@ def fetch_feed(feed):
 
         random.seed(article_kwargs['guid'])
 
+        article_age = getDuration(article_kwargs['pub_date'], interval='hours')
+        if article_age > 48:
+            article_age_discount = 2
+        elif article_age > 24:
+            article_age_discount = 1
+        else:
+            article_age_discount = 0
+
         article_relevance = round(feed_position *
                              {3: 3 / 6, 2: 5 / 6, 1: 1, 0: 1, -1: 8 / 6, -2: 10 / 6, -3: 12 / 6}[article_kwargs['publisher'].renowned] *
-                             {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[importance] -
+                             {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[max((importance - article_age_discount), 0)] -
                              ((article_kwargs['publisher'].renowned + random.randrange(0,9)) / 10000),
                              6)
 
         article_kwargs['min_article_relevance'] = article_relevance
 
         check_articles = Article.objects.filter(hash=article_kwargs['hash'])
+        article_kwargs['pub_date'] = settings.TIME_ZONE_OBJ.localize(article_kwargs['pub_date'])
 
         if len(check_articles) == 0:
 
