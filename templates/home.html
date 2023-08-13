@@ -144,7 +144,7 @@
 
             <div class="row mb-2 flex-fill">
                 {% for article in articles %}
-                    <div class="col-md-4 col-lg-3 my-2" onclick="myFunction({{ article.pk }})" style="cursor: pointer;">
+                    <div class="col-md-4 col-lg-3 my-2" onclick="openModal({{ article.pk }})" style="cursor: pointer;">
                         <div class="card mb-4 box-shadow h-100">
                             {% if article.image_url != Null %}
                                 <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
@@ -176,8 +176,27 @@
 
 </body>
 <script>
+
+    function waitFor(conditionFunction) {
+        const poll = resolve => {
+            if (conditionFunction()) resolve();
+            else setTimeout(_ => poll(resolve), 400);
+        }
+        return new Promise(poll);
+    }
+
+
+    // Get the modal ddd
+    var modal = document.getElementById("myModal");
+
     setTimeout(function () {
-        window.location.reload();
+        console.log('would like to reload page');
+        async function reloadPage() {
+            await waitFor(_ => modal.style.display !== "block");
+            console.log('reloading page');
+            window.location.reload();
+        };
+        reloadPage();
     }, 1000 * 60 * 5);
 
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -219,7 +238,6 @@
             title.innerText = myJson.title;
             summary.innerText = myJson.summary;
             var img_in_html = (myJson.full_text.indexOf(myJson.image_url.split('?')[0]) != -1);
-            console.log(img_in_html);
             if (img_in_html) {
                 img_html.innerHTML = '';
             } else {
@@ -232,17 +250,9 @@
         ;
     }
 
-    // Get the modal
-    var modal = document.getElementById("myModal");
-
-    // Get the button that opens the modal
-    var btn = document.getElementById("myBtn");
-
-    // Get the <span> element that closes the modal
-    var span = document.getElementById("closeModal");
 
     // When the user clicks the button, open the modal
-    function myFunction(article_id) {
+    function openModal(article_id) {
         userAction(article_id);
         console.log('open modal');
         modal.style.display = "block";
@@ -250,7 +260,7 @@
 
     // When the user clicks on <span> (x), close the modal
     function closeModal() {
-        console.log('Close modal');
+        console.log('close modal');
         modal.style.display = "none";
         var publisher = document.getElementById("modalPublisher");
         var title = document.getElementById("modalTitle");
