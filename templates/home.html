@@ -18,10 +18,19 @@
             crossorigin="anonymous"></script>
 
     <style>
-        /* unvisited link */
-        a:link {
-            color: #3A3B3C;
+
+        @media (prefers-color-scheme: light) {
+            a:link {
+                color: #3A3B3C;
+            }
         }
+
+        @media (prefers-color-scheme: dark) {
+            a:link {
+                color: #dee2e6;
+            }
+        }
+
 
         /* visited link */
         a:visited {
