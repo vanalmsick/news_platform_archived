@@ -29,7 +29,13 @@ def article_get_full_text(**kwargs):
                 img['style'] = 'max-width: 100%; max-height: 80vh;'
             for a in soup.find_all('a'):
                 a['target'] = '_blank'
-            for id in ['barrierContent', 'trial_print_message', 'print_blocked_message', 'copy_blocked_message']:
+            for link in soup.find_all('link'):
+                if link is not None:
+                    link.decompose()
+            for meta in soup.find_all('meta'):
+                if meta is not None:
+                    meta.decompose()
+            for id in ['barrierContent', 'nousermsg', 'trial_print_message', 'print_blocked_message', 'copy_blocked_message', 'toolbar-item-parent-share-2909', 'toolbar-item-dropdown-share-2909']:
                 div = soup.find('div', id=id)
                 if div is not None:
                     div.decompose()
@@ -231,7 +237,7 @@ def fetch_feed(feed):
 
         added_article.feed_position.add(added_feed_position)
 
-    print(f'{feed.name} contains {len(fetched_feed)} articles of which {added_article} are new')
+    print(f'{feed.name} contains {len(fetched_feed)} articles of which {added_articles} are new')
     return added_articles
 
 

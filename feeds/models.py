@@ -40,8 +40,8 @@ class Publisher(models.Model):
         (-2, 'Unknown Publisher'),
         (-3, 'Inaccurate Publisher')
     ]
-    renowned = models.SmallIntegerField(choices=RENOWNED_LEVES)
-    img_scrape_urls = models.TextField(null=True)
+    renowned = models.SmallIntegerField(choices=RENOWNED_LEVES, default=0)
+    img_scrape_urls = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -51,18 +51,18 @@ class Feed(models.Model):
     name = models.CharField(max_length=30)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     url = models.URLField()
-    active = models.BooleanField()
-    last_fetched = models.DateTimeField(null=True)
+    active = models.BooleanField(default=True)
+    last_fetched = models.DateTimeField(null=True, blank=True)
     importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE)
-    genre = models.CharField(choices=NEWS_GENRES, max_length=15, null=True)
-    paywall = models.CharField(max_length=1, choices=YES_NO)
+    genre = models.CharField(choices=NEWS_GENRES, max_length=15, null=True, blank=True)
+    paywall = models.CharField(max_length=1, choices=YES_NO, default='N')
     FEED_ORDER = [
         ('r', 'Relavance'),
         ('d', 'Date')
     ]
     feed_ordering = models.CharField(max_length=1, choices=FEED_ORDER)
-    full_text_fetch = models.CharField(max_length=1, choices=YES_NO, null=True)
-    clicked_articles = models.SmallIntegerField(null=True)
+    full_text_fetch = models.CharField(max_length=1, choices=YES_NO, default='Y')
+    clicked_articles = models.SmallIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.name}'
