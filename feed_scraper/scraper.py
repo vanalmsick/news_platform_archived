@@ -120,7 +120,7 @@ def fetch_feed(feed):
         i: j.upper().split(' / ') for i, j in NEWS_GENRES
     }
 
-    if len(fetched_feed) > 0:
+    if len(fetched_feed.entries) > 0:
         delete_feed_positions(feed)
 
     for i, article in enumerate(fetched_feed.entries):
@@ -241,7 +241,7 @@ def fetch_feed(feed):
 
         added_article.feed_position.add(added_feed_position)
 
-    print(f'{feed.name} contains {len(fetched_feed)} articles of which {added_articles} are new')
+    print(f'{feed.name} contains {len(fetched_feed.entries)} articles of which {added_articles} are new')
     return added_articles
 
 
