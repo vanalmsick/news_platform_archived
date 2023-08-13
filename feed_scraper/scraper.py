@@ -200,7 +200,7 @@ def fetch_feed(feed):
 
         article_relevance = round(feed_position *
                              {3: 3 / 6, 2: 5 / 6, 1: 1, 0: 1, -1: 8 / 6, -2: 10 / 6, -3: 12 / 6}[article_kwargs['publisher'].renowned] *
-                             {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[importance] +
+                             {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[importance] -
                              ((article_kwargs['publisher'].renowned + random.randrange(0,9)) / 10000),
                              6)
 
