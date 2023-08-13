@@ -90,12 +90,18 @@ def delete_feed_positions(feed):
     all_articles.update(min_article_relevance=None)
     all_feedpositions = feed.feedposition_set.all()
     all_feedpositions.delete()
-    print(f'Updating current artcile sorting for feed {feed.name}')
 
 
 def fetch_feed(feed):
     hash_obj = hashlib.new('sha256')
-    fetched_feed = feedparser.parse(feed.url)
+
+    feed_url = feed.url
+    if 'http://FEED-CREATOR.local' in feed_url:
+        feed_url = feed_url.replace('http://FEED-CREATOR.local', settings.FEED_CREATOR_URL)
+    if 'http://FULL-TEXT.local' in feed_url:
+        feed_url = feed_url.replace('http://FULL-TEXT.local', settings.FULL_TEXT)
+
+    fetched_feed = feedparser.parse(feed_url)
     added_articles = 0
 
     news_categories = {
@@ -222,6 +228,8 @@ def fetch_feed(feed):
         added_feed_position.save()
 
         added_article.feed_position.add(added_feed_position)
+
+    print(f'{feed.name} contains {len(fetched_feed)} articles of which {added_article} are new')
     return added_articles
 
 
