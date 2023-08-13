@@ -35,6 +35,10 @@ def article_get_full_text(**kwargs):
             for meta in soup.find_all('meta'):
                 if meta is not None:
                     meta.decompose()
+            for noscript in soup.find_all('noscript'):
+                if noscript is not None:
+                    for noscript_i in noscript:
+                        noscript_i.name = 'div'
             for id in ['barrierContent', 'nousermsg', 'trial_print_message', 'print_blocked_message', 'copy_blocked_message', 'toolbar-item-parent-share-2909', 'toolbar-item-dropdown-share-2909']:
                 div = soup.find('div', id=id)
                 if div is not None:
