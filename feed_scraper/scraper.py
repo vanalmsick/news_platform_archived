@@ -1,7 +1,7 @@
 import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher, NEWS_GENRES
-import urllib, requests
+import urllib, requests, random
 from urllib.parse import urlparse
 from django.core.cache import cache
 from django.db import connection
@@ -196,9 +196,12 @@ def fetch_feed(feed):
                         image = url_parts.scheme + '://' + url_parts.hostname + image
                     article_kwargs['image_url'] = image
 
+        random.seed(article_kwargs['guid'])
+
         article_relevance = round(feed_position *
                              {3: 3 / 6, 2: 5 / 6, 1: 1, 0: 1, -1: 8 / 6, -2: 10 / 6, -3: 12 / 6}[article_kwargs['publisher'].renowned] *
-                             {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[importance],
+                             {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[importance] +
+                             ((article_kwargs['publisher'].renowned + random.randrange(0,9)) / 10000),
                              6)
 
         article_kwargs['min_article_relevance'] = article_relevance
