@@ -19,11 +19,15 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.views.generic.base import RedirectView
 from .home import homeView
 from .authent import ExampleView
-from .login import LoginView
+from .login import LoginView, LoginURLView, LoginHowToView
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('login-how-to/', LoginHowToView, name='login-how-to'),
     path('login/', LoginView, name='login'),
+    path('login-url/<str:password>/', LoginURLView, name='login-url'),
     path('article/<int:pk>/', ExampleView.as_view(), name='article'),
     path('', homeView, name='home'),
     path('auth/', include('djoser.urls')),
