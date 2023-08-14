@@ -8,7 +8,7 @@ class LoginForm(forms.Form):
 
 def LoginView(request):
     form = LoginForm()
-    message = ''
+    message = ' '
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
