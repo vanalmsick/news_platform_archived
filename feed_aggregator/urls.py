@@ -24,6 +24,7 @@ from .login import LoginView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', LoginView, name='login'),
+    path('secret-word/', LoginView, name='secret-word'),
     path('article/<int:pk>/', ExampleView.as_view(), name='article'),
     path('', homeView, name='home'),
     path('auth/', include('djoser.urls')),

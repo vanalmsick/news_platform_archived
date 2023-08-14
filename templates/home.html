@@ -222,7 +222,7 @@
         const response = await fetch('/article/' + article_id + '/');
         console.log(response);
         if (response.status == 403) {
-            window.location.replace("/login");
+            window.location.replace("/secret-word");
         } else {
             const myJson = await response.json();
             //console.log(myJson);
