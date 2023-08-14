@@ -3,23 +3,23 @@ from django.shortcuts import redirect, render
 from django import forms
 
 class LoginForm(forms.Form):
-    search_word = forms.CharField(max_length=63, widget=forms.TextInput(attrs={'class': "form-control"}))
+    password = forms.CharField(max_length=63, widget=forms.TextInput(attrs={'class': "form-control"}))
 
 
 def LoginView(request):
     form = LoginForm()
-    message = ' '
+    message = ''
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             user = authenticate(
                 username='user',
-                password=form.cleaned_data['search_word'],
+                password=form.cleaned_data['password'],
             )
             if user is not None:
-                message = 'Secrt word correct!'
+                message = 'Login successful!'
                 login(request, user)
                 return redirect('/')
             else:
-                message = 'Secrt word incorrect!'
+                message = 'Login failed!'
     return render(request, 'login.html', context={'form': form, 'message': message})
