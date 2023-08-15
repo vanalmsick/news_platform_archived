@@ -28,12 +28,11 @@ DEBUG = True if os.environ.get('DEBUG') is None else str(os.environ.get('DEBUG')
 DEBUG = True
 print(f'Debug modus is turned {"on" if DEBUG else "off"}')
 
-CSRF_TRUSTED_ORIGINS = 'http://localhost:3000/',
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000/','https://news.vanalmsick.uk',],
 ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://localhost:3000",
     'http://localhost:8000',
+    'https://news.vanalmsick.uk',
 ]
 
 
