@@ -78,7 +78,7 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
 
 
 
-def article_get_full_text(**kwargs):
+def article_get_full_text(image_website_scraped, **kwargs):
     request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(kwargs["link"], safe="")}'
     response = requests.get(request_url)
     if response.status_code == 200:
@@ -87,7 +87,7 @@ def article_get_full_text(**kwargs):
             kwargs['summary'] = data['excerpt']
         if 'author' not in kwargs or len(kwargs['author']) < 4:
             kwargs['author'] = data['author']
-        if 'image_url' not in kwargs or len(kwargs['image_url']) < 4:
+        if 'image_url' not in kwargs or len(kwargs['image_url']) < 4 or image_website_scraped:
             kwargs['image_url'] = data['og_image']
         if 'full_text' not in kwargs or len(kwargs['full_text']) < 20:
             full_text = data['content']
@@ -245,6 +245,7 @@ def fetch_feed(feed):
         elif feed.genre is not None:
             article_kwargs['main_genre'] = feed.genre
 
+        image_website_scraped = False
         if hasattr(article, 'image'):
             article_kwargs['image_url'] = 'included'
         else:
@@ -273,6 +274,7 @@ def fetch_feed(feed):
                         url_parts = urlparse(article.link)
                         image = url_parts.scheme + '://' + url_parts.hostname + image
                     article_kwargs['image_url'] = image
+                    image_website_scraped = True
 
         random.seed(article_kwargs['guid'])
 
@@ -298,7 +300,7 @@ def fetch_feed(feed):
         if len(check_articles) == 0:
 
             if settings.FULL_TEXT_URL is not None:
-                article_kwargs = article_get_full_text(**article_kwargs)
+                article_kwargs = article_get_full_text(**article_kwargs, image_website_scraped=image_website_scraped)
 
 
             added_article = Article(**article_kwargs)
