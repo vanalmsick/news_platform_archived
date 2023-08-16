@@ -4,7 +4,9 @@ from feed_scraper.scraper import update_feeds
 from articles.models import Article
 from django.db.models import Q
 import datetime
-from .login import LoginForm
+from .login import LoginForm, LoginView
+from django.utils.safestring import mark_safe
+from .authent import get_article_data
 from django.contrib.auth import login, authenticate
 
 def getDuration(then, now=datetime.datetime.now(), interval="default"):
@@ -74,6 +76,15 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
 
 def homeView(request):
 
+    # If fallback articcle view is needed
+    if 'article' in request.GET:
+        # if user is not autheticated
+        if request.user.is_authenticated is False:
+            return LoginView(request)
+        return render(request, 'article.html', {'article': get_article_data(int(request.GET['article']))})
+
+
+    # Get Homepage
     upToDate = cache.get('upToDate')
     currentlyRefresing = cache.get('currentlyRefresing')
 
@@ -99,26 +110,9 @@ def homeView(request):
             print('News are being refreshed now')
             update_feeds()
 
-    form = LoginForm()
-    message = ''
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            user = authenticate(
-                username='user',
-                password=form.cleaned_data['password'],
-            )
-            if user is not None:
-                message = 'Login successful!'
-                login(request, user)
-            else:
-                message = 'Login failed!'
-
-
 
     return render(request, 'home.html', {
         'articles': articles,
         'lastRefreshed': 'Never' if lastRefreshed is None else getDuration(lastRefreshed, datetime.datetime.now(), 'short'),
-        'loaading': currentlyRefresing,
-        'form': form, 'message': message
+        'loaading': currentlyRefresing
         })

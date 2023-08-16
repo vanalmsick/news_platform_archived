@@ -104,24 +104,6 @@
 </header>
 
 
-<div class="d-flex flex-column min-vh-100 min-vw-100 bg-light">
-    <div class="d-flex flex-grow-1 justify-content-center align-items-center">
-        <div class="bg-white py-3 px-4 mb-5 rounded shadow-sm">
-            <div class="justify-content-center"><img src="{% static 'logo.png' %}"
-                                                     style="height: 200px;margin: auto;display: block;"></div>
-            <div class="h3 mb-4 text-center">van Almsick - News Platform</div>
-            <form method="post" class="form-group">
-                {{ form.as_p }}
-                <small id="passwordHelp" class="form-text text-muted">Hint: The first name of your favorite person 😉</small><br>
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary mt-2">Login</button>
-                <span class="text-danger mt-3" style="float: right;">{{ message }}</span>
-        </div>
-        </form>
-    </div>
-</div>
-
-
 <!-- The Modal -->
 <div id="myModal" class="modal">
     <div class="modal-dialog modal-fullscreen">
@@ -247,11 +229,9 @@
     const userAction = async (article_id) => {
         const response = await fetch('/article/' + article_id + '/');
         console.log(response);
-        console.log(myJson);
         if (response.status == 403) {
-            console.log('forbidden');
-            console.log(response);
-            //window.location.replace("/login/");
+            // Use fallback view if blocker by firewall
+            window.location.href = '/?article='+article_id;
         } else {
             console.log('allowed');
             const myJson = await response.json();
