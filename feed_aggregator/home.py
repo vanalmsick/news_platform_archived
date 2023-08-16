@@ -4,7 +4,8 @@ from feed_scraper.scraper import update_feeds
 from articles.models import Article
 from django.db.models import Q
 import datetime
-
+from .login import LoginForm
+from django.contrib.auth import login, authenticate
 
 def getDuration(then, now=datetime.datetime.now(), interval="default"):
     # Returns a duration as specified by variable interval
@@ -98,10 +99,26 @@ def homeView(request):
             print('News are being refreshed now')
             update_feeds()
 
+    form = LoginForm()
+    message = ''
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = authenticate(
+                username='user',
+                password=form.cleaned_data['password'],
+            )
+            if user is not None:
+                message = 'Login successful!'
+                login(request, user)
+            else:
+                message = 'Login failed!'
+
 
 
     return render(request, 'home.html', {
         'articles': articles,
         'lastRefreshed': 'Never' if lastRefreshed is None else getDuration(lastRefreshed, datetime.datetime.now(), 'short'),
-        'loaading': currentlyRefresing
+        'loaading': currentlyRefresing,
+        'form': form, 'message': message
         })
