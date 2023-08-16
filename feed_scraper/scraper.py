@@ -249,7 +249,13 @@ def fetch_feed(feed):
         if hasattr(article, 'image'):
             article_kwargs['image_url'] = 'included'
         else:
-            if feed.full_text_fetch == 'Y':
+            valid_link = False
+            try:
+                _ = URLValidator(article.link)
+                valid_link = True
+            except:
+                pass
+            if feed.full_text_fetch == 'Y' and valid_link:
                 resp = requests.get(article.link)
                 soup = BeautifulSoup(resp.content, 'html5lib')
                 body = soup.find('body')
