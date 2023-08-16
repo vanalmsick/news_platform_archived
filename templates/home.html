@@ -247,9 +247,13 @@
     const userAction = async (article_id) => {
         const response = await fetch('/article/' + article_id + '/');
         console.log(response);
+        console.log(myJson);
         if (response.status == 403) {
-            window.location.replace("/login/");
+            console.log('forbidden');
+            console.log(response);
+            //window.location.replace("/login/");
         } else {
+            console.log('allowed');
             const myJson = await response.json();
             //console.log(myJson);
 
