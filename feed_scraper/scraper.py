@@ -256,10 +256,14 @@ def fetch_feed(feed):
             except:
                 pass
             if feed.full_text_fetch == 'Y' and valid_link:
-                resp = requests.get(article.link)
-                soup = BeautifulSoup(resp.content, 'html5lib')
-                body = soup.find('body')
-                images = body.find_all('img')
+                images = []
+                try:
+                    resp = requests.get(article.link)
+                    soup = BeautifulSoup(resp.content, 'html5lib')
+                    body = soup.find('body')
+                    images = body.find_all('img')
+                except:
+                    pass
                 new_images = []
                 for i in images:
                     i_alt = ''
