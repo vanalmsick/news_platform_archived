@@ -177,10 +177,10 @@
                             <div class="card-body d-flex flex-column align-items-start">
                                 <strong class="d-inline-block mb-2 text-primary"
                                         style="font-family: Georgia, serif;">{{ article.genre }}</strong>
-                                <h3 class="mb-0 text-dark fs-5"
+                                <a class="h3 mb-0 link-dark fs-5 stretched-link" href="/?article={{ article.pk }}"
                                     style="font-family: Georgia, serif; font-weight: bold;">
                                     {{ article.title }}
-                                </h3>
+                                </a>
                                 <div class="mb-1 text-muted"
                                      style="font-family: Georgia, serif;">{{ article.publisher.name }}
                                     {% if article.main_genre != Null %}({{ article.main_genre|title }}) {% endif %}
