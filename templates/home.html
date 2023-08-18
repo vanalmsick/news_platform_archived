@@ -168,7 +168,7 @@
 
             <div class="row mb-2 flex-fill">
                 {% for article in articles %}
-                    <div class="col-md-4 col-lg-3 my-2" onclick="openModal({{ article.pk }})" style="cursor: pointer;">
+                    <div id="{{ article.pk }}" class="col-md-4 col-lg-3 my-2" onclick="openModal({{ article.pk }})" style="cursor: pointer;">
                         <div class="card mb-4 box-shadow h-100">
                             {% if article.image_url != Null %}
                                 <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
