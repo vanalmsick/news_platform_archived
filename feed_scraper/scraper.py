@@ -147,7 +147,6 @@ def scarpe_img(url):
 
 
 def fetch_feed(feed):
-    hash_obj = hashlib.new('sha256')
     added_articles = 0
 
     feed_url = feed.url
@@ -162,6 +161,7 @@ def fetch_feed(feed):
         delete_feed_positions(feed)
 
     for i, scraped_article in enumerate(fetched_feed.entries):
+        hash_obj = hashlib.new('sha256')
         article__feed_position = i + 1
         article_kwargs = dict(min_feed_position=article__feed_position, publisher=feed.publisher)
         for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'summary', 'link': 'link', 'guid': 'id', 'pub_date': 'published_parsed'}.items():
@@ -170,15 +170,15 @@ def fetch_feed(feed):
 
         # add unique id/hash
         if feed.publisher.unique_article_id == 'guid' and 'guid' in article_kwargs:
-            article_kwargs['hash'] = f'{feed.pk}_{article_kwargs["guid"]}'
+            article_kwargs['hash'] = f'{feed.publisher.pk}_{article_kwargs["guid"]}'
         elif feed.publisher.unique_article_id == 'title':
             hash_obj.update(str(article_kwargs["title"]).encode())
             hash_str = hash_obj.hexdigest()
-            article_kwargs['hash'] = f'{feed.pk}_{hash_str}'
+            article_kwargs['hash'] = f'{feed.publisher.pk}_{hash_str}'
         else:
             hash_obj.update(str(article_kwargs["link"]).encode())
             hash_str = hash_obj.hexdigest()
-            article_kwargs['hash'] = f'{feed.pk}_{hash_str}'
+            article_kwargs['hash'] = f'{feed.publisher.pk}_{hash_str}'
 
 
         # make sure pub_date exists and is in the right format
