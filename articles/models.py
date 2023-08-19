@@ -18,20 +18,31 @@ class FeedPosition(models.Model):
 class Article(models.Model):
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     feed_position = models.ManyToManyField(FeedPosition)
+
     title = models.CharField(max_length=200)
     summary = models.CharField(max_length=500, null=True)
+    ai_summary = models.CharField(max_length=500, null=True)
+    ARTICLE_TYPE = [
+        ('breaking', 'Breaking/Live News'),
+        ('normal', 'Normal Article')
+    ]
+    type = models.CharField(choices=ARTICLE_TYPE, max_length=8, default='normal')
     full_text = models.TextField(null=True)
-    author = models.CharField(max_length=50, null=True)
+    has_full_text = models.BooleanField(default=True)
+    author = models.CharField(max_length=75, null=True)
     link = models.URLField(null=True)
     pub_date = models.DateTimeField(null=True)
     guid = models.CharField(max_length=75, null=True)
     image_url = models.URLField(null=True)
+
     min_feed_position = models.SmallIntegerField(null=True)
     min_article_relevance = models.DecimalField(null=True, decimal_places=6, max_digits=12)
     max_importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE, null=True)
     main_genre = models.CharField(choices=NEWS_GENRES, max_length=15, null=True)
+
     categories = models.CharField(max_length=250, null=True, blank=True)
     language = models.CharField(max_length=6, null=True, blank=True)
+
     hash = models.CharField(max_length=80)
 
     def __str__(self):
