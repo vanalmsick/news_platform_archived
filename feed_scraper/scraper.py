@@ -321,7 +321,7 @@ def fetch_feed(feed):
                 article_kwargs['has_full_text'] = True
 
 
-            if 'breaking news' in article_kwargs['title'].lower() or 'live:' in article_kwargs['title'].lower():
+            if 'title' in article_kwargs and ('breaking news' in article_kwargs['title'].lower() or 'live:' in article_kwargs['title'].lower()):
                 article_kwargs['type'] = 'breaking'
             else:
                 article_kwargs['type'] = 'normal'
