@@ -140,8 +140,8 @@ def add_ai_summary(article_obj_lst):
             soup = BeautifulSoup(article_obj.full_text, 'html5lib')
             article_text = html.unescape(soup.text).replace(' \n', '\n').replace('\n ', '\n')
             article_text = re.sub(r'\n+', '\n', article_text).strip()
-            if len(article_text) > 3000:
-                article_text = article_text[:3000]
+            if len(article_text) > 3000*5:
+                article_text = article_text[:3000*5]
             check_limit()
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo-16k",
