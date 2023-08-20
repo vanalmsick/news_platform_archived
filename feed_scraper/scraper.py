@@ -48,14 +48,17 @@ def update_feeds():
     # calculate next refesh time
     end_time = time.time()
     now = datetime.datetime.now()
-    if now.hour >= 6 and now.hour < 19:
+    if now.hour >= 0 and now.hour < 5:
+        refresh_time = (datetime.datetime.now().replace(hour=4, minute=45) - datetime.datetime.now()).seconds
+        print(f'Next artcile refresh at 4.45am in {refresh_time} seconds')
+    elif now.hour >= 6 and now.hour < 19:
         refresh_time = 60 * 15 - (end_time - start_time)
     else:
         refresh_time = 60 * 30 - (end_time - start_time)
     cache.set('upToDate', True, int(refresh_time))
 
     # Updating cached artciles
-    articles = Article.objects.all().exclude(main_genre='sport').exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:64]
+    articles = Article.objects.all().exclude(main_genre='sport').exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:72]
     cache.set('homepage', articles, 60 * 60 * 48)
     cache.set('lastRefreshed', now, 60 * 60 * 48)
 

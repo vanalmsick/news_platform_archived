@@ -35,7 +35,7 @@
         }
 
         .cust-text-info {
-                color: #0dcaf0 !important;
+            color: #0dcaf0 !important;
         }
 
         .cust-text-info:hover {
@@ -84,13 +84,42 @@
                 padding: 48px;
             }
         }
+
+
+        #scrollTopBtn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            z-index: 99;
+            font-size: 25px;
+            border: none;
+            outline: none;
+            background-color: #ffffff;
+            color: #0a58ca;
+            cursor: pointer;
+
+            width: 50px;
+            height: 50px;
+            padding: 7px 10px;
+            border-radius: 25px;
+            font-size: 10px;
+            text-align: center;
+            box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .35) !important;
+        }
+
+        #scrollTopBtn:hover {
+            background-color: #dee2e6;
+        }
+
+
     </style>
 
 </head>
 
 
 
-    {% block content %}
-    {% endblock %}
+{% block content %}
+{% endblock %}
 
 </html>

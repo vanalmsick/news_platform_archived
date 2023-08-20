@@ -155,6 +155,14 @@
         </div>
     </div>
 
+    <button onclick="topFunction()" id="scrollTopBtn" title="Go to top">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-arrow-up-short"
+             viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+                  d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5z"/>
+        </svg>
+    </button>
+
     </body>
     <script>
 
@@ -275,6 +283,29 @@
             if (event.target == modal) {
                 modal.style.display = "none";
             }
+        }
+
+
+        // Get the button
+        let scrollTopBtn = document.getElementById("scrollTopBtn");
+
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function () {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                scrollTopBtn.style.display = "block";
+            } else {
+                scrollTopBtn.style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
         }
 
 
