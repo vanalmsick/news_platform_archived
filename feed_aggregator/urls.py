@@ -17,9 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.views.generic.base import RedirectView
-from .home import homeView
-from .authent import ExampleView
-from .login import LoginView, LoginURLView, LoginHowToView
+from .pageHome import homeView
+from .pageAPI import ExampleView
+from .pageLogin import LoginView, LoginURLView, LoginHowToView
 
 
 

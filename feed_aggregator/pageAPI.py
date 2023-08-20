@@ -13,6 +13,7 @@ def get_article_data(pk):
         requested_article = Article.objects.get(pk=pk)
         article = requested_article.__dict__
         article['full_text'] = mark_safe(article['full_text'])
+        article['ai_summary'] = mark_safe(article['ai_summary'])
         article['publisher__name'] = requested_article.publisher.name
         if len(article['full_text']) > 30 and '<img ' in article['full_text'][:30]:
             article['image_url'] = ''

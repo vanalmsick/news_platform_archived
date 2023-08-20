@@ -1,90 +1,6 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-
-    <title>vA News Platform</title>
-    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}">
-    <link rel="mask-icon" type="image/png" href="{% static 'logo.svg' %}" color='white'>
-    <link rel="apple-touch-icon" type="image/png" href="{% static 'logo.png' %}">
-    <link rel="icon" href="{% static 'logo.png' %}">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
-            crossorigin="anonymous"></script>
-
-    <style>
-
-        @media (prefers-color-scheme: light) {
-            a:link {
-                color: #3A3B3C;
-            }
-        }
-
-        @media (prefers-color-scheme: dark) {
-            a:link {
-                color: #dee2e6;
-            }
-        }
-
-        .cust-text-info {
-                color: #0dcaf0 !important;
-        }
-
-        .cust-text-info:hover {
-            color: #FFFFFF !important;
-        }
-
-        .cust-text-danger {
-            color: #dc3545 !important;
-        }
-
-        .cust-text-danger:hover {
-            color: #FFFFFF !important;
-        }
-
-
-        /* visited link */
-        a:visited {
-            color: #800080;
-        }
-
-        /* mouse over link */
-        a:hover {
-            color: #0a58ca;
-        }
-
-        /* selected link */
-        a:active {
-            color: #800000;
-        }
-
-
-        /* small  Modal */
-        @media screen and (max-width: 600px) {
-            #modaltext {
-                width: inherit;
-                padding: 20px;
-                margin: 10px;
-            }
-        }
-
-        /* normal widescreen Modal */
-        @media screen and (min-width: 601px) {
-            #modaltext {
-                max-width: 800px;
-                width: 80%;
-                padding: 48px;
-            }
-        }
-    </style>
-
-</head>
+{% block content %}
 <body class="bg-body-tertiary">
 <!-- The Modal -->
 <div id="myModal" class="modal" style="display: block;">
@@ -99,7 +15,25 @@
                 <div id="modaltext" class="mx-auto my-3 bg-body rounded shadow-sm">
                     <h2 id="modalTitle" style="font-family: Georgia, serif; font-weight: bold;">{{ article.title }}</h2>
                     <div id="modalSummary" class="lead pb-2" style="font-family: Georgia, serif;">{{ article.summary }}</div>
+                    <div id="modalAccordion" class="mb-4">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between" id="headingOne">
+                                    <h6 class="mb-0">
+                                        AI Article Summary
+                                    </h6>
+                                    <h6 class="mb-0">
+                                        <span class="text-secondary"><i>(ChatGPT 3.5)</i></span>
+                                    </h6>
+                                </div>
+                                <div id="modalAI" class="card-body text-dark" style="font-family: Georgia, serif;">
+                                    {{ article.ai_summary }}
+                                </div>
+
+                            </div>
+                        </div>
+                    {%  if article.image_url is not None and article.image_url|length > 5 %}
                     <div id="modalIMG" class="pb-2" style="text-align: center;"><img src="{{ article.image_url }}" style="max-width: 100%; max-height: 80vh; object-fit: cover;"></div>
+                    {% endif %}
                     <div id="modalFullText" style="font-family: Georgia, serif;">{{ article.full_text }}</div>
                 </div>
             </div>
@@ -145,7 +79,7 @@
 
 
     function goBackHistory() {
-        if(history.length <= 1 | document.referrer.indexOf(window.location.host) === -1) {
+        if(history.length <= 1 | document.referrer.indexOf(window.location.host) === -1 | window.location.href.indexOf('previous=login') !== -1) {
                 window.location.href = '/';
         } else {
                 window.history.back();
@@ -153,4 +87,4 @@
     }
 
 </script>
-</html>
+{% endblock %}

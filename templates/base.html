@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+    <title>vA News Platform</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon-16x16.png' %}">
+    <link rel="mask-icon" href="{% static 'logo.svg' %}" color="#ffffff">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}">
+    <link rel="icon" href="{% static 'logo.png' %}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+            crossorigin="anonymous"></script>
+
+    <style>
+
+        @media (prefers-color-scheme: light) {
+            a:link {
+                color: #3A3B3C;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            a:link {
+                color: #dee2e6;
+            }
+        }
+
+        .cust-text-info {
+                color: #0dcaf0 !important;
+        }
+
+        .cust-text-info:hover {
+            color: #FFFFFF !important;
+        }
+
+        .cust-text-danger {
+            color: #dc3545 !important;
+        }
+
+        .cust-text-danger:hover {
+            color: #FFFFFF !important;
+        }
+
+
+        /* visited link */
+        a:visited {
+            color: #800080;
+        }
+
+        /* mouse over link */
+        a:hover {
+            color: #0a58ca;
+        }
+
+        /* selected link */
+        a:active {
+            color: #800000;
+        }
+
+
+        /* small  Modal */
+        @media screen and (max-width: 600px) {
+            #modaltext {
+                width: inherit;
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+
+        /* normal widescreen Modal */
+        @media screen and (min-width: 601px) {
+            #modaltext {
+                max-width: 800px;
+                width: 80%;
+                padding: 48px;
+            }
+        }
+    </style>
+
+</head>
+
+
+
+    {% block content %}
+    {% endblock %}
+
+</html>

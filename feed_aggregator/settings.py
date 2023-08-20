@@ -165,7 +165,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom Variables
 FULL_TEXT_URL = os.environ.get('FULL_TEXT_URL')
 FEED_CREATOR_URL = os.environ.get('FEED_CREATOR_URL')
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 if True: #DEBUG:
     FULL_TEXT_URL = 'http://192.168.1.201:9280/full-text-rss/'
     FEED_CREATOR_URL = 'http://192.168.1.201:9280/feed-creator/'
+    OPENAI_API_KEY = ''

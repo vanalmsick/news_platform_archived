@@ -20,7 +20,10 @@ def LoginView(request):
             if user is not None:
                 message = 'Login successful!'
                 login(request, user)
-                return redirect('/')
+                if 'article' in request.GET:
+                    return redirect(f"/?article={request.GET['article']}&previous=login")
+                else:
+                    return redirect('/')
             else:
                 message = 'Login failed!'
     return render(request, 'login.html', context={'form': form, 'message': message})

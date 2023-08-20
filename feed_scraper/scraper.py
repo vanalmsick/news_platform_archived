@@ -1,5 +1,5 @@
-from django.db.models import Q
-
+from django.db.models import Q, Max
+import os, openai, re, ratelimit
 import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher, NEWS_GENRES
@@ -58,6 +58,10 @@ def update_feeds():
     articles = Article.objects.all().exclude(main_genre='sport').exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:64]
     cache.set('homepage', articles, 60 * 60 * 48)
     cache.set('lastRefreshed', now, 60 * 60 * 48)
+
+    articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, min_article_relevance__lte=articles.aggregate(Max('min_article_relevance'))['min_article_relevance__max'])
+    add_ai_summary(article_obj_lst=articles_add_ai_summary)
+
     cache.set('currentlyRefresing', False, 60 * 60)
 
     print(f'Refreshed articles and added {added_articles} articles in {int(end_time - start_time)} seconds')
@@ -108,6 +112,55 @@ def delete_feed_positions(feed):
     all_feedpositions.delete()
 
 
+@ratelimit.sleep_and_retry
+@ratelimit.limits(calls=60, period=60)
+def check_limit():
+    ''' Empty function just to check for calls to API '''
+    # limit of 180k tokens per minute = 180k / 3k per request = 60 requets
+    # limit of 3600 requests per minute
+    # min(3.6k, 60) = 60 requests per minute
+    return
+
+
+def add_ai_summary(article_obj_lst):
+    print(f'Getting AI article summaries for {len(article_obj_lst)} articles.')
+
+    openai.api_key = settings.OPENAI_API_KEY
+    COST_TOKEN_INPUT = 0.003
+    COST_TOKEN_OUTPUT = 0.004
+    NET_USD_TO_GROSS_GBP = 1.2 * 0.785
+    token_cost = 0
+    articles_summarized = 0
+
+    for article_obj in article_obj_lst:
+        try:
+            soup = BeautifulSoup(article_obj.full_text, 'html5lib')
+            article_text = html.unescape(soup.text).replace(' \n', '\n').replace('\n ', '\n')
+            article_text = re.sub(r'\n+', '\n', article_text).strip()
+            if len(article_text) > 3000:
+                article_text = article_text[:3000]
+            check_limit()
+            completion = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-16k",
+                messages=[
+                    {"role": "user", "content": f'Summarize this article in max 4 bullets: "{article_text}"'}
+                ]
+            )
+            article_summary = completion["choices"][0]["message"]["content"]
+            article_summary = article_summary.replace('- ', '<li>').replace('\n', '</li>\n')
+            article_summary = '<ul>\n' + article_summary + '</li>\n</ul>'
+            token_cost += round((completion["usage"]["prompt_tokens"] * COST_TOKEN_INPUT) + (completion["usage"]["completion_tokens"] * COST_TOKEN_OUTPUT),4)
+            setattr(article_obj, 'ai_summary', article_summary)
+            article_obj.save()
+            articles_summarized += 1
+        except Exception as e:
+            print(f'Error getting AI article summary for {article_obj}:', e)
+
+    print(f'Summarized {articles_summarized} articles costing {round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 4)} GBP cents.')
+
+
+
+
 def scarpe_img(url):
     img_url = None
     try:
@@ -148,6 +201,7 @@ def scarpe_img(url):
 
 def fetch_feed(feed):
     added_articles = 0
+    article_without_ai_summary = []
 
     feed_url = feed.url
     if 'http://FEED-CREATOR.local' in feed_url:
@@ -165,8 +219,11 @@ def fetch_feed(feed):
         article__feed_position = i + 1
         article_kwargs = dict(min_feed_position=article__feed_position, publisher=feed.publisher)
         for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'summary', 'link': 'link', 'guid': 'id', 'pub_date': 'published_parsed'}.items():
-            if hasattr(scraped_article, kwarg_Y):
-                article_kwargs[kwarg_X] = scraped_article[kwarg_Y]
+            if hasattr(scraped_article, kwarg_Y) and scraped_article[kwarg_Y] is not None and scraped_article[kwarg_Y] != '':
+                if kwarg_X in ['title', 'summary'] and scraped_article[kwarg_Y] is not None:
+                    article_kwargs[kwarg_X] = html.unescape(scraped_article[kwarg_Y])
+                else:
+                    article_kwargs[kwarg_X] = scraped_article[kwarg_Y]
 
         # add unique id/hash
         if feed.publisher.unique_article_id == 'guid' and 'guid' in article_kwargs:
@@ -207,8 +264,11 @@ def fetch_feed(feed):
                 if response.status_code == 200:
                     full_text_data = response.json()
                     for kwarg_X, kwarg_Y in {'summary': 'excerpt', 'author': 'author', 'image_url': 'og_image', 'full_text': 'content', 'language': 'language'}.items():
-                        if (kwarg_X not in article_kwargs or len(article_kwargs[kwarg_X]) < 6) and kwarg_Y in full_text_data:
-                            article_kwargs[kwarg_X] = full_text_data[kwarg_Y]
+                        if (kwarg_X not in article_kwargs or len(article_kwargs[kwarg_X]) < 6) and kwarg_Y in full_text_data and full_text_data[kwarg_Y] is not None and full_text_data[kwarg_Y] != '':
+                            if kwarg_X in ['title', 'summary', 'author', 'language']:
+                                article_kwargs[kwarg_X] = html.unescape(full_text_data[kwarg_Y])
+                            else:
+                                article_kwargs[kwarg_X] = full_text_data[kwarg_Y]
 
                     # if no image try scraping it differently
                     if 'image_url' not in article_kwargs or article_kwargs['image_url'] is None or len(

@@ -21,7 +21,7 @@ class Article(models.Model):
 
     title = models.CharField(max_length=200)
     summary = models.CharField(max_length=500, null=True)
-    ai_summary = models.CharField(max_length=500, null=True)
+    ai_summary = models.TextField(max_length=750, null=True)
     ARTICLE_TYPE = [
         ('breaking', 'Breaking/Live News'),
         ('normal', 'Normal Article')

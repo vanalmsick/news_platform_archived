@@ -4,9 +4,9 @@ from feed_scraper.scraper import update_feeds
 from articles.models import Article
 from django.db.models import Q
 import datetime
-from .login import LoginForm, LoginView
+from .pageLogin import LoginForm, LoginView
 from django.utils.safestring import mark_safe
-from .authent import get_article_data
+from .pageAPI import get_article_data
 from django.contrib.auth import login, authenticate
 
 def getDuration(then, now=datetime.datetime.now(), interval="default"):
@@ -81,7 +81,7 @@ def homeView(request):
         # if user is not autheticated
         if request.user.is_authenticated is False:
             return LoginView(request)
-        return render(request, 'article.html', {'article': get_article_data(int(request.GET['article']))})
+        return render(request, 'fallbackArticle.html', {'article': get_article_data(int(request.GET['article']))})
 
 
     # Get Homepage
