@@ -28,7 +28,7 @@
 
         function dateConvert(date_str) {
             //console.log(date_str);
-            var date1 = new Date(date_str).addHours(1); // +1 for server time vs utc
+            var date1 = new Date(date_str); // +1 for server time vs utc
             var date2 = Date.now();
 
             var duration = date2.valueOf() - date1.valueOf(); // The unit is millisecond
