@@ -20,9 +20,15 @@
             integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
             crossorigin="anonymous"></script>
     <script>
+
+        Date.prototype.addHours = function (h) {
+            this.setHours(this.getHours() + h);
+            return this;
+        }
+
         function dateConvert(date_str) {
             //console.log(date_str);
-            var date1 = new Date(date_str);
+            var date1 = new Date(date_str).addHours(1); // +1 for server time vs utc
             var date2 = Date.now();
 
             var duration = date2.valueOf() - date1.valueOf(); // The unit is millisecond
@@ -33,9 +39,9 @@
             } else if (hourDiff < 18) {
                 return hourDiff + " hours ago"
             } else if (hourDiff < 96) {
-                return date1.toLocaleDateString("en-US", { weekday: 'short', hour: "numeric", minute: "numeric" });
+                return date1.toLocaleDateString("en-US", {weekday: 'short', hour: "numeric", minute: "numeric"});
             } else {
-                return date1.toLocaleDateString("en-US", { day: 'numeric', month: 'short' });
+                return date1.toLocaleDateString("en-US", {day: 'numeric', month: 'short'});
             }
         }
     </script>
