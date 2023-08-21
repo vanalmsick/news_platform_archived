@@ -131,7 +131,7 @@
                                     <div class="mb-1 text-muted"
                                          style="font-family: Georgia, serif;">{{ article.publisher.name }}
                                         {% if article.main_genre != Null %}({{ article.main_genre|title }}) {% endif %}
-                                        - {{ article.pub_date|date:'M jS' }}
+                                        - <script>document.write(dateConvert("{{ article.pub_date|date:"c" }}"));</script>
                                         {% if article.has_full_text == False %}
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                  fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
@@ -218,7 +218,7 @@
             } else {
                 console.log('allowed');
                 const myJson = await response.json();
-                //console.log(myJson)
+                console.log(myJson)
                 var publisher = document.getElementById("modalPublisher");
                 var title = document.getElementById("modalTitle");
                 var img_html = document.getElementById("modalIMG");

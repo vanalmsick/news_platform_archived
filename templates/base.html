@@ -19,6 +19,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
             crossorigin="anonymous"></script>
+    <script>
+        function dateConvert(date_str) {
+            //console.log(date_str);
+            var date1 = new Date(date_str);
+            var date2 = Date.now();
+
+            var duration = date2.valueOf() - date1.valueOf(); // The unit is millisecond
+            var hourDiff = parseInt(duration / (60 * 60 * 1000)) // Turn the duration into hour format
+
+            if (hourDiff < 1) {
+                return parseInt(duration / (60 * 1000)) + " min ago"
+            } else if (hourDiff < 18) {
+                return hourDiff + " hours ago"
+            } else if (hourDiff < 96) {
+                return date1.toLocaleDateString("en-US", { weekday: 'short', hour: "numeric", minute: "numeric" });
+            } else {
+                return date1.toLocaleDateString("en-US", { day: 'numeric', month: 'short' });
+            }
+        }
+    </script>
 
     <style>
 
