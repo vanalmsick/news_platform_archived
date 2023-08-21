@@ -50,7 +50,7 @@
                     <div id="modaltext" class="mx-auto my-3 bg-body rounded shadow-sm">
                         <h2 id="modalTitle" style="font-family: Georgia, serif; font-weight: bold;"></h2>
                         <div id="modalSummary" class="lead pb-2" style="font-family: Georgia, serif;"></div>
-                        <div id="modalAccordion" class="mb-4">
+                        <div id="modalAccordion" class="mb-4" style="display: none;">
                             <div class="card">
                                 <div class="card-header bg-light d-flex justify-content-between" id="headingOne">
                                     <h6 class="mb-0">
@@ -116,7 +116,7 @@
                              onclick="openModal({{ article.pk }})"
                                 {% endif %}
                              style="cursor: pointer;">
-                            <div class="card mb-4 box-shadow h-100">
+                            <div class="card mb-4 box-shadow h-100" {% if article.type == 'breaking' %}style="background-color: #fff1e5;"{% endif %}>
                                 {% if article.image_url != Null %}
                                     <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
                                          src="{{ article.image_url }}" loading="lazy">
@@ -225,6 +225,7 @@
                 var summary = document.getElementById("modalSummary");
                 var fullText = document.getElementById("modalFullText");
                 var aiSummary = document.getElementById("modalAI");
+                var aiAccordion = document.getElementById("modalAccordion");
                 var fullLink = document.getElementById("modalLink");
                 var shareEmail = document.getElementById("modalEmail");
                 var shareTeams = document.getElementById("modalTeams");
@@ -249,6 +250,9 @@
                 fullLink.href = myJson.link;
                 shareEmail.href = myJson.email__link;
                 shareTeams.href = myJson.teams__link;
+                if (!!myJson.ai_summary & myJson.ai_summary != 'None') {
+                    aiAccordion.style.display = "block";
+                }
             }
             ;
         }
@@ -271,9 +275,11 @@
             var summary = document.getElementById("modalSummary");
             var fullText = document.getElementById("modalFullText");
             var aiSummary = document.getElementById("modalAI");
+            var aiAccordion = document.getElementById("modalAccordion");
             var fullLink = document.getElementById("modalLink");
             var shareEmail = document.getElementById("modalEmail");
             var shareTeams = document.getElementById("modalTeams");
+            aiAccordion.style.display = "none";
             publisher.innerText = title.innerText = summary.innerText = 'Loading...';
             aiSummary.innerHTML = fullText.innerHTML = fullLink.href = img_html.innerHTML = shareEmail.href = shareTeams.href = '';
         }

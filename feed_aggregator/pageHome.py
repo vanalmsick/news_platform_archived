@@ -107,8 +107,12 @@ def homeView(request):
 
         if upToDate is not True:
 
-            print('News are being refreshed now')
-            update_feeds()
+            now = datetime.datetime.now()
+            if now.hour >= 0 and now.hour < 5:
+                print("Don't update articles between 0:00-4:59am to avoid forceful shutdown of container during server updates.")
+            else:
+                print('News are being refreshed now')
+                update_feeds()
 
 
     return render(request, 'home.html', {

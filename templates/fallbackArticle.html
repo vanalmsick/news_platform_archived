@@ -17,6 +17,7 @@
                             style="font-family: Georgia, serif; font-weight: bold;">{{ article.title }}</h2>
                         <div id="modalSummary" class="lead pb-2"
                              style="font-family: Georgia, serif;">{{ article.summary }}</div>
+                        {% if article.ai_summary != Null and article.ai_summary != 'None' %}
                         <div id="modalAccordion" class="mb-4">
                             <div class="card">
                                 <div class="card-header bg-light d-flex justify-content-between" id="headingOne">
@@ -30,9 +31,9 @@
                                 <div id="modalAI" class="card-body text-dark" style="font-family: Georgia, serif;">
                                     {{ article.ai_summary }}
                                 </div>
-
                             </div>
                         </div>
+                        {% endif %}
                         {% if article.image_url is not None and article.image_url|length > 5 %}
                             <div id="modalIMG" class="pb-2" style="text-align: center;"><img
                                     src="{{ article.image_url }}"

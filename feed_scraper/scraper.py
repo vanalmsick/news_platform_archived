@@ -1,4 +1,4 @@
-from django.db.models import Q, Max
+from django.db.models import Q, Max, Avg
 import os, openai, re, ratelimit
 import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
@@ -48,10 +48,7 @@ def update_feeds():
     # calculate next refesh time
     end_time = time.time()
     now = datetime.datetime.now()
-    if now.hour >= 0 and now.hour < 5:
-        refresh_time = (datetime.datetime.now().replace(hour=4, minute=45) - datetime.datetime.now()).seconds
-        print(f'Next artcile refresh at 4.45am in {refresh_time} seconds')
-    elif now.hour >= 6 and now.hour < 19:
+    if now.hour >= 6 and now.hour < 19:
         refresh_time = 60 * 15 - (end_time - start_time)
     else:
         refresh_time = 60 * 30 - (end_time - start_time)
@@ -62,7 +59,7 @@ def update_feeds():
     cache.set('homepage', articles, 60 * 60 * 48)
     cache.set('lastRefreshed', now, 60 * 60 * 48)
 
-    articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, min_article_relevance__lte=articles.aggregate(Max('min_article_relevance'))['min_article_relevance__max'])
+    articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, min_article_relevance__lte=articles.aggregate(Avg('min_article_relevance'))['min_article_relevance__avg']).exclude(publisher__name__in=['Risk.net', 'The Economist'])
     add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
     cache.set('currentlyRefresing', False, 60 * 60)
@@ -126,9 +123,10 @@ def check_limit():
 
 
 def add_ai_summary(article_obj_lst):
-    print(f'Getting AI article summaries for {len(article_obj_lst)} articles.')
+    print(f'Requesting AI article summaries for {len(article_obj_lst)} articles.')
 
     openai.api_key = settings.OPENAI_API_KEY
+    TOTAL_API_COST = 0 if cache.get('OPENAI_API_COST_LAUNCH') is None else cache.get('OPENAI_API_COST_LAUNCH')
     COST_TOKEN_INPUT = 0.003
     COST_TOKEN_OUTPUT = 0.004
     NET_USD_TO_GROSS_GBP = 1.2 * 0.785
@@ -138,15 +136,23 @@ def add_ai_summary(article_obj_lst):
     for article_obj in article_obj_lst:
         try:
             soup = BeautifulSoup(article_obj.full_text, 'html5lib')
-            article_text = html.unescape(soup.text).replace(' \n', '\n').replace('\n ', '\n')
-            article_text = re.sub(r'\n+', '\n', article_text).strip()
+            article_text = " ".join(html.unescape(soup.text).split())
+            #article_text = re.sub(r'\n+', '\n', article_text).strip()
             if len(article_text) > 3000*5:
                 article_text = article_text[:3000*5]
+            if len(article_text) / 5 < 500:
+                continue
+            elif len(article_text) / 5 < 1000:
+                bullets = 2
+            elif len(article_text) / 5 < 2000:
+                bullets = 3
+            else:
+                bullets = 4
             check_limit()
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo-16k",
                 messages=[
-                    {"role": "user", "content": f'Summarize this article in max 4 bullets: "{article_text}"'}
+                    {"role": "user", "content": f'Summarize this article in {bullets} bullet points:\n"{article_text}"'}
                 ]
             )
             article_summary = completion["choices"][0]["message"]["content"]
@@ -159,7 +165,10 @@ def add_ai_summary(article_obj_lst):
         except Exception as e:
             print(f'Error getting AI article summary for {article_obj}:', e)
 
-    print(f'Summarized {articles_summarized} articles costing {round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 4)} GBP cents.')
+    THIS_RUN_API_COST = round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 4)
+    TOTAL_API_COST += THIS_RUN_API_COST
+    cache.set('OPENAI_API_COST_LAUNCH', TOTAL_API_COST, 3600 * 1000)
+    print(f'Summarized {articles_summarized} articles costing {THIS_RUN_API_COST} GBP. Total API cost since container launch {TOTAL_API_COST} GBP.')
 
 
 
