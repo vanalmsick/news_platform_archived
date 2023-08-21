@@ -86,17 +86,25 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     article_age_h = divmod(duration_in_s if duration_in_s != None else duration_in_s, 3600)[0]
     if article_age_h > 48:
         article_age_discount = 2
+        age_factor = 1
     elif article_age_h > 24:
         article_age_discount = 1
+        age_factor = 1
     else:
         article_age_discount = 0
+        age_factor = 1
+    if article_age_h > 24 * 5:
+        age_factor = 3
+    elif article_age_h > 24 * 14:
+        age_factor = 30
 
     article_relevance = round(feed_position *
                               {3: 3 / 6, 2: 5 / 6, 1: 1, 0: 1, -1: 8 / 6, -2: 10 / 6, -3: 12 / 6}[
                                   publisher.renowned] *
                               {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[
                                   max((importance - article_age_discount), 0)] -
-                              ((publisher.renowned + random.randrange(0, 9)) / 10000),
+                              ((publisher.renowned + random.randrange(0, 9)) / 10000) *
+                              age_factor,
                               6)
 
     return importance, article_relevance
