@@ -116,7 +116,7 @@
                              onclick="openModal({{ article.pk }})"
                                 {% endif %}
                              style="cursor: pointer;">
-                            <div class="card mb-4 box-shadow h-100" {% if article.type == 'breaking' %}style="background-color: #fff1e5;"{% endif %}>
+                            <div class="card mb-4 box-shadow h-100{% if article.type == 'breaking' %} breaking{% endif %}">
                                 {% if article.image_url != Null %}
                                     <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
                                          src="{{ article.image_url }}" loading="lazy">
