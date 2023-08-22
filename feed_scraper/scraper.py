@@ -270,13 +270,29 @@ def fetch_feed(feed):
 
         # check if artcile already exists
         search_article = Article.objects.filter(hash=article_kwargs['hash'])
+        prev_article = None
 
-        # if artcle exists
-        if len(search_article) > 0:
+        # if article exists but changed
+        if len(search_article) > 0 and search_article[0].title is not None and 'title' in article_kwargs and search_article[0].title != article_kwargs['title']:
+            old_artcile = search_article[0]
+            new_article = True
+            hash_obj.update(str(old_artcile.title).encode())
+            hash_str = hash_obj.hexdigest()
+            setattr(old_artcile, 'hash', f'{feed.publisher.pk}_{hash_str}')
+            old_artcile.save()
+            prev_article = old_artcile.pk
+
+        # if article exists
+        elif len(search_article) > 0:
             article_obj = search_article[0]
+            new_article = False
+
+        # article does not exist
+        else:
+            new_article = True
 
         # article does not exist yet
-        else:
+        if new_article:
             # get full text if settings say yes
             if feed.full_text_fetch == 'Y':
                 request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(article_kwargs["link"], safe="")}'
@@ -330,6 +346,9 @@ def fetch_feed(feed):
                         div.decompose()
                 article_kwargs['full_text'] = soup.prettify()
 
+                if prev_article is not None:
+                    article_kwargs['full_text'] = f'<a class="btn btn-outline-secondary my-2" style="float: right;" href="/?article={prev_article}">Go to previous article version</a>\n' + article_kwargs['full_text']
+
 
             # add additional properties
             if 'full_text' not in article_kwargs or len(article_kwargs['full_text']) < 200:
@@ -348,6 +367,11 @@ def fetch_feed(feed):
             article_obj = Article(**article_kwargs)
             article_obj.save()
             added_articles += 1
+
+            if prev_article is not None:
+                full_text = '' if old_artcile.full_text is None else old_artcile.full_text
+                setattr(old_artcile, 'full_text', f'<a class="btn btn-outline-danger my-2" style="float: right;" href="/?article={article_obj.pk}">Go to updated article version</a>\n' + full_text)
+                old_artcile.save()
 
 
         # Update article metrics

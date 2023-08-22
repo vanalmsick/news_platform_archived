@@ -233,7 +233,7 @@
                 publisher.innerText = myJson.publisher__name;
                 title.innerText = myJson.title;
                 var img_in_html = (!myJson.image_url) ? '' : (myJson.full_text.indexOf(myJson.image_url.split('?')[0]) != -1);
-                var html_starts_with_img = (myJson.full_text.substring(0, 30).indexOf('<img ') != -1);
+                var html_starts_with_img = (myJson.full_text.substring(0, 250).indexOf('<img ') != -1);
                 var summary_part_of_body = (myJson.full_text.indexOf(myJson.summary.substring(0, 30)) != -1);
                 if (summary_part_of_body) {
                     summary.innerText = '';
