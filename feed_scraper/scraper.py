@@ -65,8 +65,13 @@ def update_feeds():
     cache.set('homepage', articles, 60 * 60 * 48)
     cache.set('lastRefreshed', now, 60 * 60 * 48)
 
-    articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, min_article_relevance__lte=articles.aggregate(Avg('min_article_relevance'))['min_article_relevance__avg']).exclude(publisher__name__in=['Risk.net', 'The Economist'])
-    add_ai_summary(article_obj_lst=articles_add_ai_summary)
+    now = datetime.datetime.now()
+    if now.hour >= 18 and now.hour < 6:
+        print('No AI summaries are generated between 18:00-6:00 as top artciles might change till user wakes up')
+    else:
+        median_relevance = articles[int(len(articles) / 2)].min_article_relevance
+        articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, min_article_relevance__lte=median_relevance).exclude(publisher__name__in=['Risk.net', 'The Economist'])
+        add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
     cache.set('currentlyRefresing', False, 60 * 60)
 
