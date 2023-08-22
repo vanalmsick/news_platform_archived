@@ -35,6 +35,12 @@ def update_feeds():
     else:
         print(f'No old articles to delete')
 
+    # delete all artcile positions
+    all_articles = Article.objects.all()
+    all_articles.update(min_feed_position=None)
+    all_articles.update(max_importance=None)
+    all_articles.update(min_article_relevance=None)
+
     # delete feed positions of inactive feeds
     feeds = Feed.objects.filter(~Q(active=True))
     for feed in feeds:
@@ -112,10 +118,6 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
 
 
 def delete_feed_positions(feed):
-    all_articles = Article.objects.filter(feed_position__feed=feed)
-    all_articles.update(min_feed_position=None)
-    all_articles.update(max_importance=None)
-    all_articles.update(min_article_relevance=None)
     all_feedpositions = feed.feedposition_set.all()
     all_feedpositions.delete()
 
