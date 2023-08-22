@@ -349,7 +349,7 @@ def fetch_feed(feed):
                 article_kwargs['full_text'] = soup.prettify()
 
                 if prev_article is not None:
-                    article_kwargs['full_text'] = f'<a class="btn btn-outline-secondary my-2" style="float: right;" href="/?article={prev_article}">Go to previous article version</a>\n' + article_kwargs['full_text']
+                    article_kwargs['full_text'] = f'<a class="btn btn-outline-secondary my-2 ms-2" style="float: right;" href="/?article={prev_article}">Go to previous article version</a>\n' + article_kwargs['full_text']
 
 
             # add additional properties
@@ -372,7 +372,7 @@ def fetch_feed(feed):
 
             if prev_article is not None:
                 full_text = '' if old_artcile.full_text is None else old_artcile.full_text
-                setattr(old_artcile, 'full_text', f'<a class="btn btn-outline-danger my-2" style="float: right;" href="/?article={article_obj.pk}">Go to updated article version</a>\n' + full_text)
+                setattr(old_artcile, 'full_text', f'<a class="btn btn-outline-danger cust-text-danger my-2 ms-2" style="float: right;" href="/?article={article_obj.pk}">Go to updated article version</a>\n' + full_text)
                 old_artcile.save()
 
 
