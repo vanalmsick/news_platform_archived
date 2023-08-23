@@ -66,7 +66,7 @@ def update_feeds():
     cache.set('lastRefreshed', now, 60 * 60 * 48)
 
     now = datetime.datetime.now()
-    if now.hour >= 18 and now.hour < 6:
+    if now.hour >= 18 or now.hour < 6:
         print('No AI summaries are generated between 18:00-6:00 as top artciles might change till user wakes up')
     else:
         median_relevance = articles[int(len(articles) / 2)].min_article_relevance
