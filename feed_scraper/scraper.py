@@ -4,6 +4,7 @@ import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher, NEWS_GENRES
 import urllib, requests, random
+from linkpreview import Link, LinkPreview, LinkGrabber
 from urllib.parse import urlparse
 from django.core.cache import cache
 from django.db import connection
@@ -66,8 +67,8 @@ def update_feeds():
     cache.set('lastRefreshed', now, 60 * 60 * 48)
 
     now = datetime.datetime.now()
-    if now.hour >= 18 or now.hour < 6:
-        print('No AI summaries are generated between 18:00-6:00 as top artciles might change till user wakes up')
+    if now.hour >= 18 or now.hour < 6 or now.weekday() in [5, 6]:
+        print('No AI summaries are generated during non-business hours (i.e. between 18:00-6:00 and on Saturdays and Sundays)')
     else:
         median_relevance = articles[int(len(articles) / 2)].min_article_relevance
         articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, min_article_relevance__lte=median_relevance).exclude(publisher__name__in=['Risk.net', 'The Economist'])
@@ -226,6 +227,26 @@ def scarpe_img(url):
     return img_url
 
 
+def scarpe_meta(url):
+    try:
+        grabber = LinkGrabber(
+            initial_timeout=20,
+            maxsize=1048576,
+            receive_timeout=10,
+            chunk_size=1024,
+        )
+        content, url = grabber.get_content(url)
+        link = Link(url, content)
+        preview = LinkPreview(link, parser="lxml")
+        return preview
+    except Exception as e:
+        print('Error getting meta data:', e)
+        return None
+
+
+
+
+
 def fetch_feed(feed):
     added_articles = 0
     article_without_ai_summary = []
@@ -362,6 +383,14 @@ def fetch_feed(feed):
                 article_kwargs['has_full_text'] = False
             else:
                 article_kwargs['has_full_text'] = True
+
+            meta_data = scarpe_meta(url=article_kwargs['link'])
+            if meta_data is not None:
+                for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'description', 'image_url': 'absolute_image'}.items():
+                    if hasattr(meta_data, kwarg_Y) and getattr(meta_data, kwarg_Y) is not None:
+                        if kwarg_X not in article_kwargs or article_kwargs[kwarg_X] is None or article_kwargs[kwarg_X] == '':
+                            article_kwargs[kwarg_X] = getattr(meta_data, kwarg_Y)
+
 
 
             if ('title' in article_kwargs and ('breaking news' in article_kwargs['title'].lower() or 'live news' in article_kwargs['title'].lower())) or ('full_text' in article_kwargs and article_kwargs['full_text'] is not None and ('developing story' in article_kwargs['full_text'].lower())):

@@ -10,4 +10,5 @@ djoser
 django-filter
 openai
 ratelimit
+linkpreview
 #Werkzeug
