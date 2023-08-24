@@ -4,7 +4,8 @@ import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher, NEWS_GENRES
 import urllib, requests, random
-from linkpreview import Link, LinkPreview, LinkGrabber
+from linkpreview import Link, LinkPreview
+from linkpreview.exceptions import InvalidContentError, InvalidMimeTypeError, MaximumContentSizeError
 from urllib.parse import urlparse
 from django.core.cache import cache
 from django.db import connection
@@ -225,6 +226,79 @@ def scarpe_img(url):
         print(e)
 
     return img_url
+
+
+
+class LinkGrabber:
+    headers = {
+        "user-agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0)"
+            " Gecko/20100101"
+            " Firefox/95.0"
+        ),
+        "accept-language": "en-US,en;q=0.5",
+        "accept": (
+            "text/html"
+            ",application/xhtml+xml"
+            ",application/xml;q=0.9"
+            ",*/*;q=0.8"
+        ),
+    }
+
+    def __init__(
+        self,
+        initial_timeout: int = 20,
+        maxsize: int = 1048576,
+        receive_timeout: int = 10,
+        chunk_size: int = 1024,
+    ):
+        """
+        :param initial_timeout in seconds
+        :param maxsize in bytes (default 1048576 = 1 MB)
+        :param receive_timeout in seconds
+        :param chunk_size in bytes
+        """
+        self.initial_timeout = initial_timeout
+        self.maxsize = maxsize
+        self.receive_timeout = receive_timeout
+        self.chunk_size = chunk_size
+
+    def get_content(self, url: str, headers: dict = None):
+        r = requests.get(
+            url,
+            stream=True,
+            timeout=self.initial_timeout,
+            headers={**self.headers, **headers} if headers else self.headers,
+        )
+        r.raise_for_status()
+
+        content_type = r.headers.get("content-type")
+        if not content_type:
+            raise InvalidContentError("Invalid content type")
+
+        mime_type = content_type.split(";")[0].lower()
+        if "text/html" not in mime_type:
+            raise InvalidMimeTypeError("Invalid mime type")
+
+        length = r.headers.get("Content-Length")
+        if length and int(length) > self.maxsize:
+            raise MaximumContentSizeError("response too large")
+
+        size = 0
+        start = time.time()
+        content = b""
+        for chunk in r.iter_content(self.chunk_size):
+            if time.time() - start > self.receive_timeout:
+                raise TimeoutError("timeout reached")
+
+            size += len(chunk)
+            if size > self.maxsize:
+                raise MaximumContentSizeError("response too large")
+
+            content += chunk
+
+        return content, r.url
+
 
 
 def scarpe_meta(url):
