@@ -303,6 +303,9 @@ class LinkGrabber:
 
 def scarpe_meta(url):
     try:
+        while cache.get('metaScrapeWait') == 'wait':
+            print("meta scraping wait")
+            time.sleep(2)
         grabber = LinkGrabber(
             initial_timeout=20,
             maxsize=1048576,
@@ -312,10 +315,14 @@ def scarpe_meta(url):
         content, url = grabber.get_content(url)
         link = Link(url, content)
         preview = LinkPreview(link, parser="lxml")
+        print("got preview", preview)
+        print(preview.image, preview.absolute_image)
         return preview
     except Exception as e:
         print('Error getting meta data:', e)
         return None
+    finally:
+        cache.set('metaScrapeWait', 'wait', 5)
 
 
 
