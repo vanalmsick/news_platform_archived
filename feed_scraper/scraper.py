@@ -425,7 +425,7 @@ def fetch_feed(feed):
             if 'full_text' in article_kwargs:
                 soup = BeautifulSoup(article_kwargs['full_text'], "html.parser")
                 for img in soup.find_all('img'):
-                    img['style'] = 'max-width: 100%; max-height: 80vh;'
+                    img['style'] = 'max-width: 100%; max-height: 80vh; width: auto; height: auto;'
                     if img['src'] == 'src':
                         img['src'] = img['data-url'].replace('${formatId}', '906')
                 for a in soup.find_all('a'):
