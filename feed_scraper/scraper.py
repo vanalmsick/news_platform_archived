@@ -315,7 +315,7 @@ def scarpe_meta(url):
         content, url = grabber.get_content(url)
         link = Link(url, content)
         preview = LinkPreview(link, parser="lxml")
-        if hasattr(preview, 'image'):
+        if hasattr(preview, 'image') and preview.image is not None:
             if type(preview.image) is dict:
                 img_url = preview.image['url']
             else:
@@ -328,7 +328,7 @@ def scarpe_meta(url):
                 preview.cust_image = img_url
             print(preview.cust_image)
         else:
-            print('no image')
+            print('no image for', url)
         return preview
     except Exception as e:
         print('Error getting meta data:', e)
