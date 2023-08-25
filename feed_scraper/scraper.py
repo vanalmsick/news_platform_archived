@@ -480,13 +480,13 @@ def fetch_feed(feed):
 
             print(scraped_article.link)
             print(article_kwargs['link'])
-
-            meta_data = scarpe_meta(url=article_kwargs['link'])
-            if meta_data is not None:
-                for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'description', 'image_url': 'cust_image'}.items():
-                    if hasattr(meta_data, kwarg_Y) and getattr(meta_data, kwarg_Y) is not None:
-                        if kwarg_X not in article_kwargs or article_kwargs[kwarg_X] is None or article_kwargs[kwarg_X] == '':
-                            article_kwargs[kwarg_X] = getattr(meta_data, kwarg_Y)
+            if 'image_url' not in article_kwargs or article_kwargs['image_url'] is None:
+                meta_data = scarpe_meta(url=article_kwargs['link'])
+                if meta_data is not None:
+                    for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'description', 'image_url': 'cust_image'}.items():
+                        if hasattr(meta_data, kwarg_Y) and getattr(meta_data, kwarg_Y) is not None:
+                            if kwarg_X not in article_kwargs or article_kwargs[kwarg_X] is None or article_kwargs[kwarg_X] == '':
+                                article_kwargs[kwarg_X] = getattr(meta_data, kwarg_Y)
 
 
 
