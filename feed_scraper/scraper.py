@@ -478,6 +478,9 @@ def fetch_feed(feed):
             else:
                 article_kwargs['has_full_text'] = True
 
+            print(scraped_article.link)
+            print(article_kwargs['link'])
+
             meta_data = scarpe_meta(url=article_kwargs['link'])
             if meta_data is not None:
                 for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'description', 'image_url': 'cust_image'}.items():
