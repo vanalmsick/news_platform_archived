@@ -1,5 +1,5 @@
 from django.db.models import Q, Max, Avg
-import os, openai, re, ratelimit
+import os, openai, re, ratelimit, traceback
 import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher, NEWS_GENRES
@@ -329,10 +329,10 @@ def scarpe_meta(url):
             print(preview.cust_image)
         else:
             print('no image')
-        print("got preview", preview.to_dict())
         return preview
     except Exception as e:
         print('Error getting meta data:', e)
+        traceback.print_exc()
         return None
     finally:
         cache.set('metaScrapeWait', 'wait', 5)
