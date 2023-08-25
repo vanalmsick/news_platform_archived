@@ -318,6 +318,7 @@ def scarpe_meta(url):
         if hasattr(preview, 'image'):
             if 'www.' not in preview.image and 'http' not in preview.image:
                 url_parts = urlparse(url)
+                print(url_parts.scheme, '://', url_parts.hostname, preview.image)
                 preview.cust_image = url_parts.scheme + '://' + url_parts.hostname + preview.image
             else:
                 preview.cust_image = preview.image
