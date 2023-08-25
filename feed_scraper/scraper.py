@@ -315,8 +315,16 @@ def scarpe_meta(url):
         content, url = grabber.get_content(url)
         link = Link(url, content)
         preview = LinkPreview(link, parser="lxml")
-        print("got preview", preview)
-        print(preview.image, preview.absolute_image)
+        if hasattr(preview, 'image'):
+            if 'www.' not in preview.image and 'http' not in preview.image:
+                url_parts = urlparse(url)
+                preview.cust_image = url_parts.scheme + '://' + url_parts.hostname + preview.image
+            else:
+                preview.cust_image = preview.image
+            print(preview.cust_image)
+        else:
+            print('no image')
+        print("got preview", preview.to_dict())
         return preview
     except Exception as e:
         print('Error getting meta data:', e)
@@ -467,7 +475,7 @@ def fetch_feed(feed):
 
             meta_data = scarpe_meta(url=article_kwargs['link'])
             if meta_data is not None:
-                for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'description', 'image_url': 'absolute_image'}.items():
+                for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'description', 'image_url': 'cust_image'}.items():
                     if hasattr(meta_data, kwarg_Y) and getattr(meta_data, kwarg_Y) is not None:
                         if kwarg_X not in article_kwargs or article_kwargs[kwarg_X] is None or article_kwargs[kwarg_X] == '':
                             article_kwargs[kwarg_X] = getattr(meta_data, kwarg_Y)
