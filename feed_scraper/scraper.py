@@ -316,12 +316,16 @@ def scarpe_meta(url):
         link = Link(url, content)
         preview = LinkPreview(link, parser="lxml")
         if hasattr(preview, 'image'):
-            if 'www.' not in preview.image and 'http' not in preview.image:
-                url_parts = urlparse(url)
-                print(url_parts.scheme, '://', url_parts.hostname, preview.image)
-                preview.cust_image = url_parts.scheme + '://' + url_parts.hostname + preview.image
+            if type(preview.image) is dict:
+                img_url = preview.image['url']
             else:
-                preview.cust_image = preview.image
+                img_url = preview.image
+            if 'www.' not in img_url and 'http' not in img_url:
+                url_parts = urlparse(url)
+                print(url_parts.scheme, '://', url_parts.hostname, img_url)
+                preview.cust_image = url_parts.scheme + '://' + url_parts.hostname + img_url
+            else:
+                preview.cust_image = img_url
             print(preview.cust_image)
         else:
             print('no image')
