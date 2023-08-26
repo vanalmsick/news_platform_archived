@@ -1,5 +1,5 @@
 from django.db.models import Q, Max, Avg
-import os, openai, re, ratelimit
+import os, openai, re, ratelimit, traceback
 import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher, NEWS_GENRES
@@ -303,6 +303,9 @@ class LinkGrabber:
 
 def scarpe_meta(url):
     try:
+        while cache.get('metaScrapeWait') == 'wait':
+            print("meta scraping wait")
+            time.sleep(2)
         grabber = LinkGrabber(
             initial_timeout=20,
             maxsize=1048576,
@@ -312,10 +315,27 @@ def scarpe_meta(url):
         content, url = grabber.get_content(url)
         link = Link(url, content)
         preview = LinkPreview(link, parser="lxml")
+        if hasattr(preview, 'image') and preview.image is not None:
+            if type(preview.image) is dict:
+                img_url = preview.image['url']
+            else:
+                img_url = preview.image
+            if 'www.' not in img_url and 'http' not in img_url:
+                url_parts = urlparse(url)
+                print(url_parts.scheme, '://', url_parts.hostname, img_url)
+                preview.cust_image = url_parts.scheme + '://' + url_parts.hostname + img_url
+            else:
+                preview.cust_image = img_url
+            print(preview.cust_image)
+        else:
+            print('no image for', url)
         return preview
     except Exception as e:
         print('Error getting meta data:', e)
+        traceback.print_exc()
         return None
+    finally:
+        cache.set('metaScrapeWait', 'wait', 5)
 
 
 
@@ -425,7 +445,7 @@ def fetch_feed(feed):
             if 'full_text' in article_kwargs:
                 soup = BeautifulSoup(article_kwargs['full_text'], "html.parser")
                 for img in soup.find_all('img'):
-                    img['style'] = 'max-width: 100%; max-height: 80vh;'
+                    img['style'] = 'max-width: 100%; max-height: 80vh; width: auto; height: auto;'
                     if img['src'] == 'src':
                         img['src'] = img['data-url'].replace('${formatId}', '906')
                 for a in soup.find_all('a'):
@@ -460,12 +480,15 @@ def fetch_feed(feed):
             else:
                 article_kwargs['has_full_text'] = True
 
-            meta_data = scarpe_meta(url=article_kwargs['link'])
-            if meta_data is not None:
-                for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'description', 'image_url': 'absolute_image'}.items():
-                    if hasattr(meta_data, kwarg_Y) and getattr(meta_data, kwarg_Y) is not None:
-                        if kwarg_X not in article_kwargs or article_kwargs[kwarg_X] is None or article_kwargs[kwarg_X] == '':
-                            article_kwargs[kwarg_X] = getattr(meta_data, kwarg_Y)
+            print(scraped_article.link)
+            print(article_kwargs['link'])
+            if 'image_url' not in article_kwargs or article_kwargs['image_url'] is None:
+                meta_data = scarpe_meta(url=article_kwargs['link'])
+                if meta_data is not None:
+                    for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'description', 'image_url': 'cust_image'}.items():
+                        if hasattr(meta_data, kwarg_Y) and getattr(meta_data, kwarg_Y) is not None:
+                            if kwarg_X not in article_kwargs or article_kwargs[kwarg_X] is None or article_kwargs[kwarg_X] == '':
+                                article_kwargs[kwarg_X] = getattr(meta_data, kwarg_Y)
 
 
 
