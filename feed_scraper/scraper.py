@@ -453,7 +453,9 @@ def fetch_feed(feed):
 
 
             # add additional properties
-            if 'full_text' not in article_kwargs or len(article_kwargs['full_text']) < 200:
+            if 'full_text' not in article_kwargs
+                or len(article_kwargs['full_text']) < 200
+                or 'During your trial you will have complete digital access to FT.com with everything in both of our Standard Digital and Premium Digital packages.' in article_kwargs['full_text']:
                 article_kwargs['has_full_text'] = False
             else:
                 article_kwargs['has_full_text'] = True
