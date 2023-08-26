@@ -130,12 +130,12 @@ def delete_feed_positions(feed):
 
 
 @ratelimit.sleep_and_retry
-@ratelimit.limits(calls=60, period=60)
+@ratelimit.limits(calls=30, period=60)
 def check_limit():
     ''' Empty function just to check for calls to API '''
-    # limit of 180k tokens per minute = 180k / 3k per request = 60 requets
-    # limit of 3600 requests per minute
-    # min(3.6k, 60) = 60 requests per minute
+    # limit of 90k tokens per minute = 90k / 3k per request = 30 requets
+    # limit of 3500 requests per minute
+    # min(3.5k, 30) = 30 requests per minute
     return
 
 
@@ -144,8 +144,8 @@ def add_ai_summary(article_obj_lst):
 
     openai.api_key = settings.OPENAI_API_KEY
     TOTAL_API_COST = 0 if cache.get('OPENAI_API_COST_LAUNCH') is None else cache.get('OPENAI_API_COST_LAUNCH')
-    COST_TOKEN_INPUT = 0.003
-    COST_TOKEN_OUTPUT = 0.004
+    COST_TOKEN_INPUT = 0.0015
+    COST_TOKEN_OUTPUT = 0.002
     NET_USD_TO_GROSS_GBP = 1.2 * 0.785
     token_cost = 0
     articles_summarized = 0
@@ -167,7 +167,7 @@ def add_ai_summary(article_obj_lst):
                 bullets = 4
             check_limit()
             completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-16k",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "user", "content": f'Summarize this article in {bullets} bullet points:\n"{article_text}"'}
                 ]
@@ -473,9 +473,9 @@ def fetch_feed(feed):
 
 
             # add additional properties
-            if 'full_text' not in article_kwargs
-                or len(article_kwargs['full_text']) < 200
-                or 'During your trial you will have complete digital access to FT.com with everything in both of our Standard Digital and Premium Digital packages.' in article_kwargs['full_text']:
+            if 'full_text' not in article_kwargs or
+                len(article_kwargs['full_text']) < 200 or
+                'During your trial you will have complete digital access to FT.com with everything in both of our Standard Digital and Premium Digital packages.' in article_kwargs['full_text']:
                 article_kwargs['has_full_text'] = False
             else:
                 article_kwargs['has_full_text'] = True
