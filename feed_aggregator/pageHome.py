@@ -105,7 +105,7 @@ def homeView(request):
             print('Get articles not from cache but database')
 
             articles = Article.objects.all().exclude(min_article_relevance__isnull=True).exclude(categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
-            sidebar = Article.objects.all().exclude(min_article_relevance__isnull=True).filter(categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
+            sidebar = Article.objects.all().exclude(min_article_relevance__isnull=True).filter(categories__icontains="SIDEBAR ONLY").order_by('-pub_date')[:72]
             cache.set('homepage', articles, 60 * 60 * 48)
             cache.set('sidebar', sidebar, 60 * 60 * 48)
 

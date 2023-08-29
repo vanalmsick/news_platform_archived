@@ -65,7 +65,7 @@ def update_feeds():
     articles = Article.objects.all().exclude(min_article_relevance__isnull=True).exclude(
         categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
     sidebar = Article.objects.all().exclude(min_article_relevance__isnull=True).filter(
-        categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
+        categories__icontains="SIDEBAR ONLY").order_by('-pub_date')[:72]
     cache.set('homepage', articles, 60 * 60 * 48)
     cache.set('sidebar', sidebar, 60 * 60 * 48)
     cache.set('lastRefreshed', now, 60 * 60 * 48)
@@ -369,7 +369,11 @@ def fetch_feed(feed):
         for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'summary', 'link': 'link', 'guid': 'id', 'pub_date': 'published_parsed', 'categories': 'tags'}.items():
             if hasattr(scraped_article, kwarg_Y) and scraped_article[kwarg_Y] is not None and scraped_article[kwarg_Y] != '':
                 if kwarg_X in ['title', 'summary'] and scraped_article[kwarg_Y] is not None:
-                    article_kwargs[kwarg_X] = html.unescape(scraped_article[kwarg_Y])
+                    bs_html = BeautifulSoup(scraped_article[kwarg_Y], "html.parser")
+                    if bool(bs_html.find()):
+                        article_kwargs[kwarg_X] = html.unescape(bs_html.get_text())
+                    else:
+                        article_kwargs[kwarg_X] = html.unescape(scraped_article[kwarg_Y])
                 elif kwarg_X in ['categories'] and scraped_article[kwarg_Y] is not None and len(scraped_article[kwarg_Y]) > 0:
                     article_kwargs[kwarg_X] += ';'.join([str(i['term']).upper() for i in scraped_article[kwarg_Y]]) + ';'
                 else:
@@ -389,12 +393,12 @@ def fetch_feed(feed):
 
 
         # make sure pub_date exists and is in the right format
-        if 'pub_date' not in article_kwargs and hasattr(fetched_feed, 'published_parsed'):
-            article_kwargs['pub_date'] = full_text_data['published_parsed']
+        if 'pub_date' in article_kwargs and type(article_kwargs['pub_date']) == time.struct_time:
+            article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(time.mktime(article_kwargs['pub_date']))
+        elif 'pub_date' not in article_kwargs and hasattr(fetched_feed, 'published_parsed'):
+            article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(full_text_data['published_parsed'])
         else:
             article_kwargs['pub_date'] = datetime.datetime.now()
-        if 'pub_date' in article_kwargs and type(article_kwargs['pub_date']) == time.struct_time:
-            article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(time.mktime(article.published_parsed))
         article_kwargs['pub_date'] = settings.TIME_ZONE_OBJ.localize(article_kwargs['pub_date'])
 
 
@@ -433,13 +437,15 @@ def fetch_feed(feed):
                         request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(full_text_data["effective_url"], safe="")}'
                         response = requests.get(request_url)
                         if response.status_code == 200:
-                            article_kwargs["link"] = full_text_data["effective_url"]
-                            article_kwargs.pop('summary')
-                            full_text_data = response.json()
+                            full_text_data = {**full_text_data, **response.json()}
                     for kwarg_X, kwarg_Y in {'summary': 'excerpt', 'author': 'author', 'image_url': 'og_image', 'full_text': 'content', 'language': 'language'}.items():
                         if (kwarg_X not in article_kwargs or len(article_kwargs[kwarg_X]) < 6) and kwarg_Y in full_text_data and full_text_data[kwarg_Y] is not None and full_text_data[kwarg_Y] != '':
                             if kwarg_X in ['title', 'summary', 'author', 'language']:
-                                article_kwargs[kwarg_X] = html.unescape(full_text_data[kwarg_Y])
+                                bs_html = BeautifulSoup(full_text_data[kwarg_Y], "html.parser")
+                                if bool(bs_html.find()):
+                                    article_kwargs[kwarg_X] = html.unescape(bs_html.get_text())
+                                else:
+                                    article_kwargs[kwarg_X] = html.unescape(full_text_data[kwarg_Y])
                             else:
                                 article_kwargs[kwarg_X] = full_text_data[kwarg_Y]
 
