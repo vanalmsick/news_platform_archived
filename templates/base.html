@@ -26,7 +26,7 @@
             return this;
         }
 
-        function dateConvert(date_str) {
+        function dateConvert(date_str, length = "medium") {
             //console.log(date_str);
             var date1 = new Date(date_str); // +1 for server time vs utc
             var date2 = Date.now();
@@ -35,9 +35,17 @@
             var hourDiff = parseInt(duration / (60 * 60 * 1000)) // Turn the duration into hour format
 
             if (hourDiff < 1) {
-                return parseInt(duration / (60 * 1000)) + " min ago"
+                if (length === "short") {
+                    return parseInt(duration / (60 * 1000)) + "min"
+                } else {
+                    return parseInt(duration / (60 * 1000)) + " min ago"
+                }
             } else if (hourDiff < 18) {
-                return hourDiff + " hours ago"
+                if (length === "short") {
+                    return hourDiff + "h"
+                } else {
+                    return hourDiff + " hours ago"
+                }
             } else if (hourDiff < 96) {
                 return date1.toLocaleDateString("en-US", {weekday: 'short', hour: "numeric", minute: "numeric"});
             } else {
@@ -134,13 +142,63 @@
             }
         }
 
-        /* normal widescreen Modal */
-        @media screen and (min-width: 601px) {
+
+        /* medium  Modal */
+        @media screen and (min-width: 601px) and (max-width: 1200px) {
             #modaltext {
                 max-width: 800px;
                 width: 80%;
                 padding: 48px;
             }
+
+            #mainSpace {
+                display: inline-block;
+                vertical-align: top;
+                width: 100%;
+            }
+
+            #leftSpace {
+                visibility: hidden;
+            }
+
+            #rightSpace {
+                visibility: hidden;
+            }
+
+
+        }
+
+
+        /* normal widescreen Modal */
+        @media screen and (min-width: 1201px) {
+            #modaltext {
+                max-width: 800px;
+                width: 80%;
+                padding: 48px;
+            }
+
+            #mainSpace {
+                display: inline-block;
+                vertical-align: top;
+                width: 58%;
+                padding: 0% 2%;
+            }
+
+            #leftSpace {
+                display: inline-block;
+                vertical-align: top;
+                width: 20%;
+                max-width: 400px;
+            }
+
+            #rightSpace {
+                display: inline-block;
+                vertical-align: top;
+                width: 20%;
+                max-width: 400px;
+            }
+
+
         }
 
 

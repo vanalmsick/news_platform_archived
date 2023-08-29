@@ -2,7 +2,7 @@ from django.db.models import Q, Max, Avg
 import os, openai, re, ratelimit, traceback
 import feedparser, datetime, time, hashlib
 from articles.models import Article, FeedPosition
-from feeds.models import Feed, Publisher, NEWS_GENRES
+from feeds.models import Feed, Publisher
 import urllib, requests, random
 from linkpreview import Link, LinkPreview
 from linkpreview.exceptions import InvalidContentError, InvalidMimeTypeError, MaximumContentSizeError
@@ -37,7 +37,6 @@ def update_feeds():
     else:
         print(f'No old articles to delete')
 
-    # delete all artcile positions
     all_articles = Article.objects.all()
     all_articles.update(min_feed_position=None)
     all_articles.update(max_importance=None)
@@ -63,8 +62,12 @@ def update_feeds():
     cache.set('upToDate', True, int(refresh_time))
 
     # Updating cached artciles
-    articles = Article.objects.all().exclude(main_genre='sport').exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:72]
+    articles = Article.objects.all().exclude(min_article_relevance__isnull=True).exclude(
+        categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
+    sidebar = Article.objects.all().exclude(min_article_relevance__isnull=True).filter(
+        categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
     cache.set('homepage', articles, 60 * 60 * 48)
+    cache.set('sidebar', sidebar, 60 * 60 * 48)
     cache.set('lastRefreshed', now, 60 * 60 * 48)
 
     now = datetime.datetime.now()
@@ -359,11 +362,16 @@ def fetch_feed(feed):
     for i, scraped_article in enumerate(fetched_feed.entries):
         hash_obj = hashlib.new('sha256')
         article__feed_position = i + 1
-        article_kwargs = dict(min_feed_position=article__feed_position, publisher=feed.publisher)
-        for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'summary', 'link': 'link', 'guid': 'id', 'pub_date': 'published_parsed'}.items():
+        article_kwargs = dict(min_feed_position=article__feed_position,
+                              publisher=feed.publisher,
+                              categories= '' if feed.source_categories is None or len(feed.source_categories.split(';')) == 0 else ';'.join([str(i).upper() for i in feed.source_categories.split(';') + ['']])
+                              )
+        for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'summary', 'link': 'link', 'guid': 'id', 'pub_date': 'published_parsed', 'categories': 'tags'}.items():
             if hasattr(scraped_article, kwarg_Y) and scraped_article[kwarg_Y] is not None and scraped_article[kwarg_Y] != '':
                 if kwarg_X in ['title', 'summary'] and scraped_article[kwarg_Y] is not None:
                     article_kwargs[kwarg_X] = html.unescape(scraped_article[kwarg_Y])
+                elif kwarg_X in ['categories'] and scraped_article[kwarg_Y] is not None and len(scraped_article[kwarg_Y]) > 0:
+                    article_kwargs[kwarg_X] += ';'.join([str(i['term']).upper() for i in scraped_article[kwarg_Y]]) + ';'
                 else:
                     article_kwargs[kwarg_X] = scraped_article[kwarg_Y]
 
@@ -421,6 +429,13 @@ def fetch_feed(feed):
                 response = requests.get(request_url)
                 if response.status_code == 200:
                     full_text_data = response.json()
+                    if 'news.google.com' in article_kwargs["link"] and 'effective_url' in full_text_data and full_text_data["effective_url"] is not None:
+                        request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(full_text_data["effective_url"], safe="")}'
+                        response = requests.get(request_url)
+                        if response.status_code == 200:
+                            article_kwargs["link"] = full_text_data["effective_url"]
+                            article_kwargs.pop('summary')
+                            full_text_data = response.json()
                     for kwarg_X, kwarg_Y in {'summary': 'excerpt', 'author': 'author', 'image_url': 'og_image', 'full_text': 'content', 'language': 'language'}.items():
                         if (kwarg_X not in article_kwargs or len(article_kwargs[kwarg_X]) < 6) and kwarg_Y in full_text_data and full_text_data[kwarg_Y] is not None and full_text_data[kwarg_Y] != '':
                             if kwarg_X in ['title', 'summary', 'author', 'language']:
@@ -447,7 +462,10 @@ def fetch_feed(feed):
                 for img in soup.find_all('img'):
                     img['style'] = 'max-width: 100%; max-height: 80vh; width: auto; height: auto;'
                     if img['src'] == 'src':
-                        img['src'] = img['data-url'].replace('${formatId}', '906')
+                        if 'data-url' in img:
+                            img['src'] = img['data-url'].replace('${formatId}', '906')
+                        elif 'data-src' in img:
+                            img['src'] = img['data-src']
                 for a in soup.find_all('a'):
                     a['target'] = '_blank'
                 for link in soup.find_all('link'):
@@ -526,14 +544,13 @@ def fetch_feed(feed):
             feed=feed,
             position=article__feed_position,
             importance=article_kwargs['max_importance'],
-            relevance=article_kwargs['min_article_relevance'],
-            genre=article_obj.main_genre if feed.genre is None else feed.genre
+            relevance=article_kwargs['min_article_relevance']
         )
         feed_position.save()
 
         article_obj.feed_position.add(feed_position)
 
-    print(f'Refreshed {feed.name} with {added_articles} new articles out of {len(fetched_feed.entries)}')
+    print(f'Refreshed {feed} with {added_articles} new articles out of {len(fetched_feed.entries)}')
     return added_articles
 
 

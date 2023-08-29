@@ -4,7 +4,7 @@ from .models import Feed, Publisher
 # Register your models here.
 @admin.register(Feed)
 class FeedAdmin(admin.ModelAdmin):
-    list_display = ['publisher', 'name', 'active', 'importance', 'genre', 'last_fetched']
+    list_display = ['publisher', 'name', 'active', 'importance', 'last_fetched']
 
 @admin.register(Publisher)
 class PublisherAdmin(admin.ModelAdmin):

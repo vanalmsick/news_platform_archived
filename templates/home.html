@@ -101,63 +101,111 @@
         </div>
     </div>
 
+    <div class="py-3 w-100">
+        <div id="leftSpace">
+        </div>
 
-    <!-- Main website -->
+        <!-- Main website -->
+        <div id="mainSpace">
+            <div class="album d-flex align-items-center justify-content-center">
+                <div class="container m-0">
 
-    <div class="album">
-        <div class="container">
+                    <div class="p-3 bg-body rounded shadow-sm">
 
-            <div class="my-3 p-3 bg-body rounded shadow-sm">
-
-                <div class="row mb-2 flex-fill">
-                    {% for article in articles %}
-                        <div id="{{ article.pk }}" class="col-md-4 col-lg-3 my-2"
-                                {% if article.has_full_text == True %}
-                             onclick="openModal({{ article.pk }})"
-                                {% endif %}
-                             style="cursor: pointer;">
-                            <div class="card mb-4 box-shadow h-100{% if article.type == 'breaking' %} breaking{% endif %}">
-                                {% if article.image_url != Null %}
-                                    <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
-                                         src="{{ article.image_url }}" loading="lazy">
-                                {% endif %}
-                                <div class="card-body d-flex flex-column align-items-start">
-                                    <strong class="d-inline-block mb-2 text-primary"
-                                            style="font-family: Georgia, serif;">{{ article.genre }}</strong>
-                                    <h3 class="mb-0 text-dark fs-5"
-                                        style="font-family: Georgia, serif; font-weight: bold;">
-                                        {{ article.title }}
-                                    </h3>
-                                    <div class="mb-1 text-muted"
-                                         style="font-family: Georgia, serif;">{{ article.publisher.name }}
-                                        -
-                                        <script>document.write(dateConvert("{{ article.pub_date|date:"c" }}"));</script>
-                                        {% if article.has_full_text == False %}
-                                        {% if article.publisher.paywall == 'Y' %}
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                                 fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-                                                <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z"/>
-                                            </svg>
+                        <div class="row mb-2 flex-fill">
+                            {% for article in articles %}
+                                <div id="{{ article.pk }}" class="col-md-4 col-lg-3 my-2"
+                                        {% if article.has_full_text == True %}
+                                     onclick="openModal({{ article.pk }})"
                                         {% endif %}
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                 fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
-                                                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
-                                                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
-                                            </svg>
+                                     style="cursor: pointer;">
+                                    <div class="card mb-4 box-shadow h-100{% if article.type == 'breaking' %} breaking{% endif %}">
+                                        {% if article.image_url != Null %}
+                                            <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
+                                                 src="{{ article.image_url }}" loading="lazy">
                                         {% endif %}
+                                        <div class="card-body d-flex flex-column align-items-start">
+                                            <strong class="d-inline-block mb-2 text-primary"
+                                                    style="font-family: Georgia, serif;">{{ article.genre }}</strong>
+                                            <h3 class="mb-0 text-dark fs-5"
+                                                style="font-family: Georgia, serif; font-weight: bold;">
+                                                {{ article.title }}
+                                            </h3>
+                                            <div class="mb-1 text-muted"
+                                                 style="font-family: Georgia, serif;">{{ article.publisher.name }}
+                                                -
+                                                <script>document.write(dateConvert("{{ article.pub_date|date:"c" }}"));</script>
+                                                {% if article.has_full_text == False %}
+                                                    {% if article.publisher.paywall == 'Y' %}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                             fill="currentColor" class="bi bi-currency-dollar"
+                                                             viewBox="0 0 16 16">
+                                                            <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z"/>
+                                                        </svg>
+                                                    {% endif %}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                         fill="currentColor" class="bi bi-link-45deg"
+                                                         viewBox="0 0 16 16">
+                                                        <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
+                                                        <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
+                                                    </svg>
+                                                {% endif %}
+                                            </div>
+                                            <p class="card-text mb-auto"
+                                               style="font-family: Georgia, serif;">{{ article.summary }}</p>
+                                            {% if article.has_full_text == False %}
+                                                <a class="stretched-link" href="{{ article.link }}" target="_blank"></a>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                    <p class="card-text mb-auto"
-                                       style="font-family: Georgia, serif;">{{ article.summary }}</p>
-                                    {% if article.has_full_text == False %}
-                                        <a class="stretched-link" href="{{ article.link }}" target="_blank"></a>
-                                    {% endif %}
                                 </div>
-                            </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
-                </div>
 
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <div id="rightSpace">
+            <div class="mb-2 py-1 border-bottom fs-5">
+                <strong class="text-gray-dark ps-3">Topic:</strong>
+                <span class="">Hedge Funds</span>
+            </div>
+            <div class="list-group d-none d-md-block">
+                {% for side_article in sidebar %}
+                    <a class="list-group-item list-group-item-action link-dark" aria-current="true"
+                            {% if side_article.has_full_text == False %}
+                       href="{{ side_article.link }}" target="_blank"
+                            {% else %}
+                       onclick="openModal({{ side_article.pk }})"
+                            {% endif %}
+                       style="cursor: pointer;"
+                    >
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ side_article.title }}
+                                {% if side_article.has_full_text == False %}
+                                    {% if side_article.publisher.paywall == 'Y' %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                             fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
+                                            <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z"/>
+                                        </svg>
+                                    {% endif %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                         fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
+                                        <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
+                                        <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
+                                    </svg>
+                                {% endif %}
+                            </h6>
+                            <small>
+                                <script>document.write(dateConvert("{{ side_article.pub_date|date:"c" }}", "short"));</script>
+                            </small>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
         </div>
     </div>
 

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.cache import cache
 from feed_scraper.scraper import update_feeds
 from articles.models import Article
-from django.db.models import Q
+from django.db.models import Q, F
 import datetime
 from .pageLogin import LoginForm, LoginView
 from django.utils.safestring import mark_safe
@@ -92,18 +92,22 @@ def homeView(request):
         print('Article refreshing in progress thus get latest cached')
 
         articles = cache.get('homepage')
+        sidebar = cache.get('sidebar')
         lastRefreshed = cache.get('lastRefreshed')
 
     else:
 
         articles = cache.get('homepage')
+        sidebar = cache.get('sidebar')
         lastRefreshed = cache.get('lastRefreshed')
 
         if articles is None or len(articles) == 0:
             print('Get articles not from cache but database')
 
-            articles = Article.objects.all().exclude(main_genre='sport').exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:72]
+            articles = Article.objects.all().exclude(min_article_relevance__isnull=True).exclude(categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
+            sidebar = Article.objects.all().exclude(min_article_relevance__isnull=True).filter(categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
             cache.set('homepage', articles, 60 * 60 * 48)
+            cache.set('sidebar', sidebar, 60 * 60 * 48)
 
         if upToDate is not True:
 
@@ -117,6 +121,7 @@ def homeView(request):
 
     return render(request, 'home.html', {
         'articles': articles,
+        'sidebar': sidebar,
         'lastRefreshed': 'Never' if lastRefreshed is None else getDuration(lastRefreshed, datetime.datetime.now(), 'short'),
         'loaading': currentlyRefresing
         })

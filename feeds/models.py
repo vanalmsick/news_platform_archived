@@ -8,19 +8,6 @@ NEWS_IMPORTANCE = [
         (0, 'Normal')
     ]
 
-NEWS_GENRES = [
-        ('world', 'World'),
-        ('europe', 'Europe / EU / UK'),
-        ('us', 'US'),
-        ('other_cntrys', 'Asia / Pacific / Middle East / Africa / Americas'),
-        ('finance', 'Economics / Finance / Markets / Business'),
-        ('tech', 'Technology'),
-        ('science', 'Science'),
-        ('lifestyle', 'Culture / Lifestyle / Health'),
-        ('sport', 'Sport'),
-        ('unknown', 'Unknown')
-    ]
-
 YES_NO = [
         ('Y', 'Yes'),
         ('N', 'No')
@@ -48,7 +35,6 @@ class Publisher(models.Model):
         ('title', 'Title')
     ]
     unique_article_id = models.CharField(choices=UNIQUE_ARTICLE_ID, default='guid', max_length=5)
-    img_scrape_urls = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -65,15 +51,13 @@ class Feed(models.Model):
         ('main', 'Main Page'),
         ('side', 'Side Widget')
     ]
-    display_section = models.CharField(choices=DISPLAY_SECTION, max_length=4, default='main')
-    genre = models.CharField(choices=NEWS_GENRES, max_length=15, null=True, blank=True)
+    source_categories = models.CharField(max_length=250, null=True, blank=True)
     FEED_ORDER = [
         ('r', 'Relavance'),
         ('d', 'Date')
     ]
     feed_ordering = models.CharField(max_length=1, choices=FEED_ORDER)
     full_text_fetch = models.CharField(max_length=1, choices=YES_NO, default='Y')
-    clicked_articles = models.SmallIntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.publisher.name} - {self.name}'
