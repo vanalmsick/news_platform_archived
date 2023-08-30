@@ -28,7 +28,6 @@ def postpone(function):
 def update_feeds():
 
     start_time = time.time()
-    cache.set('currentlyRefresing', True, 60*60)
 
     old_articles = Article.objects.filter(min_article_relevance__isnull=True, pub_date__lte=settings.TIME_ZONE_OBJ.localize(datetime.datetime.now() - datetime.timedelta(days=3)))
     if len(old_articles) > 0:
@@ -60,15 +59,12 @@ def update_feeds():
     else:
         refresh_time = 60 * 30 - (end_time - start_time)
     cache.set('upToDate', True, int(refresh_time))
+    cache.set('lastRefreshed', now, 60 * 60 * 48)
 
     # Updating cached artciles
-    articles = Article.objects.all().exclude(min_article_relevance__isnull=True).exclude(
-        categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
-    sidebar = Article.objects.all().exclude(min_article_relevance__isnull=True).filter(
-        categories__icontains="SIDEBAR ONLY").order_by('-pub_date')[:72]
-    cache.set('homepage', articles, 60 * 60 * 48)
-    cache.set('sidebar', sidebar, 60 * 60 * 48)
-    cache.set('lastRefreshed', now, 60 * 60 * 48)
+    cached_views = [i[3:] for i in list(cache._cache.keys())]
+    for cached_view in cached_views:
+        cache.set(cached_view, None, 10)
 
     now = datetime.datetime.now()
     if now.hour >= 18 or now.hour < 6 or now.weekday() in [5, 6]:
@@ -78,7 +74,6 @@ def update_feeds():
         articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, min_article_relevance__lte=median_relevance).exclude(publisher__name__in=['Risk.net', 'The Economist'])
         add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
-    cache.set('currentlyRefresing', False, 60 * 60)
 
     print(f'Refreshed articles and added {added_articles} articles in {int(end_time - start_time)} seconds')
 

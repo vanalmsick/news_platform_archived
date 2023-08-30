@@ -73,6 +73,43 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
     }[interval]
 
 
+def get_articles(max_length=72, **kwargs):
+    kwargs = {k: [v] if type(v) is str else v for k, v in kwargs.items()}
+    kwargs_hash = 'articles_' + str({k.lower(): [i.lower() for i in sorted(v)] for k, v in kwargs.items()})
+    kwargs_hash = ''.join([i if i.isalnum() else '_' for i in kwargs_hash])
+    articles = cache.get(kwargs_hash)
+
+    if articles is None:
+        conditions = Q()
+        special_filters = kwargs['special'] if 'special' in kwargs else None
+        exclude_sidebar_only = True
+        for field, condition_lst in kwargs.items():
+            sub_conditions = Q()
+            for condition in condition_lst:
+                if field.lower() == "special":
+                    if condition.lower() == 'free-only':
+                        sub_conditions &= Q(Q(has_full_text=True) | Q(publisher__paywall='N'))
+                    elif condition.lower() == "sidebar":
+                        sub_conditions &= Q(categories__icontains='SIDEBAR')
+                        exclude_sidebar_only = False
+                else:
+                    sub_conditions |= Q(**{f'{field}__icontains': condition})
+            try:
+                test_condition = Article.objects.filter(sub_conditions)
+            except:
+                test_condition = []
+            if len(test_condition) > 0:
+                conditions &= sub_conditions
+        articles = Article.objects.filter(conditions).order_by('min_article_relevance')
+        if exclude_sidebar_only:
+            articles = articles.exclude(categories__icontains="SIDEBAR ONLY")
+        if max_length is not None and len(articles) > max_length:
+            articles = articles[:max_length]
+        cache.set(kwargs_hash, articles, 60 * 60 * 48)
+        print(f'Got {kwargs_hash} from database and cached it')
+    return articles
+
+
 
 def homeView(request):
 
@@ -86,42 +123,37 @@ def homeView(request):
 
     # Get Homepage
     upToDate = cache.get('upToDate')
-    currentlyRefresing = cache.get('currentlyRefresing')
+    articles = get_articles(**request.GET)
+    sidebar = get_articles(special='sidebar')
+    lastRefreshed = cache.get('lastRefreshed')
 
-    if currentlyRefresing:
-        print('Article refreshing in progress thus get latest cached')
+    selected_page = 'frontpage'
+    if 'publisher__name' in request.GET:
+        if 'financial times' in request.GET['publisher__name']:
+            selected_page = 'financial times'
+        elif 'bloomberg' in request.GET['publisher__name']:
+            selected_page = 'bloomberg'
+    elif 'categories' in request.GET:
+        if 'fund' in request.GET['categories']:
+            selected_page = 'funds'
+    elif 'special' in request.GET:
+        if 'free-only' in request.GET['special']:
+            selected_page = 'free-only'
 
-        articles = cache.get('homepage')
-        sidebar = cache.get('sidebar')
-        lastRefreshed = cache.get('lastRefreshed')
 
-    else:
+    if upToDate is not True:
 
-        articles = cache.get('homepage')
-        sidebar = cache.get('sidebar')
-        lastRefreshed = cache.get('lastRefreshed')
-
-        if articles is None or len(articles) == 0:
-            print('Get articles not from cache but database')
-
-            articles = Article.objects.all().exclude(min_article_relevance__isnull=True).exclude(categories__icontains="SIDEBAR ONLY").order_by('min_article_relevance')[:72]
-            sidebar = Article.objects.all().exclude(min_article_relevance__isnull=True).filter(categories__icontains="SIDEBAR ONLY").order_by('-pub_date')[:72]
-            cache.set('homepage', articles, 60 * 60 * 48)
-            cache.set('sidebar', sidebar, 60 * 60 * 48)
-
-        if upToDate is not True:
-
-            now = datetime.datetime.now()
-            if now.hour >= 0 and now.hour < 5:
-                print("Don't update articles between 0:00-4:59am to avoid forceful shutdown of container during server updates.")
-            else:
-                print('News are being refreshed now')
-                update_feeds()
+        now = datetime.datetime.now()
+        if now.hour >= 0 and now.hour < 5:
+            print("Don't update articles between 0:00-4:59am to avoid forceful shutdown of container during server updates.")
+        else:
+            print('News are being refreshed now')
+            update_feeds()
 
 
     return render(request, 'home.html', {
         'articles': articles,
         'sidebar': sidebar,
         'lastRefreshed': 'Never' if lastRefreshed is None else getDuration(lastRefreshed, datetime.datetime.now(), 'short'),
-        'loaading': currentlyRefresing
+        'page': selected_page
         })

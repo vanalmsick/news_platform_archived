@@ -107,6 +107,15 @@
 
         <!-- Main website -->
         <div id="mainSpace">
+
+            <div class="d-flex flex-wrap align-items-center justify-content-center mx-auto mb-2">
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'frontpage' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/">Frontpage</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'free-only' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?special=free-only">Free-Only</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'funds' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?categories=fund">#Funds</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'financial times' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=financial+times">@Financial Times</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'bloomberg' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=bloomberg">@Bloomberg</a>
+            </div>
+
             <div class="album d-flex align-items-center justify-content-center">
                 <div class="container m-0">
 
@@ -167,12 +176,12 @@
             </div>
         </div>
 
-        <div id="rightSpace">
+        <div id="rightSpace" class="d-none d-md-inline-block">
             <div class="mb-2 py-1 border-bottom fs-5">
                 <strong class="text-gray-dark ps-3">Topic:</strong>
-                <span class="">Hedge Funds</span>
+                <span>Funds</span>
             </div>
-            <div class="list-group d-none d-md-block">
+            <div class="list-group">
                 {% for side_article in sidebar %}
                     <a class="list-group-item list-group-item-action link-dark" aria-current="true"
                             {% if side_article.has_full_text == False %}
@@ -180,8 +189,7 @@
                             {% else %}
                        onclick="openModal({{ side_article.pk }})"
                             {% endif %}
-                       style="cursor: pointer;"
-                    >
+                       style="font-family: Georgia, serif;cursor: pointer;">
                         <div class="d-flex w-100 justify-content-between">
                             <h6 class="mb-1">{{ side_article.title }}
                                 {% if side_article.has_full_text == False %}
