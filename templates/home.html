@@ -271,52 +271,65 @@
 
 
         const userAction = async (article_id) => {
-            const response = await fetch('/article/' + article_id + '/');
-            console.log(response);
-            if (response.status == 403) {
-                // Use fallback view if blocker by firewall
-                closeModal();
+            var fallback = sessionStorage.getItem('fallback');
+            if (fallback === undefined) {
+                fallback = 0;
+            } else {
+                fallback = parseInt(fallback);
+            }
+            if (fallback > 3) {
+                console.log('auto fallback');
                 window.location.href = '/?article=' + article_id;
             } else {
-                console.log('allowed');
-                const myJson = await response.json();
-                console.log(myJson)
-                var publisher = document.getElementById("modalPublisher");
-                var title = document.getElementById("modalTitle");
-                var img_html = document.getElementById("modalIMG");
-                var summary = document.getElementById("modalSummary");
-                var fullText = document.getElementById("modalFullText");
-                var aiSummary = document.getElementById("modalAI");
-                var aiAccordion = document.getElementById("modalAccordion");
-                var fullLink = document.getElementById("modalLink");
-                var shareEmail = document.getElementById("modalEmail");
-                var shareTeams = document.getElementById("modalTeams");
+                const response = await fetch('/article/' + article_id + '/');
+                console.log(response);
+                if (response.status == 403) {
+                    // Use fallback view if blocker by firewall
+                    closeModal();
+                    window.location.href = '/?article=' + article_id;
+                    fallback = fallback + 1;
+                    sessionStorage.setItem('fallback', fallback);
+                } else {
+                    console.log('allowed');
+                    sessionStorage.setItem('fallback', 0);
+                    const myJson = await response.json();
+                    console.log(myJson)
+                    var publisher = document.getElementById("modalPublisher");
+                    var title = document.getElementById("modalTitle");
+                    var img_html = document.getElementById("modalIMG");
+                    var summary = document.getElementById("modalSummary");
+                    var fullText = document.getElementById("modalFullText");
+                    var aiSummary = document.getElementById("modalAI");
+                    var aiAccordion = document.getElementById("modalAccordion");
+                    var fullLink = document.getElementById("modalLink");
+                    var shareEmail = document.getElementById("modalEmail");
+                    var shareTeams = document.getElementById("modalTeams");
 
-                publisher.innerText = myJson.publisher__name;
-                title.innerText = myJson.title;
-                var img_in_html = (!myJson.image_url) ? '' : (myJson.full_text.indexOf(myJson.image_url.split('?')[0]) != -1);
-                var html_starts_with_img = (myJson.full_text.substring(0, 250).indexOf('<img ') != -1);
-                var summary_part_of_body = (myJson.full_text.indexOf(myJson.summary.substring(0, 30)) != -1);
-                if (summary_part_of_body) {
-                    summary.innerText = '';
-                } else {
-                    summary.innerText = myJson.summary;
-                }
-                if (img_in_html | html_starts_with_img) {
-                    img_html.innerHTML = '';
-                } else {
-                    img_html.innerHTML = '<img src="' + myJson.image_url + '" style="max-width: 100%; max-height: 80vh; object-fit: cover;">';
-                }
-                fullText.innerHTML = myJson.full_text;
-                aiSummary.innerHTML = myJson.ai_summary;
-                fullLink.href = myJson.link;
-                shareEmail.href = myJson.email__link;
-                shareTeams.href = myJson.teams__link;
-                if (!!myJson.ai_summary & myJson.ai_summary != 'None') {
-                    aiAccordion.style.display = "block";
+                    publisher.innerText = myJson.publisher__name;
+                    title.innerText = myJson.title;
+                    var img_in_html = (!myJson.image_url) ? '' : (myJson.full_text.indexOf(myJson.image_url.split('?')[0]) != -1);
+                    var html_starts_with_img = (myJson.full_text.substring(0, 250).indexOf('<img ') != -1);
+                    var summary_part_of_body = (myJson.full_text.indexOf(myJson.summary.substring(0, 30)) != -1);
+                    if (summary_part_of_body) {
+                        summary.innerText = '';
+                    } else {
+                        summary.innerText = myJson.summary;
+                    }
+                    if (img_in_html | html_starts_with_img) {
+                        img_html.innerHTML = '';
+                    } else {
+                        img_html.innerHTML = '<img src="' + myJson.image_url + '" style="max-width: 100%; max-height: 80vh; object-fit: cover;">';
+                    }
+                    fullText.innerHTML = myJson.full_text;
+                    aiSummary.innerHTML = myJson.ai_summary;
+                    fullLink.href = myJson.link;
+                    shareEmail.href = myJson.email__link;
+                    shareTeams.href = myJson.teams__link;
+                    if (!!myJson.ai_summary & myJson.ai_summary != 'None') {
+                        aiAccordion.style.display = "block";
+                    }
                 }
             }
-            ;
         }
 
 
