@@ -34,6 +34,9 @@ class Article(models.Model):
     guid = models.CharField(max_length=95, null=True)
     image_url = models.URLField(max_length=300, null=True)
 
+    added_date = models.DateTimeField(auto_now_add=True, editable=True)
+    last_updated_date = models.DateTimeField(auto_now=True, editable=True)
+
     min_feed_position = models.SmallIntegerField(null=True)
     min_article_relevance = models.DecimalField(null=True, decimal_places=6, max_digits=12)
     max_importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE, null=True)
