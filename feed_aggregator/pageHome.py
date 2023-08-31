@@ -73,13 +73,13 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
     }[interval]
 
 
-def get_articles(max_length=72, **kwargs):
+def get_articles(max_length=72, force_recache=False, **kwargs):
     kwargs = {k: [v] if type(v) is str else v for k, v in kwargs.items()}
     kwargs_hash = 'articles_' + str({k.lower(): [i.lower() for i in sorted(v)] for k, v in kwargs.items()})
     kwargs_hash = ''.join([i if i.isalnum() else '_' for i in kwargs_hash])
     articles = cache.get(kwargs_hash)
 
-    if articles is None:
+    if articles is None or force_recache:
         conditions = Q()
         special_filters = kwargs['special'] if 'special' in kwargs else None
         exclude_sidebar = True
@@ -127,6 +127,7 @@ def homeView(request):
     articles = get_articles(**request.GET)
     sidebar = get_articles(special='sidebar')
     lastRefreshed = cache.get('lastRefreshed')
+    currentlyRefreshing = cache.get('currentlyRefreshing')
 
     selected_page = 'frontpage'
     if 'publisher__name' in request.GET:
@@ -142,13 +143,14 @@ def homeView(request):
             selected_page = 'free-only'
 
 
-    if upToDate is not True:
+    if not upToDate and not currentlyRefreshing:
 
         now = datetime.datetime.now()
         if now.hour >= 0 and now.hour < 5:
             print("Don't update articles between 0:00-4:59am to avoid forceful shutdown of container during server updates.")
         else:
             print('News are being refreshed now')
+            cache.set('currentlyRefreshing', True, 60 * 60)
             update_feeds()
 
 

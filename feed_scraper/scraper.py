@@ -70,11 +70,10 @@ def update_feeds():
     if now.hour >= 18 or now.hour < 6 or now.weekday() in [5, 6]:
         print('No AI summaries are generated during non-business hours (i.e. between 18:00-6:00 and on Saturdays and Sundays)')
     else:
-        median_relevance = articles[int(len(articles) / 2)].min_article_relevance
-        articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, min_article_relevance__lte=median_relevance).exclude(publisher__name__in=['Risk.net', 'The Economist'])
+        articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True).exclude(publisher__name__in=['Risk.net', 'The Economist'])[:20]
         add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
-
+    cache.set('currentlyRefreshing', False, 60 * 60)
     print(f'Refreshed articles and added {added_articles} articles in {int(end_time - start_time)} seconds')
 
     connection.close()
