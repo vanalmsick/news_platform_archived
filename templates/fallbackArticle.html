@@ -46,7 +46,9 @@
                     <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle text-dark" href="/?publisher__name={{ article.publisher__name|lower }}">@{{ article.publisher__name }}</a>
                 {% with article.categories|split:";" as tags %}
                 {% for tag in tags %}
+                    {% if tag and tag|length > 2 %}
                     <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle text-dark" href="/?categories={{ tag|lower }}">#{{ tag }}</a>
+                    {% endif %}
                 {% endfor %}
                 {% endwith %}
             </div>
