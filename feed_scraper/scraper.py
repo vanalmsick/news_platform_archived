@@ -62,7 +62,7 @@ def update_feeds():
     cache.set('lastRefreshed', now, 60 * 60 * 48)
 
     # Updating cached artciles
-    cached_views = [i[3:] for i in list(cache._cache.keys())]
+    cached_views = [i[3:] for i in list(cache._cache.keys()) if 'article' in i]
     for cached_view in cached_views:
         cache.set(cached_view, None, 10)
 
