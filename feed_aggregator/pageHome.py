@@ -82,7 +82,7 @@ def get_articles(max_length=72, **kwargs):
     if articles is None:
         conditions = Q()
         special_filters = kwargs['special'] if 'special' in kwargs else None
-        exclude_sidebar_only = True
+        exclude_sidebar = True
         for field, condition_lst in kwargs.items():
             sub_conditions = Q()
             for condition in condition_lst:
@@ -91,9 +91,10 @@ def get_articles(max_length=72, **kwargs):
                         sub_conditions &= Q(Q(has_full_text=True) | Q(publisher__paywall='N'))
                     elif condition.lower() == "sidebar":
                         sub_conditions &= Q(categories__icontains='SIDEBAR')
-                        exclude_sidebar_only = False
+                        exclude_sidebar = False
                 else:
                     sub_conditions |= Q(**{f'{field}__icontains': condition})
+                    exclude_sidebar = False
             try:
                 test_condition = Article.objects.filter(sub_conditions)
             except:
@@ -101,8 +102,8 @@ def get_articles(max_length=72, **kwargs):
             if len(test_condition) > 0:
                 conditions &= sub_conditions
         articles = Article.objects.filter(conditions).order_by('min_article_relevance')
-        if exclude_sidebar_only:
-            articles = articles.exclude(categories__icontains="SIDEBAR ONLY")
+        if exclude_sidebar:
+            articles = articles.exclude(categories__icontains="SIDEBAR")
         if max_length is not None and len(articles) > max_length:
             articles = articles[:max_length]
         cache.set(kwargs_hash, articles, 60 * 60 * 48)
