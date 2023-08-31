@@ -272,12 +272,12 @@
 
         const userAction = async (article_id) => {
             var fallback = sessionStorage.getItem('fallback');
-            if (fallback === undefined) {
+            if (fallback === null) {
                 fallback = 0;
             } else {
                 fallback = parseInt(fallback);
             }
-            if (fallback > 3) {
+            if (fallback > 1) {
                 console.log('auto fallback');
                 window.location.href = '/?article=' + article_id;
             } else {
@@ -288,6 +288,7 @@
                     closeModal();
                     window.location.href = '/?article=' + article_id;
                     fallback = fallback + 1;
+                    console.log('Access denied go to fallback ('+ fallback +')');
                     sessionStorage.setItem('fallback', fallback);
                 } else {
                     console.log('allowed');

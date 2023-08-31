@@ -8,6 +8,14 @@ from .pageLogin import LoginForm, LoginView
 from django.utils.safestring import mark_safe
 from .pageAPI import get_article_data
 from django.contrib.auth import login, authenticate
+from django.template.defaulttags import register
+
+
+@register.filter(name='split')
+def split(value, key):
+    value.split("key")
+    return value.split(key)[:-1]
+
 
 def getDuration(then, now=datetime.datetime.now(), interval="default"):
     # Returns a duration as specified by variable interval
@@ -131,7 +139,9 @@ def homeView(request):
     lastRefreshed = cache.get('lastRefreshed')
     currentlyRefreshing = cache.get('currentlyRefreshing')
 
-    selected_page = 'frontpage'
+    selected_page = 'unknown'
+    if len(request.GET) == 0:
+        selected_page = 'frontpage'
     if 'publisher__name' in request.GET:
         if 'financial times' in request.GET['publisher__name']:
             selected_page = 'financial times'
@@ -153,7 +163,7 @@ def homeView(request):
         else:
             print('News are being refreshed now')
             cache.set('currentlyRefreshing', True, 60 * 60)
-            update_feeds()
+            #update_feeds()
 
 
     return render(request, 'home.html', {
