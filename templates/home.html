@@ -116,7 +116,7 @@
                 <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'tech' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?categories=tech">#Tech</a>
                 <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'financial times' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=financial+times">@Financial Times</a>
                 <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'bloomberg' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=bloomberg">@Bloomberg</a>
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'bloomberg' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=medium">@Medium</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'medium' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=medium">@Medium</a>
             </div>
 
             <div class="album d-flex align-items-center justify-content-center">
@@ -126,7 +126,7 @@
 
                         <div class="row mb-2 flex-fill">
                             {% for article in articles %}
-                                <div id="{{ article.pk }}" class="col-md-4 col-lg-3 my-2"
+                                <div id="{{ article.pk }}" class="col-md-4 col-xl-3 my-2"
                                         {% if article.has_full_text == True %}
                                      onclick="openModal({{ article.pk }})"
                                         {% endif %}

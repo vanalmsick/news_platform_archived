@@ -145,6 +145,8 @@ def homeView(request):
             selected_page = 'financial times'
         elif 'bloomberg' in request.GET['publisher__name']:
             selected_page = 'bloomberg'
+        elif 'medium' in request.GET['publisher__name']:
+            selected_page = 'medium'
     elif 'categories' in request.GET:
         if 'fund' in request.GET['categories']:
             selected_page = 'funds'
@@ -166,7 +168,7 @@ def homeView(request):
         else:
             print('News are being refreshed now')
             cache.set('currentlyRefreshing', True, 60 * 60)
-            update_feeds()
+            #update_feeds()
 
 
     return render(request, 'home.html', {
