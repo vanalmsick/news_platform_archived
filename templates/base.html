@@ -47,9 +47,13 @@
                     return hourDiff + " hours ago"
                 }
             } else if (hourDiff < 96) {
-                return date1.toLocaleDateString("en-US", {weekday: 'short', hour: "numeric", minute: "numeric"});
+                if (length === "short") {
+                    return date1.toLocaleDateString("en-US", {weekday: 'short'})
+                } else {
+                    return date1.toLocaleDateString("en-US", {weekday: 'short', hour: "numeric", minute: "numeric"})
+                }
             } else {
-                return date1.toLocaleDateString("en-US", {day: 'numeric', month: 'short'});
+                return date1.toLocaleDateString("en-US", {day: 'numeric', month: 'short'})
             }
         }
     </script>

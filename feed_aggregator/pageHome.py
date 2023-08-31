@@ -96,7 +96,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
             for condition in condition_lst:
                 if field.lower() == "special":
                     if condition.lower() == 'free-only':
-                        sub_conditions &= Q(Q(has_full_text=True) | Q(publisher__paywall='N'))
+                        sub_conditions &= Q(Q(Q(has_full_text=True) | Q(publisher__paywall='N')) & Q(categories__icontains='frontpage'))
                     elif condition.lower() == "sidebar":
                         sub_conditions &= Q(categories__icontains='SIDEBAR')
                         exclude_sidebar = False
@@ -133,15 +133,13 @@ def homeView(request):
 
 
     # Get Homepage
+    selected_page = 'frontpage' if len(request.GET) == 0 else 'unknown'
     upToDate = cache.get('upToDate')
-    articles = get_articles(**request.GET)
+    articles = get_articles(categories='frontpage') if selected_page == 'frontpage' else get_articles(**request.GET)
     sidebar = get_articles(special='sidebar')
     lastRefreshed = cache.get('lastRefreshed')
     currentlyRefreshing = cache.get('currentlyRefreshing')
 
-    selected_page = 'unknown'
-    if len(request.GET) == 0:
-        selected_page = 'frontpage'
     if 'publisher__name' in request.GET:
         if 'financial times' in request.GET['publisher__name']:
             selected_page = 'financial times'
@@ -150,9 +148,14 @@ def homeView(request):
     elif 'categories' in request.GET:
         if 'fund' in request.GET['categories']:
             selected_page = 'funds'
+        elif 'tech' in request.GET['categories']:
+            selected_page = 'tech'
     elif 'special' in request.GET:
         if 'free-only' in request.GET['special']:
             selected_page = 'free-only'
+    elif 'language' in request.GET:
+        if 'de' in request.GET['language']:
+            selected_page = 'german'
 
 
     if not upToDate and not currentlyRefreshing:

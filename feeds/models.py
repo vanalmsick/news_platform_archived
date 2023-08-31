@@ -35,6 +35,7 @@ class Publisher(models.Model):
         ('title', 'Title')
     ]
     unique_article_id = models.CharField(choices=UNIQUE_ARTICLE_ID, default='guid', max_length=5)
+    language = models.CharField(max_length=5, default='en')
 
     def __str__(self):
         return f'{self.name}'

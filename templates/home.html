@@ -111,7 +111,9 @@
             <div class="d-flex flex-wrap align-items-center justify-content-center mx-auto mb-2">
                 <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'frontpage' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/">Frontpage</a>
                 <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'free-only' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?special=free-only">Free-Only</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'german' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?language=de">German Speaking</a>
                 <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'funds' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?categories=fund">#Funds</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'tech' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?categories=tech">#Tech</a>
                 <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'financial times' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=financial+times">@Financial Times</a>
                 <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'bloomberg' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=bloomberg">@Bloomberg</a>
             </div>
@@ -161,7 +163,7 @@
                                                 {% endif %}
                                             </div>
                                             <p class="card-text mb-auto"
-                                               style="font-family: Georgia, serif;">{{ article.summary }}</p>
+                                               style="font-family: Georgia, serif;">{{ article.summary|truncatechars:255 }}</p>
                                             {% if article.has_full_text == False %}
                                                 <a class="stretched-link" href="{{ article.link }}" target="_blank"></a>
                                             {% endif %}
