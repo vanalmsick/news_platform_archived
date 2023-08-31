@@ -168,7 +168,7 @@ def homeView(request):
         else:
             print('News are being refreshed now')
             cache.set('currentlyRefreshing', True, 60 * 60)
-            #update_feeds()
+            update_feeds()
 
 
     return render(request, 'home.html', {
