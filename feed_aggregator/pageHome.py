@@ -86,8 +86,9 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
     kwargs_hash = 'articles_' + str({k.lower(): [i.lower() for i in sorted(v)] for k, v in kwargs.items()})
     kwargs_hash = ''.join([i if i.isalnum() else '_' for i in kwargs_hash])
     articles = cache.get(kwargs_hash)
+    currentlyRefreshing = cache.get('currentlyRefreshing')
 
-    if articles is None or force_recache:
+    if (articles is None or force_recache) and currentlyRefreshing != True:
         conditions = Q()
         special_filters = kwargs['special'] if 'special' in kwargs else None
         exclude_sidebar = True
