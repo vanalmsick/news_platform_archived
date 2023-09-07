@@ -137,7 +137,7 @@ def homeView(request):
     selected_page = 'frontpage' if len(request.GET) == 0 else 'unknown'
     upToDate = cache.get('upToDate')
     articles = get_articles(categories='frontpage') if selected_page == 'frontpage' else get_articles(**request.GET)
-    sidebar = get_articles(special='sidebar')
+    sidebar = get_articles(special='sidebar', max_length=100)
     lastRefreshed = cache.get('lastRefreshed')
     currentlyRefreshing = cache.get('currentlyRefreshing')
 
