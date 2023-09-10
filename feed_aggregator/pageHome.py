@@ -168,7 +168,6 @@ def homeView(request):
             print("Don't update articles between 0:00-4:59am to avoid forceful shutdown of container during server updates.")
         else:
             print('News are being refreshed now')
-            cache.set('currentlyRefreshing', True, 60 * 60)
             # Caching artciles before updaing
             for kwargs in [dict(categories='frontpage'),
                            {'special': ['free-only']},
@@ -179,6 +178,7 @@ def homeView(request):
                            {'publisher__name': ['bloomberg']},
                            {'publisher__name': ['medium']}]:
                 _ = get_articles(**kwargs)
+            cache.set('currentlyRefreshing', True, 60 * 60)
             update_feeds()
 
 
