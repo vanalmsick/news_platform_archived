@@ -68,6 +68,9 @@
                         <div id="modalIMG" class="pb-2" style="text-align: center;"></div>
                         <div id="modalFullText" style="font-family: Georgia, serif;"></div>
                     </div>
+                    <div id="modalContainerTags"
+                         class="d-flex flex-wrap align-items-center justify-content-center mx-auto mb-2">
+                    </div>
                 </div>
 
                 <div class="modal-footer">
@@ -109,14 +112,22 @@
         <div id="mainSpace">
 
             <div class="d-flex flex-wrap align-items-center justify-content-center mx-auto mb-2">
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'frontpage' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/">Frontpage</a>
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'free-only' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?special=free-only">Free-Only</a>
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'german' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?language=de">German Speaking</a>
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'funds' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?categories=fund">#Funds</a>
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'tech' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?categories=tech">#Tech</a>
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'financial times' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=financial+times">@Financial Times</a>
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'bloomberg' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=bloomberg">@Bloomberg</a>
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'medium' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}" href="/?publisher__name=medium">@Medium</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'frontpage' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
+                   href="/">Frontpage</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'free-only' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
+                   href="/?special=free-only">Free-Only</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'german' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
+                   href="/?language=de">German Speaking</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'funds' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
+                   href="/?categories=fund">#Funds</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'tech' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
+                   href="/?categories=tech">#Tech</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'financial times' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
+                   href="/?publisher__name=financial+times">@Financial Times</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'bloomberg' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
+                   href="/?publisher__name=bloomberg">@Bloomberg</a>
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'medium' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
+                   href="/?publisher__name=medium">@Medium</a>
             </div>
 
             <div class="album d-flex align-items-center justify-content-center">
@@ -291,7 +302,7 @@
                     closeModal();
                     window.location.href = '/?article=' + article_id;
                     fallback = fallback + 1;
-                    console.log('Access denied go to fallback ('+ fallback +')');
+                    console.log('Access denied go to fallback (' + fallback + ')');
                     sessionStorage.setItem('fallback', fallback);
                 } else {
                     console.log('allowed');
@@ -308,6 +319,7 @@
                     var fullLink = document.getElementById("modalLink");
                     var shareEmail = document.getElementById("modalEmail");
                     var shareTeams = document.getElementById("modalTeams");
+                    var categories = document.getElementById("modalContainerTags");
 
                     publisher.innerText = myJson.publisher__name;
                     title.innerText = myJson.title;
@@ -331,6 +343,13 @@
                     shareTeams.href = myJson.teams__link;
                     if (!!myJson.ai_summary & myJson.ai_summary != 'None') {
                         aiAccordion.style.display = "block";
+                    }
+                    var categories_lst = myJson.categories.split(';');
+                    categories.innerHTML += '<a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle text-dark" href="/?publisher__name=' + myJson.publisher__name.toLowerCase() + '">@' + myJson.publisher__name.toUpperCase() + '</a>'
+                    for (var i = 0; i < categories_lst.length; i++) {
+                        if (categories_lst[i].length > 1) {
+                            categories.innerHTML += '<a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle text-dark" href="/?categories=' + categories_lst[i].toLowerCase() + '">#' + categories_lst[i].toUpperCase() + '</a>'
+                        }
                     }
                 }
             }
@@ -358,9 +377,10 @@
             var fullLink = document.getElementById("modalLink");
             var shareEmail = document.getElementById("modalEmail");
             var shareTeams = document.getElementById("modalTeams");
+            var categories = document.getElementById("modalContainerTags");
             aiAccordion.style.display = "none";
             publisher.innerText = title.innerText = summary.innerText = 'Loading...';
-            aiSummary.innerHTML = fullText.innerHTML = fullLink.href = img_html.innerHTML = shareEmail.href = shareTeams.href = '';
+            categories.innerHTML = aiSummary.innerHTML = fullText.innerHTML = fullLink.href = img_html.innerHTML = shareEmail.href = shareTeams.href = '';
         }
 
         // When the user clicks anywhere outside of the modal, close it

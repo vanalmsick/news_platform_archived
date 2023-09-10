@@ -169,6 +169,16 @@ def homeView(request):
         else:
             print('News are being refreshed now')
             cache.set('currentlyRefreshing', True, 60 * 60)
+            # Caching artciles before updaing
+            for kwargs in [dict(categories='frontpage'),
+                           {'special': ['free-only']},
+                           {'language': ['de']},
+                           {'categories': ['fund']},
+                           {'categories': ['tech']},
+                           {'publisher__name': ['financial times']},
+                           {'publisher__name': ['bloomberg']},
+                           {'publisher__name': ['medium']}]:
+                _ = get_articles(**kwargs)
             update_feeds()
 
 
