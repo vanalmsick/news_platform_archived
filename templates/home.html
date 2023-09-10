@@ -50,6 +50,7 @@
                     <div id="modaltext" class="mx-auto my-3 bg-body rounded shadow-sm">
                         <h2 id="modalTitle" style="font-family: Georgia, serif; font-weight: bold;"></h2>
                         <div id="modalSummary" class="lead pb-2" style="font-family: Georgia, serif;"></div>
+                        <div id="modalDate" class="mb-1 text-muted" style="font-family: Georgia, serif;"></div>
                         <div id="modalAccordion" class="mb-4" style="display: none;">
                             <div class="card">
                                 <div class="card-header bg-tertiary d-flex justify-content-between" id="headingOne">
@@ -242,6 +243,8 @@
     </body>
     <script>
 
+        var windowLocation = window.location.href;
+
         function waitFor(conditionFunction) {
             const poll = resolve => {
                 if (conditionFunction()) resolve();
@@ -312,6 +315,7 @@
                     var publisher = document.getElementById("modalPublisher");
                     var title = document.getElementById("modalTitle");
                     var img_html = document.getElementById("modalIMG");
+                    var dates = document.getElementById("modalDate");
                     var summary = document.getElementById("modalSummary");
                     var fullText = document.getElementById("modalFullText");
                     var aiSummary = document.getElementById("modalAI");
@@ -341,6 +345,7 @@
                     fullLink.href = myJson.link;
                     shareEmail.href = myJson.email__link;
                     shareTeams.href = myJson.teams__link;
+                    dates.innerText = 'Published ' + dateConvert(myJson.pub_date) + '  //  Added ' + dateConvert(myJson.added_date);
                     if (!!myJson.ai_summary & myJson.ai_summary != 'None') {
                         aiAccordion.style.display = "block";
                     }
@@ -351,6 +356,8 @@
                             categories.innerHTML += '<a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle text-dark" href="/?categories=' + categories_lst[i].toLowerCase() + '">#' + categories_lst[i].toUpperCase() + '</a>'
                         }
                     }
+                    // update url to show article
+                    window.history.replaceState(null, null, "?article=" + article_id);
                 }
             }
         }
@@ -370,6 +377,7 @@
             var publisher = document.getElementById("modalPublisher");
             var title = document.getElementById("modalTitle");
             var img_html = document.getElementById("modalIMG");
+            var dates = document.getElementById("modalDate");
             var summary = document.getElementById("modalSummary");
             var fullText = document.getElementById("modalFullText");
             var aiSummary = document.getElementById("modalAI");
@@ -379,8 +387,10 @@
             var shareTeams = document.getElementById("modalTeams");
             var categories = document.getElementById("modalContainerTags");
             aiAccordion.style.display = "none";
-            publisher.innerText = title.innerText = summary.innerText = 'Loading...';
+            dates.innerText = publisher.innerText = title.innerText = summary.innerText = 'Loading...';
             categories.innerHTML = aiSummary.innerHTML = fullText.innerHTML = fullLink.href = img_html.innerHTML = shareEmail.href = shareTeams.href = '';
+            // update url to not show article
+            window.history.pushState({ path: windowLocation }, '', windowLocation);
         }
 
         // When the user clicks anywhere outside of the modal, close it
