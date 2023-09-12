@@ -29,13 +29,6 @@ def update_feeds():
 
     start_time = time.time()
 
-    old_articles = Article.objects.filter(min_article_relevance__isnull=True, added_date__lte=settings.TIME_ZONE_OBJ.localize(datetime.datetime.now() - datetime.timedelta(days=3)))
-    if len(old_articles) > 0:
-        print(f'Delete {len(old_articles)} old articles')
-        old_articles.delete()
-    else:
-        print(f'No old articles to delete')
-
     all_articles = Article.objects.all()
     all_articles.update(min_feed_position=None)
     all_articles.update(max_importance=None)
@@ -80,6 +73,13 @@ def update_feeds():
         add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
     print('flag 8')
+
+    old_articles = Article.objects.filter(min_article_relevance__isnull=True, added_date__lte=settings.TIME_ZONE_OBJ.localize(datetime.datetime.now() - datetime.timedelta(days=3)))
+    if len(old_articles) > 0:
+        print(f'Delete {len(old_articles)} old articles')
+        old_articles.delete()
+    else:
+        print(f'No old articles to delete')
 
     cache.set('currentlyRefreshing', False, 60 * 60)
     print(f'Refreshed articles and added {added_articles} articles in {int(end_time - start_time)} seconds')
