@@ -138,7 +138,7 @@
 
                     <div class="row mb-2 flex-fill">
                         {% for article in articles %}
-                        {% if 'publisher' in article %}
+                        {% block article.publisher %}
                             <div id="{{ article.pk }}" class="col-md-4 col-xl-3 my-2"
                                     {% if article.has_full_text == True %}
                                  onclick="openModal({{ article.pk }})"
@@ -184,7 +184,7 @@
                         </div>
                         </div>
                         </div>
-                        {% endif %}
+                        {% endblock %}
                         {% endfor %}
                     </div>
 
@@ -200,7 +200,7 @@
         </div>
         <div class="list-group">
             {% for side_article in sidebar %}
-                {% if 'publisher' in side_article %}
+                {% block side_article.publisher %}
                     <a class="list-group-item list-group-item-action link-dark" aria-current="true"
                             {% if side_article.has_full_text == False %}
                        href="{{ side_article.link }}" target="_blank"
@@ -229,7 +229,7 @@
                             </small>
                         </div>
                     </a>
-                {% endif %}
+                {% endblock %}
             {% endfor %}
         </div>
 
