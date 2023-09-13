@@ -113,9 +113,9 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                 conditions &= sub_conditions
         articles = Article.objects.filter(conditions).exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')
         if exclude_sidebar:
-            articles = articles.exclude(categories__icontains="SIDEBAR")
+            articles = articles.exclude(categories__icontains="SIDEBAR").exclude(pub_date__lte=settings.TIME_ZONE_OBJ.localize(datetime.datetime.now() - datetime.timedelta(days=7)))
         if special_filters is not None and 'sidebar' in special_filters:
-            articles = articles.order_by('-added_date__date', '-added_date__hour', '-pub_date', 'min_article_relevance')
+            articles = articles.order_by('-added_date', '-pub_date', 'min_article_relevance')
         if max_length is not None and len(articles) > max_length:
             articles = articles[:max_length]
         cache.set(kwargs_hash, articles, 60 * 60 * 48)
