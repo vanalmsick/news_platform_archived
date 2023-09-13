@@ -4,6 +4,7 @@ from feed_scraper.scraper import update_feeds
 from articles.models import Article
 from django.db.models import Q, F
 import datetime
+from django.conf import settings
 from .pageLogin import LoginForm, LoginView
 from django.utils.safestring import mark_safe
 from .pageAPI import get_article_data
