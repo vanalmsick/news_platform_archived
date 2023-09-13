@@ -161,7 +161,7 @@
                             -
                             <script>document.write(dateConvert("{{ article.pub_date|date:"c" }}"));</script>
                             {% if article.has_full_text == False %}
-                                {% article.publisher.paywall == 'Y' %}
+                                {% if article.publisher.paywall == 'Y' %}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                      fill="currentColor" class="bi bi-currency-dollar"
                                      viewBox="0 0 16 16">
