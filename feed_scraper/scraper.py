@@ -39,14 +39,12 @@ def update_feeds():
     for feed in feeds:
         delete_feed_positions(feed=feed)
 
-    print('flag 1')
 
     feeds = Feed.objects.filter(active=True)
     added_articles = 0
     for feed in feeds:
         added_articles += fetch_feed(feed)
 
-    print('flag 6')
 
     # calculate next refesh time
     end_time = time.time()
@@ -58,7 +56,6 @@ def update_feeds():
     cache.set('upToDate', True, int(refresh_time))
     cache.set('lastRefreshed', now, 60 * 60 * 48)
 
-    print('flag 7')
 
     # Updating cached artciles
     cached_views = [i[3:] for i in list(cache._cache.keys()) if 'article' in i]
@@ -72,7 +69,6 @@ def update_feeds():
         articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, categories__icontains='FRONTPAGE').exclude(publisher__name__in=['Risk.net', 'The Economist'])[:20]
         add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
-    print('flag 8')
 
     old_articles = Article.objects.filter(min_article_relevance__isnull=True, added_date__lte=settings.TIME_ZONE_OBJ.localize(datetime.datetime.now() - datetime.timedelta(days=3)))
     if len(old_articles) > 0:
@@ -361,7 +357,6 @@ def fetch_feed(feed):
     if len(fetched_feed.entries) > 0:
         delete_feed_positions(feed)
 
-    print('flag 2')
 
     for i, scraped_article in enumerate(fetched_feed.entries):
         hash_obj = hashlib.new('sha256')
@@ -429,7 +424,6 @@ def fetch_feed(feed):
         else:
             new_article = True
 
-        print('flag 3')
 
         # article does not exist yet
         if new_article:
@@ -527,7 +521,6 @@ def fetch_feed(feed):
             else:
                 article_kwargs['type'] = 'normal'
 
-            print('flag 4')
 
             # add article
             article_obj = Article(**article_kwargs)
@@ -550,9 +543,13 @@ def fetch_feed(feed):
                 setattr(article_obj, k, v)
             elif 'max' in k and v > value:
                 setattr(article_obj, k, v)
+            elif k == 'categories' and article_kwargs['categories'] is not None:
+                for category in article_kwargs['categories'].split(';'):
+                    if category.upper() not in v:
+                        v += category.upper() + ';'
+                setattr(article_obj, k, v)
         article_obj.save()
 
-        print('flag 5')
 
         # Add feed position linking
         feed_position = FeedPosition(

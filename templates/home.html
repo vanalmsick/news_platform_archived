@@ -144,7 +144,7 @@
                                  onclick="openModal({{ article.pk }})"
                                     {% endif %}
                                  style="cursor: pointer;">
-                            <div class="card mb-4 box-shadow h-100{% if article.type == 'breaking' %} breaking{% endif %}">
+                            <div class="card mb-4 box-shadow h-100{% if article.type == 'breaking' or 'big read' in article.categories|lower or 'news in depth' in article.categories|lower %} breaking{% endif %}">
                             {% if article.image_url != Null %}
                                 <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
                                      src="{{ article.image_url }}" loading="lazy">
@@ -201,7 +201,7 @@
         <div class="list-group">
             {% for side_article in sidebar %}
                 {% if side_article is not None and side_article.publisher is not None %}
-                    <a class="list-group-item list-group-item-action link-dark" aria-current="true"
+                    <a class="list-group-item list-group-item-action link-dark {% if 'financial times' in side_article.title|lower or 'bloomberg' in side_article.title|lower or 'hedgeweek' in side_article.title|lower or 'the wall street journal' in side_article.title|lower %} breaking{% endif %}" aria-current="true"
                             {% if side_article.has_full_text == False %}
                        href="{{ side_article.link }}" target="_blank"
                             {% else %}

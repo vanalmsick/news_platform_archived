@@ -83,7 +83,7 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
 
 
 def get_articles(max_length=72, force_recache=False, **kwargs):
-    print('get_articles')
+
     kwargs = {k: [v] if type(v) is str else v for k, v in kwargs.items()}
     kwargs_hash = 'articles_' + str({k.lower(): [i.lower() for i in sorted(v)] for k, v in kwargs.items()})
     kwargs_hash = ''.join([i if i.isalnum() else '_' for i in kwargs_hash])
@@ -126,7 +126,6 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
 
 
 def homeView(request):
-    print('Home http request', request)
 
     # If fallback articcle view is needed
     if 'article' in request.GET:
