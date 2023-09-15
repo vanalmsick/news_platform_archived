@@ -66,7 +66,8 @@ def update_feeds():
     if now.hour >= 18 or now.hour < 6 or now.weekday() in [5, 6]:
         print('No AI summaries are generated during non-business hours (i.e. between 18:00-6:00 and on Saturdays and Sundays)')
     else:
-        articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, categories__icontains='FRONTPAGE').exclude(publisher__name__in=['Risk.net', 'The Economist']).exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:20]
+        min_article_relevance = Article.objects.filter(has_full_text=True, categories__icontains='FRONTPAGE').exclude(publisher__name__in=['Risk.net', 'The Economist']).exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:20].aggregate(Max('min_article_relevance'))['min_article_relevance__max']
+        articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, categories__icontains='FRONTPAGE', min_article_relevance__lte=min_article_relevance).exclude(publisher__name__in=['Risk.net', 'The Economist']).exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')
         add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
 
