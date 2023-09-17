@@ -68,7 +68,9 @@ def fetch_feed(feed):
         article_kwargs['content_type'] = 'video'
         article_kwargs['categories'] = ';'.join([str(i).upper() for i in ['VIDEO'] + ([] if feed.source_categories is None else feed.source_categories.split(';')) + ['']])
         article_kwargs['title'] = video['title']['runs'][0]['text'] if 'title' in video else None
-        article_kwargs['summary'] = video['descriptionSnippet']['runs'][0]['text'] if 'descriptionSnippet' in video else None
+        article_kwargs['summary'] = video['descriptionSnippet']['runs'][0]['text'] if 'descriptionSnippet' in video else ''
+        if 'lengthText' in video:
+            article_kwargs['summary'] = video['lengthText']['simpleText'] + ' min  |  ' + video['viewCountText']['simpleText'] + '\n' + article_kwargs['summary']
         article_kwargs['image_url'] = video['thumbnail']['thumbnails'][-1]['url'] if 'thumbnail' in video else None
         article_kwargs['guid'] = video['videoId']
         publishedTimeText = video['publishedTimeText']['simpleText']
@@ -92,7 +94,7 @@ def fetch_feed(feed):
         article_kwargs['language'] = feed.publisher.language
         article_kwargs['link'] = f"https://www.youtube.com/watch?v={video['videoId']}"
         article_kwargs['full_text'] = f"""
-        <iframe style="width: 100%; height: auto; min-height: 150px; aspect-ratio: 16 / 9;" 
+        <iframe style="width: 100%; height: auto; min-height: 30vw; max-height:400px; aspect-ratio: 16 / 9;" 
         src="https://www.youtube-nocookie.com/embed/{video['videoId']}?rel=0&autoplay=1"
         frameborder="0" allow="autoplay; encrypted-media" tabindex="0" allowfullscreen></iframe>
         """
