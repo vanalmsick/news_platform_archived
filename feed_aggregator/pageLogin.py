@@ -7,7 +7,7 @@ class LoginForm(forms.Form):
     password = forms.CharField(max_length=63, widget=forms.TextInput(attrs={'class': "form-control"}))
 
 
-def LoginView(request):
+def LoginView(request, meta='<title>vA News Platform</title>'):
     form = LoginForm()
     message = ''
     if request.method == 'POST':
@@ -26,7 +26,7 @@ def LoginView(request):
                     return redirect('/')
             else:
                 message = 'Login failed!'
-    return render(request, 'login.html', context={'form': form, 'message': message})
+    return render(request, 'login.html', context={'form': form, 'message': message, 'meta': meta})
 
 
 def LoginURLView(request, password):

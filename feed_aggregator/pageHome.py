@@ -129,10 +129,28 @@ def homeView(request):
 
     # If fallback articcle view is needed
     if 'article' in request.GET:
+        article = get_article_data(int(request.GET['article']))
+        if article['error'] is False:
+            meta = f"""
+            <title>{article['title']} - {article['publisher__name']}</title>
+            <meta name="description" content="{article['summary']}">
+            <meta property="og:description" content="{article['summary']}">
+            <meta property="og:image" content="{article['image_url']}">
+            <meta property="og:site_name" content="{article['publisher__name']}">
+            <meta property="og:title" content="{article['title']}">
+            <meta property="og:type" content="article">
+            <meta property="og:url" content="{article['link']}">
+            """
+        else:
+            meta = f"<title>{article['title']} - {article['publisher__name']}</title>"
+
         # if user is not autheticated
         if request.user.is_authenticated is False:
-            return LoginView(request)
-        return render(request, 'fallbackArticle.html', {'article': get_article_data(int(request.GET['article']))})
+            return LoginView(request, meta)
+        return render(request, 'fallbackArticle.html', {
+            'article': article,
+            'meta': meta
+        })
 
 
     # Get Homepage
@@ -188,5 +206,6 @@ def homeView(request):
         'articles': articles,
         'sidebar': sidebar,
         'lastRefreshed': 'Never' if lastRefreshed is None else getDuration(lastRefreshed, datetime.datetime.now(), 'short'),
-        'page': selected_page
+        'page': selected_page,
+        'meta': '<title>vA News Platform</title>'
         })
