@@ -55,9 +55,12 @@ def fetch_feed(feed):
         videos = []
 
     for i, video in enumerate(videos):
+        no_new_video = 0
         if i > 500:
             print(f'{feed} has more than 500 videos thus stop fetching more.')
             break
+        if no_new_video > 50:
+            print(f'{feed} no new video found for the last {no_new_video} videos at video {i+1} thus stop checking more.')
         article_kwargs = {}
         article__feed_position = i + 1
         article_kwargs['min_feed_position'] =  article__feed_position
@@ -86,6 +89,8 @@ def fetch_feed(feed):
             print(f'Unknown date string "{publishedTimeText}"')
         article_kwargs['pub_date'] = settings.TIME_ZONE_OBJ.localize(article_kwargs['pub_date'])
         article_kwargs['hash'] = f"youtube_{video['videoId']}"
+        article_kwargs['language'] = feed.publisher.language
+        article_kwargs['link'] = f"https://www.youtube.com/watch?v={video['videoId']}"
         article_kwargs['full_text'] = f"""
         <iframe style="width: 100%; height: auto; aspect-ratio: 16 / 9;" src="https://www.youtube-nocookie.com/embed/{video['videoId']}"
         frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
@@ -98,9 +103,11 @@ def fetch_feed(feed):
             article_obj = Article(**article_kwargs)
             article_obj.save()
             added_vids += 1
+            no_new_video = 0
 
         else:
             article_obj = search_article[0]
+            no_new_video += 1
 
 
         article_kwargs['max_importance'], article_kwargs['min_article_relevance'] = calcualte_relevance(publisher=feed.publisher, feed=feed, feed_position=article__feed_position, hash=article_kwargs['hash'], pub_date=article_kwargs['pub_date'])
