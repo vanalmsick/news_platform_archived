@@ -16,7 +16,7 @@
                         <h2 id="modalTitle"
                             style="font-family: Georgia, serif; font-weight: bold;">{{ article.title }}</h2>
                         <div id="modalSummary" class="lead pb-2"
-                             style="font-family: Georgia, serif;">{{ article.summary }}</div>
+                             style="font-family: Georgia, serif;">{{ article.summary|safe }}</div>
                         <div id="modalDate" class="mb-1 text-muted" style="font-family: Georgia, serif;">
                             Published <script>document.write(dateConvert("{{ article.pub_date|date:"c" }}"));</script> //
                             Added <script>document.write(dateConvert("{{ article.added_date|date:"c" }}"));</script>
