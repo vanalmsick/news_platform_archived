@@ -69,7 +69,7 @@ def fetch_feed(feed):
         article_kwargs['categories'] = ';'.join([str(i).upper() for i in ['VIDEO'] + ([] if feed.source_categories is None else feed.source_categories.split(';')) + ['']])
         article_kwargs['title'] = video['title']['runs'][0]['text'] if 'title' in video else None
         article_kwargs['summary'] = video['descriptionSnippet']['runs'][0]['text'] if 'descriptionSnippet' in video else ''
-        if 'lengthText' in video:
+        if 'lengthText' in video and 'viewCountText' in video:
             article_kwargs['summary'] = video['lengthText']['simpleText'] + (' h' if len(video['lengthText']['simpleText']) > 5 else ' min') + '  |  ' + video['viewCountText']['simpleText'] + '<br>\n' + article_kwargs['summary']
         article_kwargs['image_url'] = video['thumbnail']['thumbnails'][-1]['url'] if 'thumbnail' in video else None
         article_kwargs['guid'] = video['videoId']
