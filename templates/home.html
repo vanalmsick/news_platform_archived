@@ -114,21 +114,21 @@
 
         <div class="d-flex flex-wrap align-items-center justify-content-center mx-auto mb-2">
             <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'frontpage' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
-               href="/">Frontpage</a>
+               tabindex="1" href="/">Frontpage</a>
             <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'free-only' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
-               href="/?special=free-only">Free-Only</a>
+               tabindex="2" href="/?special=free-only">Free-Only</a>
             <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'german' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
-               href="/?language=de">German Speaking</a>
+               tabindex="3" href="/?language=de">German Speaking</a>
             <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'funds' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
-               href="/?categories=fund">#Funds</a>
+               tabindex="4" href="/?categories=fund">#Funds</a>
             <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'tech' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
-               href="/?categories=tech">#Tech</a>
+               tabindex="5" href="/?categories=tech">#Tech</a>
             <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'financial times' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
-               href="/?publisher__name=financial+times">@Financial Times</a>
+               tabindex="6" href="/?publisher__name=financial+times">@Financial Times</a>
             <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'bloomberg' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
-               href="/?publisher__name=bloomberg">@Bloomberg</a>
+               tabindex="7" href="/?publisher__name=bloomberg">@Bloomberg</a>
             <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page == 'video' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
-               href="/?content_type=video">
+               tabindex="8" href="/?content_type=video">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-btn" viewBox="0 0 16 16">
                   <path d="M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
                   <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm15 0a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
@@ -145,6 +145,7 @@
                         {% for article in articles %}
                         {% if article is not None and article.publisher is not None %}
                             <div id="{{ article.pk }}" class="col-md-4 col-xl-3 my-2"
+                                 tabindex="{{ forloop.counter|add:"8" }}"
                                     {% if article.has_full_text == True %}
                                  onclick="openModal({{ article.pk }})"
                                     {% endif %}

@@ -92,8 +92,9 @@ def fetch_feed(feed):
         article_kwargs['language'] = feed.publisher.language
         article_kwargs['link'] = f"https://www.youtube.com/watch?v={video['videoId']}"
         article_kwargs['full_text'] = f"""
-        <iframe style="width: 100%; height: auto; aspect-ratio: 16 / 9;" src="https://www.youtube-nocookie.com/embed/{video['videoId']}"
-        frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <iframe style="width: 100%; height: auto; min-height: 150px; aspect-ratio: 16 / 9;" 
+        src="https://www.youtube-nocookie.com/embed/{video['videoId']}?rel=0&autoplay=1"
+        frameborder="0" allow="autoplay; encrypted-media" tabindex="0" allowfullscreen></iframe>
         """
         article_kwargs['has_full_text'] = True
 
