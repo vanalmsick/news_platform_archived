@@ -11,4 +11,5 @@ django-filter
 openai
 ratelimit
 linkpreview
+scrapetube
 #Werkzeug

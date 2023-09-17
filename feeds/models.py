@@ -48,10 +48,12 @@ class Feed(models.Model):
     active = models.BooleanField(default=True)
     last_fetched = models.DateTimeField(null=True, blank=True)
     importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE)
-    DISPLAY_SECTION = [
-        ('main', 'Main Page'),
-        ('side', 'Side Widget')
+    FEED_TYPES = [
+        ('rss', 'RSS Feed'),
+        ('y-channel', 'YouTube Channel'),
+        ('y-playlist', 'YouTube Playlist')
     ]
+    feed_type = models.CharField(max_length=10, choices=FEED_TYPES, default='rss')
     source_categories = models.CharField(max_length=250, null=True, blank=True)
     FEED_ORDER = [
         ('r', 'Relavance'),

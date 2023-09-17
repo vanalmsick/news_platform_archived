@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.core.cache import cache
-from feed_scraper.scraper import update_feeds
+from feed_scraper.feed_scraper import update_feeds
+from feed_scraper.video_scraper import update_videos
 from articles.models import Article
 from django.db.models import Q, F
 import datetime
@@ -159,6 +160,7 @@ def homeView(request):
     articles = get_articles(categories='frontpage') if selected_page == 'frontpage' else get_articles(**request.GET)
     sidebar = get_articles(special='sidebar', max_length=100)
     lastRefreshed = cache.get('lastRefreshed')
+    videoRefreshCycleCount = cache.get('videoRefreshCycleCount')
     currentlyRefreshing = cache.get('currentlyRefreshing')
 
     if 'publisher__name' in request.GET:
@@ -179,6 +181,9 @@ def homeView(request):
     elif 'language' in request.GET:
         if 'de' in request.GET['language']:
             selected_page = 'german'
+    elif 'content_type' in request.GET:
+        if 'video' in request.GET['content_type']:
+            selected_page = 'video'
 
 
     if not upToDate and not currentlyRefreshing:
@@ -196,10 +201,17 @@ def homeView(request):
                            {'categories': ['tech']},
                            {'publisher__name': ['financial times']},
                            {'publisher__name': ['bloomberg']},
-                           {'publisher__name': ['medium']}]:
+                           {'content_type': ['video']}]:
                 _ = get_articles(**kwargs)
             cache.set('currentlyRefreshing', True, 60 * 60)
             update_feeds()
+            if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
+                update_videos()
+                cache.set('videoRefreshCycleCount', 8, 60 * 60 * 24)
+            else:
+                print(f'Refeshing videos in {videoRefreshCycleCount - 1} cycles')
+                cache.set('videoRefreshCycleCount', videoRefreshCycleCount - 1, 60 * 60 * 24)
+
 
 
     return render(request, 'home.html', {

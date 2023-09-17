@@ -29,7 +29,7 @@ def update_feeds():
 
     start_time = time.time()
 
-    all_articles = Article.objects.all()
+    all_articles = Article.objects.filter(feed_type='rss')
     all_articles.update(min_feed_position=None)
     all_articles.update(max_importance=None)
     all_articles.update(min_article_relevance=None)
@@ -40,7 +40,7 @@ def update_feeds():
         delete_feed_positions(feed=feed)
 
 
-    feeds = Feed.objects.filter(active=True)
+    feeds = Feed.objects.filter(active=True, feed_type='rss')
     added_articles = 0
     for feed in feeds:
         added_articles += fetch_feed(feed)

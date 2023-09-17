@@ -26,6 +26,12 @@ class Article(models.Model):
         ('normal', 'Normal Article')
     ]
     type = models.CharField(choices=ARTICLE_TYPE, max_length=8, default='normal')
+    CONTENT_TYPES = [
+        ('article', 'Article'),
+        ('ticker', 'Live News/Ticker'),
+        ('video', 'Video')
+    ]
+    content_type = models.CharField(max_length=10, choices=CONTENT_TYPES, default='article')
     full_text = models.TextField(null=True)
     has_full_text = models.BooleanField(default=True)
     author = models.CharField(max_length=90, null=True)
