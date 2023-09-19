@@ -178,6 +178,8 @@ def homeView(request):
     elif 'special' in request.GET:
         if 'free-only' in request.GET['special']:
             selected_page = 'free-only'
+        elif 'sidebar' in request.GET['special']:
+            selected_page = 'sidebar'
     elif 'language' in request.GET:
         if 'de' in request.GET['language']:
             selected_page = 'german'
