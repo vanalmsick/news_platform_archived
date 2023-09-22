@@ -550,7 +550,7 @@ def fetch_feed(feed):
                 setattr(article_obj, k, v)
             elif 'max' in k and v > value:
                 setattr(article_obj, k, v)
-            elif k == 'categories' and article_kwargs['categories'] is not None:
+            elif k == 'categories' and article_kwargs['categories'] is not None and len(article_kwargs['categories']) > 0:
                 print('Debug 3', type(article_kwargs['categories']), article_kwargs['categories'])
                 for category in article_kwargs['categories'].split(';'):
                     if category.upper() not in v:
