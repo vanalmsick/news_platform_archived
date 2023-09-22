@@ -364,10 +364,12 @@ def fetch_feed(feed):
     for i, scraped_article in enumerate(fetched_feed.entries):
         hash_obj = hashlib.new('sha256')
         article__feed_position = i + 1
+        print('Debug 1.1', type(feed.source_categories), feed.source_categories)
         article_kwargs = dict(min_feed_position=article__feed_position,
                               publisher=feed.publisher,
                               categories= '' if feed.source_categories is None or len(feed.source_categories.split(';')) == 0 else ';'.join([str(i).upper() for i in feed.source_categories.split(';') + ['']])
                               )
+        print('Debug 1.2', type(article_kwargs['categories']), article_kwargs['categories'])
         for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'summary', 'link': 'link', 'guid': 'id', 'pub_date': 'published_parsed', 'categories': 'tags'}.items():
             if hasattr(scraped_article, kwarg_Y) and scraped_article[kwarg_Y] is not None and scraped_article[kwarg_Y] != '':
                 if kwarg_X in ['title', 'summary'] and scraped_article[kwarg_Y] is not None:
@@ -377,7 +379,9 @@ def fetch_feed(feed):
                     else:
                         article_kwargs[kwarg_X] = html.unescape(scraped_article[kwarg_Y])
                 elif kwarg_X in ['categories'] and scraped_article[kwarg_Y] is not None and len(scraped_article[kwarg_Y]) > 0:
+                    print('Debug 2.1', type(scraped_article[kwarg_Y]), scraped_article[kwarg_Y])
                     article_kwargs[kwarg_X] += ';'.join([str(i['term']).upper() for i in scraped_article[kwarg_Y]]) + ';'
+                    print('Debug 2.2', type(article_kwargs['categories']), article_kwargs['categories'])
                 else:
                     article_kwargs[kwarg_X] = scraped_article[kwarg_Y]
 
@@ -547,6 +551,7 @@ def fetch_feed(feed):
             elif 'max' in k and v > value:
                 setattr(article_obj, k, v)
             elif k == 'categories' and article_kwargs['categories'] is not None:
+                print('Debug 3', type(article_kwargs['categories']), article_kwargs['categories'])
                 for category in article_kwargs['categories'].split(';'):
                     if category.upper() not in v:
                         v += category.upper() + ';'
