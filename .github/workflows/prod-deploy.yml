@@ -14,7 +14,7 @@ jobs:
         node-version:
         - 12
     steps:
-      - uses: vanalmsick/autotag-action@latest
+      - uses: phish108/autotag-action@v1.1.64
         id: tagger
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
