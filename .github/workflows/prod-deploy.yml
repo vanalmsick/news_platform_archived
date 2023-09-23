@@ -19,8 +19,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           with-v: TRUE
-          branch: master
-          release-branch: master
+          branch: main
+          release-branch: main
     outputs:
        new_version: ${{steps.tagger.outputs.new-tag}}
 
