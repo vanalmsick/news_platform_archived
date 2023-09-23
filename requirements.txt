@@ -2,7 +2,6 @@ django>=4.0.3
 pytz
 requests
 feedparser
-requests
 beautifulsoup4
 lxml
 html5lib
