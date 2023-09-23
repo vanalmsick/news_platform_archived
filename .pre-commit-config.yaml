@@ -1,4 +1,4 @@
-# This file configures the code-style checks before changes are git committed and pushed to Github (the file setup.cfg contains additional settings)
+# This file configures the code-style checks and runs unittests before code changes are git committed and pushed to Github (the file setup.cfg contains additional settings)
 # After git cloning this repo please install all requirements in requirements.txt and requirements-dev.txt and then execute "pre-commit install"
 # Article that explains this: https://towardsdatascience.com/4-pre-commit-plugins-to-automate-code-reviewing-and-formatting-in-python-c80c6d2e9f5
 
@@ -33,6 +33,10 @@ repos:
     rev: 6.1.0
     hooks:
       - id: flake8
+  - repo: https://github.com/hadialqattan/pycln
+    rev: v2.2.2
+    hooks:
+      - id: pycln
   - repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
@@ -40,7 +44,15 @@ repos:
         name: isort (python)
         args: [ "--profile", "black", "--filter-files" ]
   - repo: https://github.com/econchick/interrogate
-    rev: 1.4.0
+    rev: 1.5.0
     hooks:
       - id: interrogate
         args: [ -vv, -i, --fail-under=80 ]
+  - repo: local
+    hooks:
+      - id: unittests
+        name: run unit tests
+        entry: python -m unittest
+        language: system
+        pass_filenames: false
+        args: [ "discover" ]
