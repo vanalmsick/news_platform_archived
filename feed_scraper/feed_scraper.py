@@ -1,32 +1,48 @@
-from django.db.models import Q, Max, Avg
-import os, openai, re, ratelimit, traceback
-import feedparser, datetime, time, hashlib
+import datetime
+import hashlib
+import html
+import os
+import random
+import re
+import threading
+import time
+import traceback
+import urllib
+from urllib.parse import urlparse
+
+import feedparser
+import openai
+import ratelimit
+import requests
+from bs4 import BeautifulSoup
+from django.conf import settings
+from django.core.cache import cache
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+from django.db import connection
+from django.db.models import Avg, Max, Q
+from linkpreview import Link, LinkPreview
+from linkpreview.exceptions import (
+    InvalidContentError,
+    InvalidMimeTypeError,
+    MaximumContentSizeError,
+)
+
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher
-import urllib, requests, random
-from linkpreview import Link, LinkPreview
-from linkpreview.exceptions import InvalidContentError, InvalidMimeTypeError, MaximumContentSizeError
-from urllib.parse import urlparse
-from django.core.cache import cache
-from django.db import connection
-from django.conf import settings
-from django.core.validators import URLValidator
-from django.core.exceptions import ValidationError
-
-import requests, threading, html
-from bs4 import BeautifulSoup
 
 
 def postpone(function):
     def decorator(*args, **kwargs):
-        t = threading.Thread(target = function, args=args, kwargs=kwargs)
+        t = threading.Thread(target=function, args=args, kwargs=kwargs)
         t.daemon = True
         t.start()
+
     return decorator
+
 
 @postpone
 def update_feeds():
-
     start_time = time.time()
 
     # delete feed positions of inactive feeds
@@ -35,18 +51,16 @@ def update_feeds():
         delete_feed_positions(feed=feed)
 
     # get acctive feeds
-    feeds = Feed.objects.filter(active=True, feed_type='rss')
+    feeds = Feed.objects.filter(active=True, feed_type="rss")
 
     all_articles = Article.objects.filter(feed_position__feed__in=feeds)
     all_articles.update(min_feed_position=None)
     all_articles.update(max_importance=None)
     all_articles.update(min_article_relevance=None)
 
-
     added_articles = 0
     for feed in feeds:
         added_articles += fetch_feed(feed)
-
 
     # calculate next refesh time
     end_time = time.time()
@@ -55,43 +69,67 @@ def update_feeds():
         refresh_time = 60 * 15 - (end_time - start_time)
     else:
         refresh_time = 60 * 30 - (end_time - start_time)
-    cache.set('upToDate', True, int(refresh_time))
-    cache.set('lastRefreshed', now, 60 * 60 * 48)
-
+    cache.set("upToDate", True, int(refresh_time))
+    cache.set("lastRefreshed", now, 60 * 60 * 48)
 
     # Updating cached artciles
-    cached_views = [i[3:] for i in list(cache._cache.keys()) if 'article' in i]
+    cached_views = [i[3:] for i in list(cache._cache.keys()) if "article" in i]
     for cached_view in cached_views:
         cache.set(cached_view, None, 10)
 
     now = datetime.datetime.now()
     if now.hour >= 18 or now.hour < 6 or now.weekday() in [5, 6]:
-        print('No AI summaries are generated during non-business hours (i.e. between 18:00-6:00 and on Saturdays and Sundays)')
+        print(
+            "No AI summaries are generated during non-business hours (i.e. between 18:00-6:00 and on Saturdays and Sundays)"
+        )
     else:
-        min_article_relevance = Article.objects.filter(has_full_text=True, categories__icontains='FRONTPAGE').exclude(publisher__name__in=['Risk.net', 'The Economist']).exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')[:20].aggregate(Max('min_article_relevance'))['min_article_relevance__max']
-        articles_add_ai_summary = Article.objects.filter(has_full_text=True, ai_summary__isnull=True, categories__icontains='FRONTPAGE', min_article_relevance__lte=min_article_relevance).exclude(publisher__name__in=['Risk.net', 'The Economist']).exclude(min_article_relevance__isnull=True).order_by('min_article_relevance')
+        min_article_relevance = (
+            Article.objects.filter(
+                has_full_text=True, categories__icontains="FRONTPAGE"
+            )
+            .exclude(publisher__name__in=["Risk.net", "The Economist"])
+            .exclude(min_article_relevance__isnull=True)
+            .order_by("min_article_relevance")[:20]
+            .aggregate(Max("min_article_relevance"))["min_article_relevance__max"]
+        )
+        articles_add_ai_summary = (
+            Article.objects.filter(
+                has_full_text=True,
+                ai_summary__isnull=True,
+                categories__icontains="FRONTPAGE",
+                min_article_relevance__lte=min_article_relevance,
+            )
+            .exclude(publisher__name__in=["Risk.net", "The Economist"])
+            .exclude(min_article_relevance__isnull=True)
+            .order_by("min_article_relevance")
+        )
         add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
-
-    old_articles = Article.objects.filter(min_article_relevance__isnull=True, added_date__lte=settings.TIME_ZONE_OBJ.localize(datetime.datetime.now() - datetime.timedelta(days=3)))
+    old_articles = Article.objects.filter(
+        min_article_relevance__isnull=True,
+        added_date__lte=settings.TIME_ZONE_OBJ.localize(
+            datetime.datetime.now() - datetime.timedelta(days=3)
+        ),
+    )
     if len(old_articles) > 0:
-        print(f'Delete {len(old_articles)} old articles')
+        print(f"Delete {len(old_articles)} old articles")
         old_articles.delete()
     else:
-        print(f'No old articles to delete')
+        print(f"No old articles to delete")
 
-    cache.set('currentlyRefreshing', False, 60 * 60)
-    print(f'Refreshed articles and added {added_articles} articles in {int(end_time - start_time)} seconds')
+    cache.set("currentlyRefreshing", False, 60 * 60)
+    print(
+        f"Refreshed articles and added {added_articles} articles in {int(end_time - start_time)} seconds"
+    )
 
     connection.close()
-
 
 
 def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     random.seed(hash)
 
     importance = feed.importance
-    if feed.feed_ordering == 'r':
+    if feed.feed_ordering == "r":
         if feed_position <= 3:
             importance += 2
         elif feed_position <= 7:
@@ -100,7 +138,9 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
 
     duration = settings.TIME_ZONE_OBJ.localize(datetime.datetime.now()) - pub_date
     duration_in_s = duration.total_seconds()
-    article_age_h = divmod(duration_in_s if duration_in_s != None else duration_in_s, 3600)[0]
+    article_age_h = divmod(
+        duration_in_s if duration_in_s != None else duration_in_s, 3600
+    )[0]
     if article_age_h > 48:
         article_age_discount = 2
         age_factor = 1
@@ -115,17 +155,19 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     elif article_age_h > 24 * 14:
         age_factor = 30
 
-    article_relevance = round(feed_position *
-                              {3: 3 / 6, 2: 5 / 6, 1: 1, 0: 1, -1: 8 / 6, -2: 10 / 6, -3: 12 / 6}[
-                                  publisher.renowned] *
-                              {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[
-                                  max((importance - article_age_discount), 0)] -
-                              ((publisher.renowned + random.randrange(0, 9)) / 10000) *
-                              age_factor,
-                              6)
+    article_relevance = round(
+        feed_position
+        * {3: 3 / 6, 2: 5 / 6, 1: 1, 0: 1, -1: 8 / 6, -2: 10 / 6, -3: 12 / 6}[
+            publisher.renowned
+        ]
+        * {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[
+            max((importance - article_age_discount), 0)
+        ]
+        - ((publisher.renowned + random.randrange(0, 9)) / 10000) * age_factor,
+        6,
+    )
 
     return importance, article_relevance
-
 
 
 def delete_feed_positions(feed):
@@ -136,7 +178,7 @@ def delete_feed_positions(feed):
 @ratelimit.sleep_and_retry
 @ratelimit.limits(calls=30, period=60)
 def check_limit():
-    ''' Empty function just to check for calls to API '''
+    """Empty function just to check for calls to API"""
     # limit of 90k tokens per minute = 90k / 3k per request = 30 requets
     # limit of 3500 requests per minute
     # min(3.5k, 30) = 30 requests per minute
@@ -144,10 +186,14 @@ def check_limit():
 
 
 def add_ai_summary(article_obj_lst):
-    print(f'Requesting AI article summaries for {len(article_obj_lst)} articles.')
+    print(f"Requesting AI article summaries for {len(article_obj_lst)} articles.")
 
     openai.api_key = settings.OPENAI_API_KEY
-    TOTAL_API_COST = 0 if cache.get('OPENAI_API_COST_LAUNCH') is None else cache.get('OPENAI_API_COST_LAUNCH')
+    TOTAL_API_COST = (
+        0
+        if cache.get("OPENAI_API_COST_LAUNCH") is None
+        else cache.get("OPENAI_API_COST_LAUNCH")
+    )
     COST_TOKEN_INPUT = 0.0015
     COST_TOKEN_OUTPUT = 0.002
     NET_USD_TO_GROSS_GBP = 1.2 * 0.785
@@ -156,11 +202,11 @@ def add_ai_summary(article_obj_lst):
 
     for article_obj in article_obj_lst:
         try:
-            soup = BeautifulSoup(article_obj.full_text, 'html5lib')
+            soup = BeautifulSoup(article_obj.full_text, "html5lib")
             article_text = " ".join(html.unescape(soup.text).split())
-            #article_text = re.sub(r'\n+', '\n', article_text).strip()
-            if len(article_text) > 3000*5:
-                article_text = article_text[:3000*5]
+            # article_text = re.sub(r'\n+', '\n', article_text).strip()
+            if len(article_text) > 3000 * 5:
+                article_text = article_text[: 3000 * 5]
             if len(article_text) / 5 < 500:
                 continue
             elif len(article_text) / 5 < 1000:
@@ -173,25 +219,34 @@ def add_ai_summary(article_obj_lst):
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "user", "content": f'Summarize this article in {bullets} bullet points:\n"{article_text}"'}
-                ]
+                    {
+                        "role": "user",
+                        "content": f'Summarize this article in {bullets} bullet points:\n"{article_text}"',
+                    }
+                ],
             )
             article_summary = completion["choices"][0]["message"]["content"]
-            article_summary = article_summary.replace('- ', '<li>').replace('\n', '</li>\n')
-            article_summary = '<ul>\n' + article_summary + '</li>\n</ul>'
-            token_cost += round((completion["usage"]["prompt_tokens"] * COST_TOKEN_INPUT) + (completion["usage"]["completion_tokens"] * COST_TOKEN_OUTPUT),4)
-            setattr(article_obj, 'ai_summary', article_summary)
+            article_summary = article_summary.replace("- ", "<li>").replace(
+                "\n", "</li>\n"
+            )
+            article_summary = "<ul>\n" + article_summary + "</li>\n</ul>"
+            token_cost += round(
+                (completion["usage"]["prompt_tokens"] * COST_TOKEN_INPUT)
+                + (completion["usage"]["completion_tokens"] * COST_TOKEN_OUTPUT),
+                4,
+            )
+            setattr(article_obj, "ai_summary", article_summary)
             article_obj.save()
             articles_summarized += 1
         except Exception as e:
-            print(f'Error getting AI article summary for {article_obj}:', e)
+            print(f"Error getting AI article summary for {article_obj}:", e)
 
     THIS_RUN_API_COST = round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 4)
     TOTAL_API_COST += THIS_RUN_API_COST
-    cache.set('OPENAI_API_COST_LAUNCH', TOTAL_API_COST, 3600 * 1000)
-    print(f'Summarized {articles_summarized} articles costing {THIS_RUN_API_COST} GBP. Total API cost since container launch {TOTAL_API_COST} GBP.')
-
-
+    cache.set("OPENAI_API_COST_LAUNCH", TOTAL_API_COST, 3600 * 1000)
+    print(
+        f"Summarized {articles_summarized} articles costing {THIS_RUN_API_COST} GBP. Total API cost since container launch {TOTAL_API_COST} GBP."
+    )
 
 
 def scarpe_img(url):
@@ -199,30 +254,51 @@ def scarpe_img(url):
     try:
         _ = URLValidator(url)
         resp = requests.get(url)
-        soup = BeautifulSoup(resp.content, 'html5lib')
-        body = soup.find('body')
-        images = body.find_all('img')
+        soup = BeautifulSoup(resp.content, "html5lib")
+        body = soup.find("body")
+        images = body.find_all("img")
         new_images = []
         for i in images:
-            i_alt = ''
-            i_class = ''
-            i_src = ''
+            i_alt = ""
+            i_class = ""
+            i_src = ""
             try:
-                i_src = str(i['src']).lower()
-                i_alt = str(i['alt']).lower()
-                i_class = str(i['class']).lower()
+                i_src = str(i["src"]).lower()
+                i_alt = str(i["alt"]).lower()
+                i_class = str(i["class"]).lower()
             except:
                 pass
-            if len(i_src) > 3 and any([j in i_src for j in
-                                       ['.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.svg',
-                                        '.webp']]) and 'logo' not in i_class and 'logo' not in i_alt and 'author' not in i_class and 'author' not in i_alt:
+            if (
+                len(i_src) > 3
+                and any(
+                    [
+                        j in i_src
+                        for j in [
+                            ".avif",
+                            ".gif",
+                            ".jpg",
+                            ".jpeg",
+                            ".jfif",
+                            ".pjpeg",
+                            ".pjp",
+                            ".png",
+                            ".svg",
+                            ".webp",
+                        ]
+                    ]
+                )
+                and "logo" not in i_class
+                and "logo" not in i_alt
+                and "author" not in i_class
+                and "author" not in i_alt
+            ):
                 new_images.append(i)
         if len(new_images) > 0:
             images = new_images
-            image = images[0]['src']
-            if 'www.' not in image and 'http' not in image:
+            image = images[0]["src"]
+            if "www." not in image and "http" not in image:
                 url_parts = urlparse(url)
-                image = url_parts.scheme + '://' + url_parts.hostname + image
+                image = url_parts.scheme + "://" + url_parts.hostname + image
             img_url = image
 
     except Exception as e:
@@ -230,7 +306,6 @@ def scarpe_img(url):
         print(e)
 
     return img_url
-
 
 
 class LinkGrabber:
@@ -242,10 +317,7 @@ class LinkGrabber:
         ),
         "accept-language": "en-US,en;q=0.5",
         "accept": (
-            "text/html"
-            ",application/xhtml+xml"
-            ",application/xml;q=0.9"
-            ",*/*;q=0.8"
+            "text/html" ",application/xhtml+xml" ",application/xml;q=0.9" ",*/*;q=0.8"
         ),
     }
 
@@ -304,10 +376,9 @@ class LinkGrabber:
         return content, r.url
 
 
-
 def scarpe_meta(url):
     try:
-        while cache.get('metaScrapeWait') == 'wait':
+        while cache.get("metaScrapeWait") == "wait":
             print("meta scraping wait")
             time.sleep(2)
         grabber = LinkGrabber(
@@ -319,30 +390,29 @@ def scarpe_meta(url):
         content, url = grabber.get_content(url)
         link = Link(url, content)
         preview = LinkPreview(link, parser="lxml")
-        if hasattr(preview, 'image') and preview.image is not None:
+        if hasattr(preview, "image") and preview.image is not None:
             if type(preview.image) is dict:
-                img_url = preview.image['url']
+                img_url = preview.image["url"]
             else:
                 img_url = preview.image
-            if 'www.' not in img_url and 'http' not in img_url:
+            if "www." not in img_url and "http" not in img_url:
                 url_parts = urlparse(url)
-                print(url_parts.scheme, '://', url_parts.hostname, img_url)
-                preview.cust_image = url_parts.scheme + '://' + url_parts.hostname + img_url
+                print(url_parts.scheme, "://", url_parts.hostname, img_url)
+                preview.cust_image = (
+                    url_parts.scheme + "://" + url_parts.hostname + img_url
+                )
             else:
                 preview.cust_image = img_url
             print(preview.cust_image)
         else:
-            print('no image for', url)
+            print("no image for", url)
         return preview
     except Exception as e:
-        print('Error getting meta data:', e)
+        print("Error getting meta data:", e)
         traceback.print_exc()
         return None
     finally:
-        cache.set('metaScrapeWait', 'wait', 5)
-
-
-
+        cache.set("metaScrapeWait", "wait", 5)
 
 
 def fetch_feed(feed):
@@ -350,72 +420,117 @@ def fetch_feed(feed):
     article_without_ai_summary = []
 
     feed_url = feed.url
-    if 'http://FEED-CREATOR.local' in feed_url:
-        feed_url = feed_url.replace('http://FEED-CREATOR.local', settings.FEED_CREATOR_URL)
-    if 'http://FULL-TEXT.local' in feed_url:
-        feed_url = feed_url.replace('http://FULL-TEXT.local', settings.FULL_TEXT)
+    if "http://FEED-CREATOR.local" in feed_url:
+        feed_url = feed_url.replace(
+            "http://FEED-CREATOR.local", settings.FEED_CREATOR_URL
+        )
+    if "http://FULL-TEXT.local" in feed_url:
+        feed_url = feed_url.replace("http://FULL-TEXT.local", settings.FULL_TEXT)
 
     fetched_feed = feedparser.parse(feed_url)
 
     if len(fetched_feed.entries) > 0:
         delete_feed_positions(feed)
 
-
     for i, scraped_article in enumerate(fetched_feed.entries):
-        hash_obj = hashlib.new('sha256')
+        hash_obj = hashlib.new("sha256")
         article__feed_position = i + 1
         article_kwargs = dict(
             min_feed_position=article__feed_position,
             publisher=feed.publisher,
-            categories= '' if feed.source_categories is None or len(feed.source_categories.split(';')) == 0 else ';'.join([str(i).upper() for i in feed.source_categories.split(';') + ['']])
+            categories=""
+            if feed.source_categories is None
+            or len(feed.source_categories.split(";")) == 0
+            else ";".join(
+                [str(i).upper() for i in feed.source_categories.split(";") + [""]]
+            ),
         )
-        for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'summary', 'link': 'link', 'guid': 'id', 'pub_date': 'published_parsed', 'categories': 'tags'}.items():
-            if hasattr(scraped_article, kwarg_Y) and scraped_article[kwarg_Y] is not None and scraped_article[kwarg_Y] != '':
-                if kwarg_X in ['title', 'summary'] and scraped_article[kwarg_Y] is not None:
+        for kwarg_X, kwarg_Y in {
+            "title": "title",
+            "summary": "summary",
+            "link": "link",
+            "guid": "id",
+            "pub_date": "published_parsed",
+            "categories": "tags",
+        }.items():
+            if (
+                hasattr(scraped_article, kwarg_Y)
+                and scraped_article[kwarg_Y] is not None
+                and scraped_article[kwarg_Y] != ""
+            ):
+                if (
+                    kwarg_X in ["title", "summary"]
+                    and scraped_article[kwarg_Y] is not None
+                ):
                     bs_html = BeautifulSoup(scraped_article[kwarg_Y], "html.parser")
                     if bool(bs_html.find()):
                         article_kwargs[kwarg_X] = html.unescape(bs_html.get_text())
                     else:
-                        article_kwargs[kwarg_X] = html.unescape(scraped_article[kwarg_Y])
-                elif kwarg_X in ['categories'] and scraped_article[kwarg_Y] is not None and len(scraped_article[kwarg_Y]) > 0:
-                    article_kwargs[kwarg_X] += ';'.join([str(i['term']).upper() for i in scraped_article[kwarg_Y]]) + ';'
+                        article_kwargs[kwarg_X] = html.unescape(
+                            scraped_article[kwarg_Y]
+                        )
+                elif (
+                    kwarg_X in ["categories"]
+                    and scraped_article[kwarg_Y] is not None
+                    and len(scraped_article[kwarg_Y]) > 0
+                ):
+                    article_kwargs[kwarg_X] += (
+                        ";".join(
+                            [str(i["term"]).upper() for i in scraped_article[kwarg_Y]]
+                        )
+                        + ";"
+                    )
                 else:
                     article_kwargs[kwarg_X] = scraped_article[kwarg_Y]
 
         # add unique id/hash
-        if feed.publisher.unique_article_id == 'guid' and 'guid' in article_kwargs:
-            article_kwargs['hash'] = f'{feed.publisher.pk}_{article_kwargs["guid"]}'
-        elif feed.publisher.unique_article_id == 'title':
+        if feed.publisher.unique_article_id == "guid" and "guid" in article_kwargs:
+            article_kwargs["hash"] = f'{feed.publisher.pk}_{article_kwargs["guid"]}'
+        elif feed.publisher.unique_article_id == "title":
             hash_obj.update(str(article_kwargs["title"]).encode())
             hash_str = hash_obj.hexdigest()
-            article_kwargs['hash'] = f'{feed.publisher.pk}_{hash_str}'
+            article_kwargs["hash"] = f"{feed.publisher.pk}_{hash_str}"
         else:
             hash_obj.update(str(article_kwargs["link"]).encode())
             hash_str = hash_obj.hexdigest()
-            article_kwargs['hash'] = f'{feed.publisher.pk}_{hash_str}'
-
+            article_kwargs["hash"] = f"{feed.publisher.pk}_{hash_str}"
 
         # make sure pub_date exists and is in the right format
-        if 'pub_date' in article_kwargs and type(article_kwargs['pub_date']) == time.struct_time:
-            article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(time.mktime(article_kwargs['pub_date']))
-        elif 'pub_date' not in article_kwargs and hasattr(fetched_feed, 'published_parsed'):
-            article_kwargs['pub_date'] = datetime.datetime.fromtimestamp(full_text_data['published_parsed'])
+        if (
+            "pub_date" in article_kwargs
+            and type(article_kwargs["pub_date"]) == time.struct_time
+        ):
+            article_kwargs["pub_date"] = datetime.datetime.fromtimestamp(
+                time.mktime(article_kwargs["pub_date"])
+            )
+        elif "pub_date" not in article_kwargs and hasattr(
+            fetched_feed, "published_parsed"
+        ):
+            article_kwargs["pub_date"] = datetime.datetime.fromtimestamp(
+                full_text_data["published_parsed"]
+            )
         else:
-            article_kwargs['pub_date'] = datetime.datetime.now()
-        article_kwargs['pub_date'] = settings.TIME_ZONE_OBJ.localize(article_kwargs['pub_date'])
-
+            article_kwargs["pub_date"] = datetime.datetime.now()
+        article_kwargs["pub_date"] = settings.TIME_ZONE_OBJ.localize(
+            article_kwargs["pub_date"]
+        )
 
         # check if artcile already exists
-        search_article = Article.objects.filter(hash=article_kwargs['hash'])
+        search_article = Article.objects.filter(hash=article_kwargs["hash"])
         prev_article = None
 
         # if article exists but changed
-        if len(search_article) > 0 and search_article[0].title is not None and 'title' in article_kwargs and search_article[0].title != article_kwargs['title']:
+        if (
+            len(search_article) > 0
+            and search_article[0].title is not None
+            and "title" in article_kwargs
+            and search_article[0].title != article_kwargs["title"]
+        ):
             old_artcile = search_article[0]
             new_article = True
             hash_obj.update(str(old_artcile.title).encode())
             hash_str = hash_obj.hexdigest()
-            setattr(old_artcile, 'hash', f'{feed.publisher.pk}_{hash_str}')
+            setattr(old_artcile, "hash", f"{feed.publisher.pk}_{hash_str}")
             old_artcile.save()
             prev_article = old_artcile.pk
 
@@ -428,103 +543,167 @@ def fetch_feed(feed):
         else:
             new_article = True
 
-
         # article does not exist yet
         if new_article:
             # get full text if settings say yes
-            if feed.full_text_fetch == 'Y':
+            if feed.full_text_fetch == "Y":
                 request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(article_kwargs["link"], safe="")}'
                 response = requests.get(request_url)
                 if response.status_code == 200:
                     full_text_data = response.json()
-                    if 'news.google.com' in article_kwargs["link"] and 'effective_url' in full_text_data and full_text_data["effective_url"] is not None:
+                    if (
+                        "news.google.com" in article_kwargs["link"]
+                        and "effective_url" in full_text_data
+                        and full_text_data["effective_url"] is not None
+                    ):
                         request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(full_text_data["effective_url"], safe="")}'
                         response = requests.get(request_url)
                         if response.status_code == 200:
                             full_text_data = {**full_text_data, **response.json()}
-                    for kwarg_X, kwarg_Y in {'summary': 'excerpt', 'author': 'author', 'image_url': 'og_image', 'full_text': 'content', 'language': 'language'}.items():
-                        if (kwarg_X not in article_kwargs or len(article_kwargs[kwarg_X]) < 6) and kwarg_Y in full_text_data and full_text_data[kwarg_Y] is not None and full_text_data[kwarg_Y] != '':
-                            if kwarg_X in ['title', 'summary', 'author', 'language']:
-                                bs_html = BeautifulSoup(full_text_data[kwarg_Y], "html.parser")
+                    for kwarg_X, kwarg_Y in {
+                        "summary": "excerpt",
+                        "author": "author",
+                        "image_url": "og_image",
+                        "full_text": "content",
+                        "language": "language",
+                    }.items():
+                        if (
+                            (
+                                kwarg_X not in article_kwargs
+                                or len(article_kwargs[kwarg_X]) < 6
+                            )
+                            and kwarg_Y in full_text_data
+                            and full_text_data[kwarg_Y] is not None
+                            and full_text_data[kwarg_Y] != ""
+                        ):
+                            if kwarg_X in ["title", "summary", "author", "language"]:
+                                bs_html = BeautifulSoup(
+                                    full_text_data[kwarg_Y], "html.parser"
+                                )
                                 if bool(bs_html.find()):
-                                    article_kwargs[kwarg_X] = html.unescape(bs_html.get_text())
+                                    article_kwargs[kwarg_X] = html.unescape(
+                                        bs_html.get_text()
+                                    )
                                 else:
-                                    article_kwargs[kwarg_X] = html.unescape(full_text_data[kwarg_Y])
+                                    article_kwargs[kwarg_X] = html.unescape(
+                                        full_text_data[kwarg_Y]
+                                    )
                             else:
                                 article_kwargs[kwarg_X] = full_text_data[kwarg_Y]
 
                     # if no image try scraping it differently
-                    if 'image_url' not in article_kwargs or article_kwargs['image_url'] is None or len(
-                            article_kwargs['image_url']) < 10:
-                        image_url = scarpe_img(url=article_kwargs['link'])
+                    if (
+                        "image_url" not in article_kwargs
+                        or article_kwargs["image_url"] is None
+                        or len(article_kwargs["image_url"]) < 10
+                    ):
+                        image_url = scarpe_img(url=article_kwargs["link"])
                         if image_url is not None:
-                            article_kwargs['image_url'] = image_url
-                            print(f"Successfully scrape image for article {feed.publisher.name}: {article_kwargs['title']}")
+                            article_kwargs["image_url"] = image_url
+                            print(
+                                f"Successfully scrape image for article {feed.publisher.name}: {article_kwargs['title']}"
+                            )
                         else:
-                            print(f"Couldn't scrape image for article {feed.publisher.name}: {article_kwargs['title']}")
+                            print(
+                                f"Couldn't scrape image for article {feed.publisher.name}: {article_kwargs['title']}"
+                            )
 
                 else:
-                    print(f'Full-Text fetch error response {response.status_code}')
+                    print(f"Full-Text fetch error response {response.status_code}")
 
             # clean up data
-            if 'full_text' in article_kwargs:
-                soup = BeautifulSoup(article_kwargs['full_text'], "html.parser")
-                for img in soup.find_all('img'):
-                    img['style'] = 'max-width: 100%; max-height: 80vh; width: auto; height: auto;'
-                    if img['src'] == 'src':
-                        if 'data-url' in img:
-                            img['src'] = img['data-url'].replace('${formatId}', '906')
-                        elif 'data-src' in img:
-                            img['src'] = img['data-src']
-                for a in soup.find_all('a'):
-                    a['target'] = '_blank'
-                for link in soup.find_all('link'):
+            if "full_text" in article_kwargs:
+                soup = BeautifulSoup(article_kwargs["full_text"], "html.parser")
+                for img in soup.find_all("img"):
+                    img[
+                        "style"
+                    ] = "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
+                    if img["src"] == "src":
+                        if "data-url" in img:
+                            img["src"] = img["data-url"].replace("${formatId}", "906")
+                        elif "data-src" in img:
+                            img["src"] = img["data-src"]
+                for a in soup.find_all("a"):
+                    a["target"] = "_blank"
+                for link in soup.find_all("link"):
                     if link is not None:
                         link.decompose()
-                for meta in soup.find_all('meta'):
+                for meta in soup.find_all("meta"):
                     if meta is not None:
                         meta.decompose()
-                for noscript in soup.find_all('noscript'):
+                for noscript in soup.find_all("noscript"):
                     if noscript is not None:
-                        noscript.name = 'div'
-                for div_type, id in [('div', 'barrierContent'), ('div', 'nousermsg'),
-                                 ('div', 'trial_print_message'), ('div', 'print_blocked_message'),
-                                 ('div', 'copy_blocked_message'), ('button', 'toolbar-item-parent-share-2909'),
-                                 ('ul', 'toolbar-item-dropdown-share-2909')]:
+                        noscript.name = "div"
+                for div_type, id in [
+                    ("div", "barrierContent"),
+                    ("div", "nousermsg"),
+                    ("div", "trial_print_message"),
+                    ("div", "print_blocked_message"),
+                    ("div", "copy_blocked_message"),
+                    ("button", "toolbar-item-parent-share-2909"),
+                    ("ul", "toolbar-item-dropdown-share-2909"),
+                ]:
                     div = soup.find(div_type, id=id)
                     if div is not None:
                         div.decompose()
-                article_kwargs['full_text'] = soup.prettify()
+                article_kwargs["full_text"] = soup.prettify()
 
                 if prev_article is not None:
-                    article_kwargs['full_text'] = f'<a class="btn btn-outline-secondary my-2 ms-2" style="float: right;" href="/?article={prev_article}">Go to previous article version</a>\n' + article_kwargs['full_text']
-
+                    article_kwargs["full_text"] = (
+                        f'<a class="btn btn-outline-secondary my-2 ms-2" style="float: right;" href="/?article={prev_article}">Go to previous article version</a>\n'
+                        + article_kwargs["full_text"]
+                    )
 
             # add additional properties
-            if 'full_text' not in article_kwargs or \
-                len(article_kwargs['full_text']) < 200 or \
-                'During your trial you will have complete digital access to FT.com with everything in both of our Standard Digital and Premium Digital packages.' in article_kwargs['full_text']:
-                article_kwargs['has_full_text'] = False
+            if (
+                "full_text" not in article_kwargs
+                or len(article_kwargs["full_text"]) < 200
+                or "During your trial you will have complete digital access to FT.com with everything in both of our Standard Digital and Premium Digital packages."
+                in article_kwargs["full_text"]
+            ):
+                article_kwargs["has_full_text"] = False
             else:
-                article_kwargs['has_full_text'] = True
+                article_kwargs["has_full_text"] = True
 
             print(scraped_article.link)
-            print(article_kwargs['link'])
-            if 'image_url' not in article_kwargs or article_kwargs['image_url'] is None:
-                meta_data = scarpe_meta(url=article_kwargs['link'])
+            print(article_kwargs["link"])
+            if "image_url" not in article_kwargs or article_kwargs["image_url"] is None:
+                meta_data = scarpe_meta(url=article_kwargs["link"])
                 if meta_data is not None:
-                    for kwarg_X, kwarg_Y in {'title': 'title', 'summary': 'description', 'image_url': 'cust_image'}.items():
-                        if hasattr(meta_data, kwarg_Y) and getattr(meta_data, kwarg_Y) is not None:
-                            if kwarg_X not in article_kwargs or article_kwargs[kwarg_X] is None or article_kwargs[kwarg_X] == '':
+                    for kwarg_X, kwarg_Y in {
+                        "title": "title",
+                        "summary": "description",
+                        "image_url": "cust_image",
+                    }.items():
+                        if (
+                            hasattr(meta_data, kwarg_Y)
+                            and getattr(meta_data, kwarg_Y) is not None
+                        ):
+                            if (
+                                kwarg_X not in article_kwargs
+                                or article_kwargs[kwarg_X] is None
+                                or article_kwargs[kwarg_X] == ""
+                            ):
                                 article_kwargs[kwarg_X] = getattr(meta_data, kwarg_Y)
 
-
-
-            if ('title' in article_kwargs and ('liveblog' in article_kwargs['title'].lower() or 'breaking news' in article_kwargs['title'].lower() or 'live news' in article_kwargs['title'].lower())) or ('full_text' in article_kwargs and article_kwargs['full_text'] is not None and ('livestream' in article_kwargs['full_text'].lower() or 'developing story' in article_kwargs['full_text'].lower())):
-                article_kwargs['type'] = 'breaking'
+            if (
+                "title" in article_kwargs
+                and (
+                    "liveblog" in article_kwargs["title"].lower()
+                    or "breaking news" in article_kwargs["title"].lower()
+                    or "live news" in article_kwargs["title"].lower()
+                )
+            ) or (
+                "full_text" in article_kwargs
+                and article_kwargs["full_text"] is not None
+                and (
+                    "livestream" in article_kwargs["full_text"].lower()
+                    or "developing story" in article_kwargs["full_text"].lower()
+                )
+            ):
+                article_kwargs["type"] = "breaking"
             else:
-                article_kwargs['type'] = 'normal'
-
+                article_kwargs["type"] = "normal"
 
             # add article
             article_obj = Article(**article_kwargs)
@@ -532,41 +711,59 @@ def fetch_feed(feed):
             added_articles += 1
 
             if prev_article is not None:
-                full_text = '' if old_artcile.full_text is None else old_artcile.full_text
-                setattr(old_artcile, 'full_text', f'<a class="btn btn-outline-danger cust-text-danger my-2 ms-2" style="float: right;" href="/?article={article_obj.pk}">Go to updated article version</a>\n' + full_text)
+                full_text = (
+                    "" if old_artcile.full_text is None else old_artcile.full_text
+                )
+                setattr(
+                    old_artcile,
+                    "full_text",
+                    f'<a class="btn btn-outline-danger cust-text-danger my-2 ms-2" style="float: right;" href="/?article={article_obj.pk}">Go to updated article version</a>\n'
+                    + full_text,
+                )
                 old_artcile.save()
 
-
         # Update article metrics
-        article_kwargs['max_importance'], article_kwargs['min_article_relevance'] = calcualte_relevance(publisher=feed.publisher, feed=feed, feed_position=article__feed_position, hash=article_kwargs['hash'], pub_date=article_kwargs['pub_date'])
+        (
+            article_kwargs["max_importance"],
+            article_kwargs["min_article_relevance"],
+        ) = calcualte_relevance(
+            publisher=feed.publisher,
+            feed=feed,
+            feed_position=article__feed_position,
+            hash=article_kwargs["hash"],
+            pub_date=article_kwargs["pub_date"],
+        )
         for k, v in article_kwargs.items():
             value = getattr(article_obj, k)
             if value is None and v is not None:
                 setattr(article_obj, k, v)
-            elif 'min' in k and v < value:
+            elif "min" in k and v < value:
                 setattr(article_obj, k, v)
-            elif 'max' in k and v > value:
+            elif "max" in k and v > value:
                 setattr(article_obj, k, v)
-            elif k == 'categories' and article_kwargs['categories'] is not None and len(article_kwargs['categories']) > 0:
-                for category in article_kwargs['categories'].split(';'):
+            elif (
+                k == "categories"
+                and article_kwargs["categories"] is not None
+                and len(article_kwargs["categories"]) > 0
+            ):
+                for category in article_kwargs["categories"].split(";"):
                     if category.upper() not in v:
-                        v += category.upper() + ';'
+                        v += category.upper() + ";"
                 setattr(article_obj, k, v)
         article_obj.save()
-
 
         # Add feed position linking
         feed_position = FeedPosition(
             feed=feed,
             position=article__feed_position,
-            importance=article_kwargs['max_importance'],
-            relevance=article_kwargs['min_article_relevance']
+            importance=article_kwargs["max_importance"],
+            relevance=article_kwargs["min_article_relevance"],
         )
         feed_position.save()
 
         article_obj.feed_position.add(feed_position)
 
-    print(f'Refreshed {feed} with {added_articles} new articles out of {len(fetched_feed.entries)}')
+    print(
+        f"Refreshed {feed} with {added_articles} new articles out of {len(fetched_feed.entries)}"
+    )
     return added_articles
-
-

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+
 import pytz
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,94 +22,98 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ut^e0pt(8g)wzhok&0hjitv#)c^pcq=#0jj9nx0vx%w_xslr(3'
+SECRET_KEY = "django-insecure-ut^e0pt(8g)wzhok&0hjitv#)c^pcq=#0jj9nx0vx%w_xslr(3"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.environ.get('DEBUG') is None else str(os.environ.get('DEBUG')).lower() == 'true'
+DEBUG = (
+    True
+    if os.environ.get("DEBUG") is None
+    else str(os.environ.get("DEBUG")).lower() == "true"
+)
 DEBUG = True
 print(f'Debug modus is turned {"on" if DEBUG else "off"}')
 
-CSRF_TRUSTED_ORIGINS = ['https://news.vanalmsick.uk']
-ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ["https://news.vanalmsick.uk"]
+ALLOWED_HOSTS = ["*"]
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8000',
-    'https://news.vanalmsick.uk',
+    "http://localhost:8000",
+    "https://news.vanalmsick.uk",
 ]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'django_extensions',
-    'djoser',
-    'articles',
-    'feeds',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "django_extensions",
+    "djoser",
+    "articles",
+    "feeds",
 ]
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_METADATA_CLASS": "rest_framework.metadata.SimpleMetadata",
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
 
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
+    "AUTH_HEADER_TYPES": ("JWT",),
 }
 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'feed_aggregator.urls'
+ROOT_URLCONF = "feed_aggregator.urls"
 
-TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR,],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            TEMPLATES_DIR,
+        ],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'feed_aggregator.wsgi.application'
+WSGI_APPLICATION = "feed_aggregator.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'data/db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "data/db.sqlite3",
     }
 }
 
@@ -118,16 +123,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -135,9 +140,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-uk'
+LANGUAGE_CODE = "en-uk"
 
-TIME_ZONE = 'Europe/London'
+TIME_ZONE = "Europe/London"
 TIME_ZONE_OBJ = pytz.timezone(TIME_ZONE)
 
 USE_I18N = True
@@ -150,24 +155,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Custom Variables
-FULL_TEXT_URL = os.environ.get('FULL_TEXT_URL')
-FEED_CREATOR_URL = os.environ.get('FEED_CREATOR_URL')
+FULL_TEXT_URL = os.environ.get("FULL_TEXT_URL")
+FEED_CREATOR_URL = os.environ.get("FEED_CREATOR_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-if False: #DEBUG:
-    FULL_TEXT_URL = 'http://192.168.1.201:9280/full-text-rss/'
-    FEED_CREATOR_URL = 'http://192.168.1.201:9280/feed-creator/'
-    OPENAI_API_KEY = ''
+if False:  # DEBUG:
+    FULL_TEXT_URL = "http://192.168.1.201:9280/full-text-rss/"
+    FEED_CREATOR_URL = "http://192.168.1.201:9280/feed-creator/"
+    OPENAI_API_KEY = ""

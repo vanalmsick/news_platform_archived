@@ -1,7 +1,7 @@
 from django.db import models
-from feeds.models import Feed, Publisher
 
-from feeds.models import NEWS_IMPORTANCE
+from feeds.models import NEWS_IMPORTANCE, Feed, Publisher
+
 
 # Create your models here.
 class FeedPosition(models.Model):
@@ -11,7 +11,7 @@ class FeedPosition(models.Model):
     relevance = models.SmallIntegerField(null=True)
 
     def __str__(self):
-        return f'{self.feed} - {self.position}'
+        return f"{self.feed} - {self.position}"
 
 
 class Article(models.Model):
@@ -21,17 +21,16 @@ class Article(models.Model):
     title = models.CharField(max_length=200)
     summary = models.CharField(max_length=500, null=True)
     ai_summary = models.TextField(max_length=750, null=True)
-    ARTICLE_TYPE = [
-        ('breaking', 'Breaking/Live News'),
-        ('normal', 'Normal Article')
-    ]
-    type = models.CharField(choices=ARTICLE_TYPE, max_length=8, default='normal')
+    ARTICLE_TYPE = [("breaking", "Breaking/Live News"), ("normal", "Normal Article")]
+    type = models.CharField(choices=ARTICLE_TYPE, max_length=8, default="normal")
     CONTENT_TYPES = [
-        ('article', 'Article'),
-        ('ticker', 'Live News/Ticker'),
-        ('video', 'Video')
+        ("article", "Article"),
+        ("ticker", "Live News/Ticker"),
+        ("video", "Video"),
     ]
-    content_type = models.CharField(max_length=10, choices=CONTENT_TYPES, default='article')
+    content_type = models.CharField(
+        max_length=10, choices=CONTENT_TYPES, default="article"
+    )
     full_text = models.TextField(null=True)
     has_full_text = models.BooleanField(default=True)
     author = models.CharField(max_length=90, null=True)
@@ -44,7 +43,9 @@ class Article(models.Model):
     last_updated_date = models.DateTimeField(auto_now=True)
 
     min_feed_position = models.SmallIntegerField(null=True)
-    min_article_relevance = models.DecimalField(null=True, decimal_places=6, max_digits=12)
+    min_article_relevance = models.DecimalField(
+        null=True, decimal_places=6, max_digits=12
+    )
     max_importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE, null=True)
 
     categories = models.CharField(max_length=250, null=True, blank=True)
@@ -53,7 +54,7 @@ class Article(models.Model):
     hash = models.CharField(max_length=100)
 
     def __str__(self):
-        return f'{self.publisher.name} - {self.title}'
+        return f"{self.publisher.name} - {self.title}"
 
 
 class ArticleGroup(models.Model):
@@ -68,11 +69,13 @@ class ArticleGroup(models.Model):
     guid = models.CharField(max_length=75, null=True)
     image_url = models.TextField(null=True)
     min_feed_position = models.SmallIntegerField()
-    min_article_relevance = models.DecimalField(null=True, decimal_places=6, max_digits=12)
+    min_article_relevance = models.DecimalField(
+        null=True, decimal_places=6, max_digits=12
+    )
     max_importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE)
     categories = models.CharField(max_length=250, null=True)
     language = models.CharField(max_length=6, null=True)
     hash = models.CharField(max_length=80)
 
     def __str__(self):
-        return f'{self.title}'
+        return f"{self.title}"
