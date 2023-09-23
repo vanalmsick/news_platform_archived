@@ -1,32 +1,13 @@
-name: Production Deployment
+name: Development Deployment
 on:
   push:
     branches:
-      - 'main'
+      - 'dev'
 
 jobs:
 
-  autotag:
-    runs-on: ubuntu-latest
-    permissions: write-all
-    strategy:
-      matrix:
-        node-version:
-        - 12
-    steps:
-      - uses: phish108/autotag-action@v1.1.64
-        id: tagger
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          with-v: TRUE
-          branch: master
-          release-branch: master
-    outputs:
-       new_version: ${{steps.tagger.outputs.new-tag}}
-
   docker:
     runs-on: ubuntu-latest
-    needs: autotag
     steps:
       -
         name: Checkout
@@ -50,4 +31,4 @@ jobs:
            context: .
            platforms: linux/arm64/v8,linux/amd64
            push: true
-           tags: ${{secrets.DOCKER_USER}}/news_platform:latest,${{secrets.DOCKER_USER}}/news_platform:${{needs.autotag.outputs.new_version}}
+           tags: ${{secrets.DOCKER_USER}}/news_platform:dev
