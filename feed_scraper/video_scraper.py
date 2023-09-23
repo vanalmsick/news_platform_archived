@@ -1,17 +1,21 @@
+"""This file is doing the video scraping"""
+
 import datetime
 import time
+import urllib
 
 import scrapetube
 from django.conf import settings
 from django.core.cache import cache
 
 from articles.models import Article, FeedPosition
-from feeds.models import Feed, Publisher
+from feeds.models import Feed
 
 from .feed_scraper import calcualte_relevance, postpone
 
 
 def __extract_number_from_datestr(full_str, identifier):
+    """Extracts the number before a certain string e.g. 30 from '30 minutes ago'"""
     first_part = full_str.split(" " + identifier)[0]
     reversed_int_str = ""
     for i in reversed(first_part):
@@ -24,6 +28,7 @@ def __extract_number_from_datestr(full_str, identifier):
 
 @postpone
 def update_videos():
+    """Main function that refreshes/scrapes videos from video feed sources."""
     start_time = time.time()
 
     feeds = Feed.objects.all().exclude(feed_type="rss")
@@ -47,28 +52,38 @@ def update_videos():
 
     end_time = time.time()
     print(
-        f"Refreshed videos and added {added_videos} videos in {int(end_time - start_time)} seconds"
+        f"Refreshed videos and added {added_videos} videos in"
+        f" {int(end_time - start_time)} seconds"
     )
 
 
-def fetch_feed(feed):
+def fetch_feed(feed, max_per_feed=200):
+    """Fetcch/update/scrape all fideos for a specific source feed"""
     added_vids = 0
 
     if feed.feed_type == "y-channel":
-        videos = scrapetube.get_channel(channel_url=feed.url)
+        videos = scrapetube.get_channel(
+            channel_url=feed.url,
+            limit=max_per_feed,
+            sort_by="popular" if feed.feed_ordering == "r" else "newest",
+        )
     elif feed.feed_type == "y-playlist":
-        videos = scrapetube.get_playlist(feed.url)
+        parsed_url = urllib.parse.parse_qs(urllib.parse.urlparse(feed.url).query)
+        if "list" in parsed_url:
+            playlist = parsed_url["list"][0]
+            videos = scrapetube.get_playlist(playlist)
+        else:
+            print(f'Error: Invalid URL "{feed.url}" for YouTube Playlist "{feed.name}"')
+            videos = []
     else:
         videos = []
 
     for i, video in enumerate(videos):
         no_new_video = 0
-        if i > 500:
-            print(f"{feed} has more than 500 videos thus stop fetching more.")
-            break
         if no_new_video > 50:
             print(
-                f"{feed} no new video found for the last {no_new_video} videos at video {i+1} thus stop checking more."
+                f"{feed} no new video found for the last {no_new_video} videos at video"
+                f" {i+1} thus stop checking more."
             )
         article_kwargs = {}
         article__feed_position = i + 1
@@ -110,7 +125,11 @@ def fetch_feed(feed):
             else None
         )
         article_kwargs["guid"] = video["videoId"]
-        publishedTimeText = video["publishedTimeText"]["simpleText"]
+        publishedTimeText = (
+            video["publishedTimeText"]["simpleText"]
+            if "publishedTimeText" in video
+            else ""
+        )
         article_kwargs["pub_date"] = datetime.datetime.now()
         if "min" in publishedTimeText:
             article_kwargs["pub_date"] -= datetime.timedelta(
@@ -144,9 +163,7 @@ def fetch_feed(feed):
         article_kwargs["hash"] = f"youtube_{video['videoId']}"
         article_kwargs["language"] = feed.publisher.language
         article_kwargs["link"] = f"https://www.youtube.com/watch?v={video['videoId']}"
-        article_kwargs[
-            "full_text"
-        ] = f"""
+        article_kwargs["full_text"] = f"""
         <iframe style="width: 100%; height: auto; min-height: 30vw; max-height:400px; aspect-ratio: 16 / 9;"
         src="https://www.youtube-nocookie.com/embed/{video['videoId']}?rel=0&autoplay=1"
         frameborder="0" allow="autoplay; encrypted-media" tabindex="0" allowfullscreen></iframe>
