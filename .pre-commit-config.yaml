@@ -1,3 +1,7 @@
+# This file configures the code-style checks before changes are git committed and pushed to Github (the file setup.cfg contains additional settings)
+# After git cloning this repo please install all requirements in requirements.txt and requirements-dev.txt and then execute "pre-commit install"
+# Article that explains this: https://towardsdatascience.com/4-pre-commit-plugins-to-automate-code-reviewing-and-formatting-in-python-c80c6d2e9f5
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
