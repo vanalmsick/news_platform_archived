@@ -43,13 +43,15 @@ if __name__ == "__main__":
 
     if os.environ.get("RUN_MAIN", "false") == "false":
         print(
-            f"Django Server was started at: "
-            f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")}'
+            "Django Server was started at: "
+            f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}"
         )
         warnings.filterwarnings(
             "ignore",
-            message="Using slow pure-python SequenceMatcher. "
-            "Install python-Levenshtein to remove this warning",
+            message=(
+                "Using slow pure-python SequenceMatcher. "
+                "Install python-Levenshtein to remove this warning"
+            ),
         )
 
         # Make data model migrations
