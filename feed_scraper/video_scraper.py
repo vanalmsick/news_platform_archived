@@ -147,7 +147,7 @@ def fetch_feed(feed):
         article_kwargs[
             "full_text"
         ] = f"""
-        <iframe style="width: 100%; height: auto; min-height: 30vw; max-height:400px; aspect-ratio: 16 / 9;" 
+        <iframe style="width: 100%; height: auto; min-height: 30vw; max-height:400px; aspect-ratio: 16 / 9;"
         src="https://www.youtube-nocookie.com/embed/{video['videoId']}?rel=0&autoplay=1"
         frameborder="0" allow="autoplay; encrypted-media" tabindex="0" allowfullscreen></iframe>
         """

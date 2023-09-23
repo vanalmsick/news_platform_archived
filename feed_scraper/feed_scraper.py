@@ -339,7 +339,7 @@ class LinkGrabber:
         self.receive_timeout = receive_timeout
         self.chunk_size = chunk_size
 
-    def get_content(self, url: str, headers: dict = None):
+    def get_content(self, url: str, headers: dict = {}):
         r = requests.get(
             url,
             stream=True,
