@@ -21,8 +21,6 @@ jobs:
           with-v: TRUE
           branch: master
           release-branch: master
-    outputs:
-      new_version: ${{steps.tagger.outputs.new-tag}}
 
   docker:
     runs-on: ubuntu-latest
@@ -50,4 +48,4 @@ jobs:
            context: .
            platforms: linux/arm64/v8,linux/amd64
            push: true
-           tags: ${{secrets.DOCKER_USER}}/news_platform:latest,${{secrets.DOCKER_USER}}/news_platform:${{needs.autotag.outputs.new_version}}
+           tags: ${{secrets.DOCKER_USER}}/news_platform:latest,${{secrets.DOCKER_USER}}/news_platform:${{needs.autotag.outputs.new-tag}}
