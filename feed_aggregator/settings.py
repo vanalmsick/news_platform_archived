@@ -82,6 +82,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+MIGRATION_MODULES = {
+    "articles": "data.db_migrations.articles",
+    "feeds": "data.db_migrations.feeds",
+}
+
 ROOT_URLCONF = "feed_aggregator.urls"
 
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")

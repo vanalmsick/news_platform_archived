@@ -6,6 +6,22 @@ import sys
 import warnings
 
 
+def __ensure_db_migration_folders_exist():
+    """Ensure that init files exist in the data dir for the migration files."""
+    init_files = [
+        "data/__init__.py",
+        "data/db_migrations/__init__.py",
+        "data/db_migrations/articles/__init__.py",
+        "data/db_migrations/feeds/__init__.py",
+    ]
+
+    if all([os.path.isfile(i) for i in init_files]) is False:
+        for i in init_files:
+            dir_only = "/".join(i.split("/")[:-1])
+            os.makedirs(dir_only, exist_ok=True)
+            open(i, "a").close()
+
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "feed_aggregator.settings")
@@ -23,13 +39,17 @@ def main():
 if __name__ == "__main__":
     INITIAL_ARGV = sys.argv.copy()
 
+    __ensure_db_migration_folders_exist()
+
     if os.environ.get("RUN_MAIN", "false") == "false":
         print(
-            f'Django Server was started at: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")}'
+            f"Django Server was started at: "
+            f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")}'
         )
         warnings.filterwarnings(
             "ignore",
-            message="Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning",
+            message="Using slow pure-python SequenceMatcher. "
+            "Install python-Levenshtein to remove this warning",
         )
 
         # Make data model migrations
@@ -60,7 +80,9 @@ if __name__ == "__main__":
 
     else:
         print(
-            'Django auto-reloader process executes second instance of django. Please turn-off for production usage by executing: "python manage.py runserver --noreload"'
+            "Django auto-reloader process executes second instance of django. "
+            "Please turn-off for production usage by executing: "
+            '"python manage.py runserver --noreload"'
         )
 
     # Run server
