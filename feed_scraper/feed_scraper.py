@@ -50,18 +50,13 @@ def update_feeds():
     """Main function that refreshes/scrapes articles from article feed sources."""
     start_time = time.time()
 
-    # get acctive feeds
-    feeds = Feed.objects.filter(active=True, feed_type="rss")
-
-    all_articles = Article.objects.filter(feed_position__feed__in=feeds)
-    all_articles.update(min_feed_position=None)
-    all_articles.update(max_importance=None)
-    all_articles.update(min_article_relevance=None)
-
     # delete feed positions of inactive feeds
     inactive_feeds = Feed.objects.filter(~Q(active=True))
     for feed in inactive_feeds:
         delete_feed_positions(feed=feed)
+
+    # get acctive feeds
+    feeds = Feed.objects.filter(active=True, feed_type="rss")
 
     added_articles = 0
     for feed in feeds:
@@ -182,9 +177,14 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
 
 
 def delete_feed_positions(feed):
-    """Deletes all feed positions of a respective feed"""
+    """Deletes all feed positions of a respective feed and position/relevance data"""
     all_feedpositions = feed.feedposition_set.all()
     all_feedpositions.delete()
+
+    all_articles = Article.objects.filter(feed_position__feed=feed)
+    all_articles.update(min_feed_position=None)
+    all_articles.update(max_importance=None)
+    all_articles.update(min_article_relevance=None)
 
 
 @ratelimit.sleep_and_retry

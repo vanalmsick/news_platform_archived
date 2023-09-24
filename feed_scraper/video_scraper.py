@@ -155,6 +155,8 @@ def fetch_feed(feed, max_per_feed=200):
             article_kwargs["pub_date"] -= datetime.timedelta(
                 days=__extract_number_from_datestr(publishedTimeText, "year") * 365
             )
+        elif publishedTimeText == "":
+            print(f"Video {i} in feed {feed.name} does not have publish date info.")
         else:
             print(f'Unknown date string "{publishedTimeText}"')
         article_kwargs["pub_date"] = settings.TIME_ZONE_OBJ.localize(
