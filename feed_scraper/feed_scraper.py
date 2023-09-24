@@ -178,13 +178,13 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
 
 def delete_feed_positions(feed):
     """Deletes all feed positions of a respective feed and position/relevance data"""
-    all_feedpositions = feed.feedposition_set.all()
-    all_feedpositions.delete()
-
     all_articles = Article.objects.filter(feed_position__feed=feed)
     all_articles.update(min_feed_position=None)
     all_articles.update(max_importance=None)
     all_articles.update(min_article_relevance=None)
+
+    all_feedpositions = feed.feedposition_set.all()
+    all_feedpositions.delete()
 
 
 @ratelimit.sleep_and_retry
