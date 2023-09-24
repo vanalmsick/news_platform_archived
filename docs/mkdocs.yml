@@ -1,0 +1,55 @@
+# Navigate to this directory and then run "mkdocs serve" to see a live-view of the documentation
+# More settings: https://squidfunk.github.io/mkdocs-material/setup/
+
+site_name: News Platform
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: mealie
+      primary: white
+      accent: light blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: light blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - search.suggest
+
+nav:
+  - Home: "index.md"
+  - Getting Started:
+      - Introduction: "index.md"
+      - Features: "index.md"
+      - Quick Install: "index.md"
+      - Advanced Install: "index.md"
+      - FAQ: "index.md"
+
+  - Developer Guide:
+      - Setup: "index.md"
+      - Contribution Guide: "index.md"
+
+  - Versions / Change Log:
+      - v1.0.0: "index.md"
+
+
+markdown_extensions:
+  - def_list
+  - admonition
+  - attr_list
+
+plugins:
+  - search
+  - offline
+
+repo_url: https://github.com/vanalmsick/news_platform
+repo_name: vanalmsick/news_platform
+edit_uri: edit/main/docs/
