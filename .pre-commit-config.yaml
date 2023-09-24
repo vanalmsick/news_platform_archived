@@ -13,6 +13,8 @@ repos:
       - id: check-executables-have-shebangs
       - id: check-json
       - id: check-yaml
+      - id: pretty-format-json
+        args: [ '--autofix' ]
       - id: debug-statements
       - id: detect-private-key
       - id: end-of-file-fixer
@@ -48,6 +50,18 @@ repos:
     hooks:
       - id: interrogate
         args: [ -vv, -i, --fail-under=80 ]
+#  - repo: https://github.com/pycqa/pylint
+#    rev: "v2.17.5"
+#    hooks:
+#      - id: pylint
+#        exclude: "[a-zA-Z]*/(migrations)/(.)*"
+#        args: [ "--load-plugins=pylint_django", "--django-settings-module=feed_aggregator.settings" ]
+#        additional_dependencies: [pylint_django,]
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [ "-iii", "-ll", '-q' ]
   - repo: local
     hooks:
       - id: unittests
