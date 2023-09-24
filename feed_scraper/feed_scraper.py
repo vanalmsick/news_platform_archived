@@ -1,9 +1,9 @@
+"""This file is doing the article scraping"""
+
 import datetime
 import hashlib
 import html
-import os
 import random
-import re
 import threading
 import time
 import traceback
@@ -17,10 +17,9 @@ import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
-from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db import connection
-from django.db.models import Avg, Max, Q
+from django.db.models import Max, Q
 from linkpreview import Link, LinkPreview
 from linkpreview.exceptions import (
     InvalidContentError,
@@ -29,10 +28,15 @@ from linkpreview.exceptions import (
 )
 
 from articles.models import Article, FeedPosition
-from feeds.models import Feed, Publisher
+from feeds.models import Feed
 
 
 def postpone(function):
+    """
+    Reusable decorator function to run any function async to Django User request - i.e. that the user does not
+    have to wait for completion of function to get the requested view
+    """
+
     def decorator(*args, **kwargs):
         t = threading.Thread(target=function, args=args, kwargs=kwargs)
         t.daemon = True
@@ -43,12 +47,8 @@ def postpone(function):
 
 @postpone
 def update_feeds():
+    """Main function that refreshes/scrapes articles from article feed sources."""
     start_time = time.time()
-
-    # delete feed positions of inactive feeds
-    feeds = Feed.objects.filter(~Q(active=True))
-    for feed in feeds:
-        delete_feed_positions(feed=feed)
 
     # get acctive feeds
     feeds = Feed.objects.filter(active=True, feed_type="rss")
@@ -57,6 +57,11 @@ def update_feeds():
     all_articles.update(min_feed_position=None)
     all_articles.update(max_importance=None)
     all_articles.update(min_article_relevance=None)
+
+    # delete feed positions of inactive feeds
+    inactive_feeds = Feed.objects.filter(~Q(active=True))
+    for feed in inactive_feeds:
+        delete_feed_positions(feed=feed)
 
     added_articles = 0
     for feed in feeds:
@@ -80,7 +85,8 @@ def update_feeds():
     now = datetime.datetime.now()
     if now.hour >= 18 or now.hour < 6 or now.weekday() in [5, 6]:
         print(
-            "No AI summaries are generated during non-business hours (i.e. between 18:00-6:00 and on Saturdays and Sundays)"
+            "No AI summaries are generated during non-business hours (i.e. between"
+            " 18:00-6:00 and on Saturdays and Sundays)"
         )
     else:
         min_article_relevance = (
@@ -115,17 +121,22 @@ def update_feeds():
         print(f"Delete {len(old_articles)} old articles")
         old_articles.delete()
     else:
-        print(f"No old articles to delete")
+        print("No old articles to delete")
 
     cache.set("currentlyRefreshing", False, 60 * 60)
     print(
-        f"Refreshed articles and added {added_articles} articles in {int(end_time - start_time)} seconds"
+        f"Refreshed articles and added {added_articles} articles in"
+        f" {int(end_time - start_time)} seconds"
     )
 
     connection.close()
 
 
 def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
+    """
+    This function calsucates the relvanec score for all artciles and videos depensing on user
+    settings and article positions
+    """
     random.seed(hash)
 
     importance = feed.importance
@@ -139,7 +150,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     duration = settings.TIME_ZONE_OBJ.localize(datetime.datetime.now()) - pub_date
     duration_in_s = duration.total_seconds()
     article_age_h = divmod(
-        duration_in_s if duration_in_s != None else duration_in_s, 3600
+        duration_in_s if duration_in_s is not None else duration_in_s, 3600
     )[0]
     if article_age_h > 48:
         article_age_discount = 2
@@ -171,6 +182,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
 
 
 def delete_feed_positions(feed):
+    """Deletes all feed positions of a respective feed"""
     all_feedpositions = feed.feedposition_set.all()
     all_feedpositions.delete()
 
@@ -186,6 +198,7 @@ def check_limit():
 
 
 def add_ai_summary(article_obj_lst):
+    """Use OpenAI's ChatGPT API to get artcile summaries"""
     print(f"Requesting AI article summaries for {len(article_obj_lst)} articles.")
 
     openai.api_key = settings.OPENAI_API_KEY
@@ -221,7 +234,10 @@ def add_ai_summary(article_obj_lst):
                 messages=[
                     {
                         "role": "user",
-                        "content": f'Summarize this article in {bullets} bullet points:\n"{article_text}"',
+                        "content": (
+                            f"Summarize this article in {bullets} bullet"
+                            f' points:\n"{article_text}"'
+                        ),
                     }
                 ],
             )
@@ -245,11 +261,13 @@ def add_ai_summary(article_obj_lst):
     TOTAL_API_COST += THIS_RUN_API_COST
     cache.set("OPENAI_API_COST_LAUNCH", TOTAL_API_COST, 3600 * 1000)
     print(
-        f"Summarized {articles_summarized} articles costing {THIS_RUN_API_COST} GBP. Total API cost since container launch {TOTAL_API_COST} GBP."
+        f"Summarized {articles_summarized} articles costing {THIS_RUN_API_COST} GBP."
+        f" Total API cost since container launch {TOTAL_API_COST} GBP."
     )
 
 
 def scarpe_img(url):
+    """Manual image scraping from homepage - bascially searches for any image on homepage"""
     img_url = None
     try:
         _ = URLValidator(url)
@@ -266,7 +284,7 @@ def scarpe_img(url):
                 i_src = str(i["src"]).lower()
                 i_alt = str(i["alt"]).lower()
                 i_class = str(i["class"]).lower()
-            except:
+            except Exception:
                 pass
             if (
                 len(i_src) > 3
@@ -309,6 +327,8 @@ def scarpe_img(url):
 
 
 class LinkGrabber:
+    """linkpreview's LinkGrabber had bug with html content-type attribute - this custom class fixes the bug"""
+
     headers = {
         "user-agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0)"
@@ -316,9 +336,7 @@ class LinkGrabber:
             " Firefox/95.0"
         ),
         "accept-language": "en-US,en;q=0.5",
-        "accept": (
-            "text/html" ",application/xhtml+xml" ",application/xml;q=0.9" ",*/*;q=0.8"
-        ),
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     }
 
     def __init__(
@@ -377,6 +395,7 @@ class LinkGrabber:
 
 
 def scarpe_meta(url):
+    """Scrape <meta> data from website"""
     try:
         while cache.get("metaScrapeWait") == "wait":
             print("meta scraping wait")
@@ -416,8 +435,8 @@ def scarpe_meta(url):
 
 
 def fetch_feed(feed):
+    """Fetch/update/scrape all articles for a specific source feed"""
     added_articles = 0
-    article_without_ai_summary = []
 
     feed_url = feed.url
     if "http://FEED-CREATOR.local" in feed_url:
@@ -438,11 +457,13 @@ def fetch_feed(feed):
         article_kwargs = dict(
             min_feed_position=article__feed_position,
             publisher=feed.publisher,
-            categories=""
-            if feed.source_categories is None
-            or len(feed.source_categories.split(";")) == 0
-            else ";".join(
-                [str(i).upper() for i in feed.source_categories.split(";") + [""]]
+            categories=(
+                ""
+                if feed.source_categories is None
+                or len(feed.source_categories.split(";")) == 0
+                else ";".join(
+                    [str(i).upper() for i in feed.source_categories.split(";") + [""]]
+                )
             ),
         )
         for kwarg_X, kwarg_Y in {
@@ -498,7 +519,7 @@ def fetch_feed(feed):
         # make sure pub_date exists and is in the right format
         if (
             "pub_date" in article_kwargs
-            and type(article_kwargs["pub_date"]) == time.struct_time
+            and type(article_kwargs["pub_date"]) is time.struct_time
         ):
             article_kwargs["pub_date"] = datetime.datetime.fromtimestamp(
                 time.mktime(article_kwargs["pub_date"])
@@ -507,7 +528,7 @@ def fetch_feed(feed):
             fetched_feed, "published_parsed"
         ):
             article_kwargs["pub_date"] = datetime.datetime.fromtimestamp(
-                full_text_data["published_parsed"]
+                fetched_feed["published_parsed"]
             )
         else:
             article_kwargs["pub_date"] = datetime.datetime.now()
@@ -547,7 +568,9 @@ def fetch_feed(feed):
         if new_article:
             # get full text if settings say yes
             if feed.full_text_fetch == "Y":
-                request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(article_kwargs["link"], safe="")}'
+                request_url = (
+                    f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(article_kwargs["link"], safe="")}'
+                )
                 response = requests.get(request_url)
                 if response.status_code == 200:
                     full_text_data = response.json()
@@ -556,7 +579,10 @@ def fetch_feed(feed):
                         and "effective_url" in full_text_data
                         and full_text_data["effective_url"] is not None
                     ):
-                        request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(full_text_data["effective_url"], safe="")}'
+                        request_url = (
+                            f"{settings.FULL_TEXT_URL}extract.php?"
+                            f"url={urllib.parse.quote(full_text_data['effective_url'], safe='')}"
+                        )
                         response = requests.get(request_url)
                         if response.status_code == 200:
                             full_text_data = {**full_text_data, **response.json()}
@@ -601,11 +627,13 @@ def fetch_feed(feed):
                         if image_url is not None:
                             article_kwargs["image_url"] = image_url
                             print(
-                                f"Successfully scrape image for article {feed.publisher.name}: {article_kwargs['title']}"
+                                "Successfully scrape image for article"
+                                f" {feed.publisher.name}: {article_kwargs['title']}"
                             )
                         else:
                             print(
-                                f"Couldn't scrape image for article {feed.publisher.name}: {article_kwargs['title']}"
+                                "Couldn't scrape image for article"
+                                f" {feed.publisher.name}: {article_kwargs['title']}"
                             )
 
                 else:
@@ -615,9 +643,9 @@ def fetch_feed(feed):
             if "full_text" in article_kwargs:
                 soup = BeautifulSoup(article_kwargs["full_text"], "html.parser")
                 for img in soup.find_all("img"):
-                    img[
-                        "style"
-                    ] = "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
+                    img["style"] = (
+                        "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
+                    )
                     if img["src"] == "src":
                         if "data-url" in img:
                             img["src"] = img["data-url"].replace("${formatId}", "906")
@@ -650,7 +678,9 @@ def fetch_feed(feed):
 
                 if prev_article is not None:
                     article_kwargs["full_text"] = (
-                        f'<a class="btn btn-outline-secondary my-2 ms-2" style="float: right;" href="/?article={prev_article}">Go to previous article version</a>\n'
+                        '<a class="btn btn-outline-secondary my-2 ms-2" style="float:'
+                        f' right;" href="/?article={prev_article}">Go to previous'
+                        " article version</a>\n"
                         + article_kwargs["full_text"]
                     )
 
@@ -658,7 +688,11 @@ def fetch_feed(feed):
             if (
                 "full_text" not in article_kwargs
                 or len(article_kwargs["full_text"]) < 200
-                or "During your trial you will have complete digital access to FT.com with everything in both of our Standard Digital and Premium Digital packages."
+                or (
+                    "During your trial you will have complete digital access to FT.com"
+                    " with everything in both of our Standard Digital and Premium"
+                    " Digital packages."
+                )
                 in article_kwargs["full_text"]
             ):
                 article_kwargs["has_full_text"] = False
@@ -717,7 +751,9 @@ def fetch_feed(feed):
                 setattr(
                     old_artcile,
                     "full_text",
-                    f'<a class="btn btn-outline-danger cust-text-danger my-2 ms-2" style="float: right;" href="/?article={article_obj.pk}">Go to updated article version</a>\n'
+                    '<a class="btn btn-outline-danger cust-text-danger my-2 ms-2"'
+                    f' style="float: right;" href="/?article={article_obj.pk}">Go to'
+                    " updated article version</a>\n"
                     + full_text,
                 )
                 old_artcile.save()
@@ -764,6 +800,7 @@ def fetch_feed(feed):
         article_obj.feed_position.add(feed_position)
 
     print(
-        f"Refreshed {feed} with {added_articles} new articles out of {len(fetched_feed.entries)}"
+        f"Refreshed {feed} with {added_articles} new articles out of"
+        f" {len(fetched_feed.entries)}"
     )
     return added_articles

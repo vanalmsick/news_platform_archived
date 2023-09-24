@@ -13,4 +13,5 @@ openai
 ratelimit
 linkpreview
 scrapetube
+django-import-export
 #Werkzeug
