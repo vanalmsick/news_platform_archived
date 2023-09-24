@@ -107,9 +107,11 @@ def update_feeds():
         add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
     old_articles = Article.objects.filter(
-        min_article_relevance__isnull=True,
-        added_date__lte=settings.TIME_ZONE_OBJ.localize(
-            datetime.datetime.now() - datetime.timedelta(days=3)
+        (Q(min_article_relevance__isnull=True) | Q(feed_position=None))
+        & Q(
+            added_date__lte=settings.TIME_ZONE_OBJ.localize(
+                datetime.datetime.now() - datetime.timedelta(days=7)
+            )
         ),
     )
     if len(old_articles) > 0:
