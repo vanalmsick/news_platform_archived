@@ -10,8 +10,6 @@ jobs:
   publish-docs:
     name: Deploy docs
     runs-on: ubuntu-latest
-    needs:
-      - build-release
     steps:
       - name: Checkout main
         uses: actions/checkout@v3
