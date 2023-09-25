@@ -55,12 +55,10 @@ def update_feeds():
     for feed in inactive_feeds:
         delete_feed_positions(feed=feed)
 
-    articles_without_feed_position = Article.objects.filter(
-        feed_position=None, min_article_relevance__isnull=False
-    )
-    articles_without_feed_position.update(min_feed_position=None)
-    articles_without_feed_position.update(max_importance=None)
-    articles_without_feed_position.update(min_article_relevance=None)
+    all_articles = Article.objects.all()
+    all_articles.update(min_feed_position=None)
+    all_articles.update(max_importance=None)
+    all_articles.update(min_article_relevance=None)
 
     # get acctive feeds
     feeds = Feed.objects.filter(active=True, feed_type="rss")
@@ -115,6 +113,7 @@ def update_feeds():
 
     old_articles = Article.objects.filter(
         min_article_relevance__isnull=True,
+        feedposition=None,
         added_date__lte=settings.TIME_ZONE_OBJ.localize(
             datetime.datetime.now() - datetime.timedelta(days=7)
         ),
@@ -184,12 +183,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
 
 
 def delete_feed_positions(feed):
-    """Deletes all feed positions of a respective feed and position/relevance data"""
-    all_articles = Article.objects.filter(feed_position__feed=feed)
-    all_articles.update(min_feed_position=None)
-    all_articles.update(max_importance=None)
-    all_articles.update(min_article_relevance=None)
-
+    """Deletes all feed positions of a respective feed"""
     all_feedpositions = feed.feedposition_set.all()
     all_feedpositions.delete()
 
