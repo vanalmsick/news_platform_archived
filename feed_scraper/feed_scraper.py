@@ -113,7 +113,7 @@ def update_feeds():
 
     old_articles = Article.objects.filter(
         min_article_relevance__isnull=True,
-        feedposition=None,
+        feed_position=None,
         added_date__lte=settings.TIME_ZONE_OBJ.localize(
             datetime.datetime.now() - datetime.timedelta(days=7)
         ),
