@@ -397,6 +397,10 @@
                 }
                 // update url to show article
                 window.history.replaceState(null, null, "?article=" + article_id);
+                // if video scroll down to the video
+                if (img_in_html | html_starts_with_img | myJson.content_type === 'video') {
+                    document.getElementById("modalFullText").scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });
+                }
             }
         }
     }
