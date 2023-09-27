@@ -411,8 +411,11 @@
         userAction(article_id);
         console.log('open modal');
         modal.style.display = "block";
+        const scrollY = (window.pageYOffset || document.documentElement.scrollTop)  - (document.documentElement.clientTop || 0);
         const body = document.querySelector("body");
         body.classList.add("overflow-hidden");
+        body.style.position = 'fixed';
+        body.style.top = `-${scrollY}px`;
     }
 
     // When the user clicks on <span> (x), close the modal
@@ -438,6 +441,10 @@
         window.history.pushState({path: windowLocation}, '', windowLocation);
         const body = document.querySelector("body");
         body.classList.remove("overflow-hidden");
+        const scrollY = body.style.top;
+        body.style.position = '';
+        body.style.top = '';
+        window.scrollTo({top: parseInt(scrollY || '0') * -1, left: 0, behavior: "instant",});
     }
 
     // When the user clicks anywhere outside of the modal, close it
