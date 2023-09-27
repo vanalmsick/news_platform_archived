@@ -31,6 +31,14 @@ repos:
     hooks:
       - id: black
         args: [ --preview ]
+#  - repo: local
+#    hooks:
+#      - id: yapf
+#        name: yapf
+#        language: python
+#        entry: yapf
+#        args: [ -i ]
+#        types: [ python ]
   - repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
     hooks:

@@ -11,7 +11,7 @@ from django.core.cache import cache
 from articles.models import Article, FeedPosition
 from feeds.models import Feed
 
-from .feed_scraper import calcualte_relevance, postpone
+from .feed_scraper import calcualte_relevance
 
 
 def __extract_number_from_datestr(full_str, identifier):
@@ -26,17 +26,16 @@ def __extract_number_from_datestr(full_str, identifier):
     return int("".join(reversed(reversed_int_str)))
 
 
-@postpone
 def update_videos():
     """Main function that refreshes/scrapes videos from video feed sources."""
     start_time = time.time()
 
-    feeds = Feed.objects.all().exclude(feed_type="rss")
-
-    all_videos = Article.objects.filter(feed_position__feed__in=feeds)
+    all_videos = Article.objects.filter(content_type="video")
     all_videos.update(min_feed_position=None)
     all_videos.update(max_importance=None)
     all_videos.update(min_article_relevance=None)
+
+    feeds = Feed.objects.all().exclude(feed_type="rss")
 
     added_videos = 0
     for feed in feeds:

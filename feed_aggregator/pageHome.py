@@ -1,19 +1,17 @@
 import datetime
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login
 from django.core.cache import cache
-from django.db.models import F, Q
+from django.db.models import Q
 from django.shortcuts import render
 from django.template.defaulttags import register
-from django.utils.safestring import mark_safe
 
 from articles.models import Article
-from feed_scraper.feed_scraper import update_feeds
+from feed_scraper.feed_scraper import postpone, update_feeds
 from feed_scraper.video_scraper import update_videos
 
 from .pageAPI import get_article_data
-from .pageLogin import LoginForm, LoginView
+from .pageLogin import LoginView
 
 
 @register.filter(name="split")
@@ -30,40 +28,42 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
     duration_in_s = duration.total_seconds()
 
     def years():
-        return divmod(duration_in_s, 31536000)  # Seconds in a year=31536000.
+        """Seconds in a year=31536000."""
+        return divmod(duration_in_s, 31536000)
 
     def days(seconds=None):
-        return divmod(
-            seconds if seconds != None else duration_in_s, 86400
-        )  # Seconds in a day = 86400
+        """Seconds in a day = 86400."""
+        return divmod(seconds if seconds is not None else duration_in_s, 86400)
 
     def hours(seconds=None):
-        return divmod(
-            seconds if seconds != None else duration_in_s, 3600
-        )  # Seconds in an hour = 3600
+        """Seconds in an hour = 3600."""
+        return divmod(seconds if seconds is not None else duration_in_s, 3600)
 
     def minutes(seconds=None):
-        return divmod(
-            seconds if seconds != None else duration_in_s, 60
-        )  # Seconds in a minute = 60
+        """Seconds in a minute = 60."""
+        return divmod(seconds if seconds is not None else duration_in_s, 60)
 
     def seconds(seconds=None):
-        if seconds != None:
+        """One secoind in one second."""
+        if seconds is not None:
             return divmod(seconds, 1)
         return duration_in_s
 
     def totalDuration():
+        """Duration as extensive string"""
         y = years()
         d = days(y[1])  # Use remainder to calculate next variable
         h = hours(d[1])
         m = minutes(h[1])
         s = seconds(m[1])
 
-        return "Time between dates: {} years, {} days, {} hours, {} minutes and {} seconds".format(
-            int(y[0]), int(d[0]), int(h[0]), int(m[0]), int(s[0])
+        return (
+            "Time between dates: {} years, {} days, {} hours, {} minutes and {} seconds"
+            .format(int(y[0]), int(d[0]), int(h[0]), int(m[0]), int(s[0]))
         )
 
     def shortDuration():
+        """Duration as short string"""
         y = years()
         d = days(y[1])  # Use remainder to calculate next variable
         h = hours(d[1])
@@ -92,6 +92,34 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
     }[interval]
 
 
+@postpone
+def refresh_feeds():
+    """Main function to refresh all articles and videos"""
+    videoRefreshCycleCount = cache.get("videoRefreshCycleCount")
+
+    # Caching artciles before updaing
+    for kwargs in [
+        dict(categories="frontpage"),
+        {"special": ["free-only"]},
+        {"language": ["de"]},
+        {"categories": ["fund"]},
+        {"categories": ["tech"]},
+        {"publisher__name": ["financial times"]},
+        {"publisher__name": ["bloomberg"]},
+        {"content_type": ["video"]},
+    ]:
+        _ = get_articles(**kwargs)
+
+    cache.set("currentlyRefreshing", True, 60 * 60)
+    update_feeds()
+    if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
+        update_videos()
+        cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
+    else:
+        print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
+        cache.set("videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24)
+
+
 def get_articles(max_length=72, force_recache=False, **kwargs):
     kwargs = {k: [v] if type(v) is str else v for k, v in kwargs.items()}
     kwargs_hash = "articles_" + str(
@@ -101,7 +129,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
     articles = cache.get(kwargs_hash)
     currentlyRefreshing = cache.get("currentlyRefreshing")
 
-    if (articles is None or force_recache) and currentlyRefreshing != True:
+    if (articles is None or force_recache) and currentlyRefreshing is not True:
         conditions = Q()
         special_filters = kwargs["special"] if "special" in kwargs else None
         exclude_sidebar = True
@@ -122,7 +150,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                     exclude_sidebar = False
             try:
                 test_condition = Article.objects.filter(sub_conditions)
-            except:
+            except Exception:
                 test_condition = []
             if len(test_condition) > 0:
                 conditions &= sub_conditions
@@ -149,6 +177,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
 
 
 def homeView(request):
+    """Return django view of home page"""
     # If fallback articcle view is needed
     if "article" in request.GET:
         article = get_article_data(int(request.GET["article"]))
@@ -183,7 +212,6 @@ def homeView(request):
     )
     sidebar = get_articles(special="sidebar", max_length=100)
     lastRefreshed = cache.get("lastRefreshed")
-    videoRefreshCycleCount = cache.get("videoRefreshCycleCount")
     currentlyRefreshing = cache.get("currentlyRefreshing")
 
     if "publisher__name" in request.GET:
@@ -214,32 +242,13 @@ def homeView(request):
         now = datetime.datetime.now()
         if now.hour >= 0 and now.hour < 5:
             print(
-                "Don't update articles between 0:00-4:59am to avoid forceful shutdown of container during server updates."
+                "Don't update articles between 0:00-4:59am to avoid forceful shutdown"
+                " of container during server updates."
             )
         else:
             print("News are being refreshed now")
-            # Caching artciles before updaing
-            for kwargs in [
-                dict(categories="frontpage"),
-                {"special": ["free-only"]},
-                {"language": ["de"]},
-                {"categories": ["fund"]},
-                {"categories": ["tech"]},
-                {"publisher__name": ["financial times"]},
-                {"publisher__name": ["bloomberg"]},
-                {"content_type": ["video"]},
-            ]:
-                _ = get_articles(**kwargs)
             cache.set("currentlyRefreshing", True, 60 * 60)
-            update_feeds()
-            if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
-                update_videos()
-                cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
-            else:
-                print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
-                cache.set(
-                    "videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24
-                )
+            refresh_feeds()
 
     return render(
         request,
@@ -247,9 +256,11 @@ def homeView(request):
         {
             "articles": articles,
             "sidebar": sidebar,
-            "lastRefreshed": "Never"
-            if lastRefreshed is None
-            else getDuration(lastRefreshed, datetime.datetime.now(), "short"),
+            "lastRefreshed": (
+                "Never"
+                if lastRefreshed is None
+                else getDuration(lastRefreshed, datetime.datetime.now(), "short")
+            ),
             "page": selected_page,
             "meta": "<title>vA News Platform</title>",
         },
