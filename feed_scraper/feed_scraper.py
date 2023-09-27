@@ -11,6 +11,7 @@ import urllib
 from urllib.parse import urlparse
 
 import feedparser
+import langid
 import openai
 import ratelimit
 import requests
@@ -720,6 +721,7 @@ def fetch_feed(feed):
                             ):
                                 article_kwargs[kwarg_X] = getattr(meta_data, kwarg_Y)
 
+            # check if breaking news
             if (
                 "title" in article_kwargs
                 and (
@@ -738,6 +740,13 @@ def fetch_feed(feed):
                 article_kwargs["type"] = "breaking"
             else:
                 article_kwargs["type"] = "normal"
+
+            # check article language
+            if "title" in article_kwargs and "summary" in article_kwargs:
+                lang = langid.classify(
+                    f'{article_kwargs["title"]}\n{article_kwargs["summary"]}'
+                )
+                article_kwargs["language"] = lang[0]
 
             # add article
             article_obj = Article(**article_kwargs)
