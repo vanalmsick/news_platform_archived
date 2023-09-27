@@ -407,6 +407,8 @@
         userAction(article_id);
         console.log('open modal');
         modal.style.display = "block";
+        const body = document.querySelector("body");
+        body.classList.add("overflow-hidden");
     }
 
     // When the user clicks on <span> (x), close the modal
@@ -430,6 +432,8 @@
         categories.innerHTML = aiSummary.innerHTML = fullText.innerHTML = fullLink.href = img_html.innerHTML = shareEmail.href = shareTeams.href = '';
         // update url to not show article
         window.history.pushState({path: windowLocation}, '', windowLocation);
+        const body = document.querySelector("body");
+        body.classList.remove("overflow-hidden");
     }
 
     // When the user clicks anywhere outside of the modal, close it
