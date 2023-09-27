@@ -16,11 +16,13 @@ from .pageLogin import LoginView
 
 @register.filter(name="split")
 def split(value, key):
+    """Django filter 'split'"""
     value.split("key")
     return value.split(key)[:-1]
 
 
 def getDuration(then, now=datetime.datetime.now(), interval="default"):
+    """Get duration between two datetimes"""
     # Returns a duration as specified by variable interval
     # Functions, except totalDuration, returns [quotient, remainder]
 
@@ -95,6 +97,7 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
 @postpone
 def refresh_feeds():
     """Main function to refresh all articles and videos"""
+    currentlyRefreshing = cache.get("currentlyRefreshing")
     videoRefreshCycleCount = cache.get("videoRefreshCycleCount")
 
     # Caching artciles before updaing
@@ -110,17 +113,21 @@ def refresh_feeds():
     ]:
         _ = get_articles(**kwargs)
 
-    cache.set("currentlyRefreshing", True, 60 * 60)
-    update_feeds()
-    if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
-        update_videos()
-        cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
-    else:
-        print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
-        cache.set("videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24)
+    if currentlyRefreshing is not True:
+        cache.set("currentlyRefreshing", True, 60 * 60)
+        update_feeds()
+        if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
+            update_videos()
+            cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
+        else:
+            print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
+            cache.set(
+                "videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24
+            )
 
 
 def get_articles(max_length=72, force_recache=False, **kwargs):
+    """Gets artcile request by user either from database or from cache"""
     kwargs = {k: [v] if type(v) is str else v for k, v in kwargs.items()}
     kwargs_hash = "articles_" + str(
         {k.lower(): [i.lower() for i in sorted(v)] for k, v in kwargs.items()}
@@ -247,7 +254,6 @@ def homeView(request):
             )
         else:
             print("News are being refreshed now")
-            cache.set("currentlyRefreshing", True, 60 * 60)
             refresh_feeds()
 
     return render(
