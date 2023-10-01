@@ -11,7 +11,7 @@ from django.core.cache import cache
 from articles.models import Article, FeedPosition
 from feeds.models import Feed
 
-from .feed_scraper import calcualte_relevance
+from .feed_scraper import calcualte_relevance, delete_feed_positions
 
 
 def __extract_number_from_datestr(full_str, identifier):
@@ -76,6 +76,9 @@ def fetch_feed(feed, max_per_feed=200):
             videos = []
     else:
         videos = []
+
+    if len(videos) > 0:
+        delete_feed_positions(feed)
 
     for i, video in enumerate(videos):
         no_new_video = 0
