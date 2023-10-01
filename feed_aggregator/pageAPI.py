@@ -1,6 +1,7 @@
 """Get artcile data for all views"""
 import urllib
 
+from django.core.cache import cache
 from django.utils.safestring import mark_safe
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -48,6 +49,10 @@ def get_article_data(pk, debug=False):
             article["feed_position"] = []
             if len(feed_positions) > 0:
                 for pos in feed_positions:
+                    content_type = "article" if pos.feed.feed_type == "rss" else "video"
+                    publisher_article_count = cache.get(
+                        f"publisher_{content_type}_cnt_{pos.feed.publisher.pk}"
+                    )
                     article["feed_position"].append(
                         dict(
                             feed__name=pos.feed.name,
@@ -60,10 +65,12 @@ def get_article_data(pk, debug=False):
                             importance=pos.importance,
                             position=pos.position,
                             relevance=pos.relevance,
+                            publisher__article_cnt=publisher_article_count,
                         )
                     )
         article["error"] = False
-    except Exception:
+    except Exception as e:
+        print("Error", e)
         article = {"error": True}
 
     return article

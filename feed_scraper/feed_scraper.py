@@ -174,7 +174,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     if publisher_article_count is None or publisher_article_count < 25:
         factor_article_normalization = 25
     else:
-        factor_article_normalization = publisher_article_count / 100
+        factor_article_normalization = min(publisher_article_count / 100, 6)
 
     # Lead Articles News: 4x
     # Breaking & Top News: 2x

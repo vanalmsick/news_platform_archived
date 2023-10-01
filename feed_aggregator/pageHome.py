@@ -96,15 +96,15 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
 
 
 def get_stats():
-    added_date__lte_7d = settings.TIME_ZONE_OBJ.localize(
-        datetime.datetime.now() - datetime.timedelta(days=7)
+    added_date__lte_2d = settings.TIME_ZONE_OBJ.localize(
+        datetime.datetime.now() - datetime.timedelta(days=2)
     )
     added_date__lte_30d = settings.TIME_ZONE_OBJ.localize(
         datetime.datetime.now() - datetime.timedelta(days=30)
     )
 
     all_articles = Article.objects.exclude(content_type="video").filter(
-        added_date__lte=added_date__lte_7d
+        added_date__lte=added_date__lte_2d
     )
     all_videos = Article.objects.filter(content_type="video").filter(
         added_date__lte=added_date__lte_30d
@@ -237,7 +237,12 @@ def homeView(request):
             <meta property="og:url" content="{article['link']}">
             """
         else:
-            meta = f"<title>{article['title']} - {article['publisher__name']}</title>"
+            if article["error"]:
+                meta = "<title>vA News Platform</title>"
+            else:
+                meta = (
+                    f"<title>{article['title']} - {article['publisher__name']}</title>"
+                )
 
         # if user is not autheticated
         if request.user.is_authenticated is False:

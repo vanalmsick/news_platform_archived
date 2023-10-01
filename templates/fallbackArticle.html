@@ -94,6 +94,7 @@
                             <th scope="col">Feed Publisher</th>
                             <th scope="col">Feed Publisher Renowned</th>
                             <th scope="col">Feed Publisher Language</th>
+                            <th scope="col">Publisher Article Count</th>
                         </tr>
                         {% for position in article.feed_position %}
                             <tr>
@@ -107,6 +108,7 @@
                                 <td>{{ position.feed__publisher__name }}</td>
                                 <td>{{ position.feed__publisher__renowned }}</td>
                                 <td>{{ position.feed__publisher__language }}</td>
+                                <td>{{ position.publisher__article_cnt }}</td>
                             </tr>
                         {% endfor %}
                     </table>
