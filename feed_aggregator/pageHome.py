@@ -3,7 +3,7 @@ import datetime
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import render
 from django.template.defaulttags import register
 
@@ -95,11 +95,35 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
     }[interval]
 
 
+def get_stats():
+    added_date__lte = settings.TIME_ZONE_OBJ.localize(
+        datetime.datetime.now() - datetime.timedelta(days=2)
+    )
+
+    all_articles = Article.objects.exclude(content_type="video")
+    all_videos = Article.objects.filter(content_type="video")
+
+    for content_type, query in [("article", all_articles), ("video", all_videos)]:
+        summary = (
+            query.exclude(feed_position=None, added_date__lte=added_date__lte)
+            .values("publisher__pk")
+            .annotate(count=Count("publisher__name"))
+        )
+        for i in summary:
+            cache.set(
+                f'publisher_{content_type}_cnt_{i["publisher__pk"]}',
+                i["count"],
+                60 * 60 * 24,
+            )
+
+
 @postpone
 def refresh_feeds():
     """Main function to refresh all articles and videos"""
     currentlyRefreshing = cache.get("currentlyRefreshing")
     videoRefreshCycleCount = cache.get("videoRefreshCycleCount")
+
+    get_stats()
 
     # Caching artciles before updaing
     for kwargs in [

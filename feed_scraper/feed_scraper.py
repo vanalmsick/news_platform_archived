@@ -140,46 +140,69 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     """
     random.seed(hash)
 
-    importance = feed.importance
-    if feed.feed_ordering == "r":
-        if feed_position <= 3:
-            importance += 2
-        elif feed_position <= 7:
-            importance += 1
-        importance = min(4, importance)
-
-    duration = settings.TIME_ZONE_OBJ.localize(datetime.datetime.now()) - pub_date
-    duration_in_s = duration.total_seconds()
-    article_age_h = divmod(
-        duration_in_s if duration_in_s is not None else duration_in_s, 3600
-    )[0]
-    if article_age_h > 48:
-        article_age_discount = 2
-        age_factor = 1
-    elif article_age_h > 24:
-        article_age_discount = 1
-        age_factor = 1
+    random_int = random.randrange(0, 9) / 10000
+    feed__importance = feed.importance  # 0-4
+    feed__ordering = feed.feed_ordering  # r or d
+    publisher__renowned = publisher.renowned  # -3-3
+    content_type = "article" if feed.feed_type == "rss" else "video"
+    publisher_article_count = cache.get(f"publisher_{content_type}_cnt_{publisher.pk}")
+    if pub_date is None:
+        article_age = 3
     else:
-        article_age_discount = 0
-        age_factor = 1
-    if article_age_h > 24 * 5:
-        age_factor = 3
-    elif article_age_h > 24 * 14:
-        age_factor = 30
+        article_age = (
+            settings.TIME_ZONE_OBJ.localize(datetime.datetime.now()) - pub_date
+        ).total_seconds() / 3600
+
+    # Top Publisher = 2x
+    # Higly Renowned Publisher = 1.2x
+    # Renowned Publisher = 1x
+    # Regular Publisher = 1x
+    # Lesser-known Publisher = 0.75x
+    # Unknown Publisher = 0.6x
+    # Inaccurate Publisher = 0.5x
+    factor_publisher__renowned = {
+        3: 3 / 6,
+        2: 5 / 6,
+        1: 1,
+        0: 1,
+        -1: 8 / 6,
+        -2: 10 / 6,
+        -3: 12 / 6,
+    }[publisher__renowned]
+
+    # Publisher artcile ccount normalization
+    if publisher_article_count is None or publisher_article_count < 25:
+        factor_article_normalization = 25
+    else:
+        factor_article_normalization = publisher_article_count / 100
+
+    # Lead Articles News: 4x
+    # Breaking & Top News: 2x
+    # Frontpage News: 1.3x
+    # Latest News: 1x
+    # Normal: 0.8x
+    factor_feed__importance = {4: 1 / 4, 3: 2 / 4, 2: 3 / 4, 1: 1, 0: 5 / 4}[
+        feed__importance
+    ]
+
+    # age factor
+    if feed__ordering == "r":
+        factor_age = (article_age / 10) ** 2 + 1
+    else:  # d
+        factor_age = (article_age / 6) ** 2 + 1
 
     article_relevance = round(
         feed_position
-        * {3: 3 / 6, 2: 5 / 6, 1: 1, 0: 1, -1: 8 / 6, -2: 10 / 6, -3: 12 / 6}[
-            publisher.renowned
-        ]
-        * {4: 1 / 6, 3: 2 / 6, 2: 4 / 6, 1: 1, 0: 8 / 6}[
-            max((importance - article_age_discount), 0)
-        ]
-        - ((publisher.renowned + random.randrange(0, 9)) / 10000) * age_factor,
+        * factor_publisher__renowned
+        * factor_article_normalization
+        * factor_feed__importance
+        * factor_age
+        + random_int,
         6,
     )
+    article_relevance = min(float(article_relevance), 999999.0)
 
-    return importance, article_relevance
+    return 9, float(article_relevance)
 
 
 def delete_feed_positions(feed):
