@@ -96,16 +96,23 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
 
 
 def get_stats():
-    added_date__lte = settings.TIME_ZONE_OBJ.localize(
-        datetime.datetime.now() - datetime.timedelta(days=2)
+    added_date__lte_7d = settings.TIME_ZONE_OBJ.localize(
+        datetime.datetime.now() - datetime.timedelta(days=7)
+    )
+    added_date__lte_30d = settings.TIME_ZONE_OBJ.localize(
+        datetime.datetime.now() - datetime.timedelta(days=30)
     )
 
-    all_articles = Article.objects.exclude(content_type="video")
-    all_videos = Article.objects.filter(content_type="video")
+    all_articles = Article.objects.exclude(content_type="video").filter(
+        added_date__lte=added_date__lte_7d
+    )
+    all_videos = Article.objects.filter(content_type="video").filter(
+        added_date__lte=added_date__lte_30d
+    )
 
     for content_type, query in [("article", all_articles), ("video", all_videos)]:
         summary = (
-            query.exclude(feed_position=None, added_date__lte=added_date__lte)
+            query.exclude(feed_position=None)
             .values("publisher__pk")
             .annotate(count=Count("publisher__name"))
         )
