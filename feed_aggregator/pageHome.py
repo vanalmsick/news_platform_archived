@@ -1,3 +1,4 @@
+"""Responaible for home view at base url / """
 import datetime
 
 from django.conf import settings
@@ -185,9 +186,14 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
 
 def homeView(request):
     """Return django view of home page"""
+    debug = (
+        True
+        if "debug" in request.GET and request.GET["debug"].lower() == "true"
+        else False
+    )
     # If fallback articcle view is needed
     if "article" in request.GET:
-        article = get_article_data(int(request.GET["article"]))
+        article = get_article_data(int(request.GET["article"]), debug=debug)
         if article["error"] is False:
             meta = f"""
             <title>{article['title']} - {article['publisher__name']}</title>
@@ -206,7 +212,9 @@ def homeView(request):
         if request.user.is_authenticated is False:
             return LoginView(request, meta)
         return render(
-            request, "fallbackArticle.html", {"article": article, "meta": meta}
+            request,
+            "fallbackArticle.html",
+            {"article": article, "meta": meta, "debug": debug},
         )
 
     # Get Homepage

@@ -59,6 +59,61 @@
                         {% endwith %}
                     </div>
 
+                {% if debug %}
+                    <div class="text-center pt-3"><h4>Article kwargs:</h4></div>
+                    <table class="table table-striped table-sm" style="width: 80%; table-layout: fixed; overflow-wrap: break-word; word-wrap: break-word; margin:0 auto;">
+                        <tr>
+                            <th scope="col">Key</th>
+                            <th scope="col">Value</th>
+                        </tr>
+                    {% for key, value in article.items %}
+                        {% if key == 'full_text' or key == 'summary' or key == 'ai_summary' or key == 'feed_position' %}
+                        <tr>
+                            <td scope="row">{{ key }}</td>
+                            <td><i>[Please see above or below.]</i></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td>{{ key }}</td>
+                            <td>{{ value }}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </table>
+
+                    <div class="text-center pt-3"><h4>Feed Positions:</h4></div>
+                    <table class="table table-striped table-sm" style="width: 80%; table-layout: fixed; overflow-wrap: break-word; word-wrap: break-word; margin:0 auto;">
+                        <tr>
+                            <th scope="col">Feed</th>
+                            <th scope="col">Feed Position</th>
+                            <th scope="col">Feed Position Importance</th>
+                            <th scope="col">Feed Position Relevance</th>
+                            <th scope="col">Feed Importance</th>
+                            <th scope="col">Feed Ordering</th>
+                            <th scope="col">Feed Categories</th>
+                            <th scope="col">Feed Publisher</th>
+                            <th scope="col">Feed Publisher Renowned</th>
+                            <th scope="col">Feed Publisher Language</th>
+                        </tr>
+                        {% for position in article.feed_position %}
+                            <tr>
+                                <td scope="row">{{ position.feed__name }}</td>
+                                <td>{{ position.position }}</td>
+                                <td>{{ position.importance }}</td>
+                                <td>{{ position.relevance }}</td>
+                                <td>{{ position.feed__importance }}</td>
+                                <td>{{ position.feed__feed_ordering }}</td>
+                                <td>{{ position.feed__source_categories }}</td>
+                                <td>{{ position.feed__publisher__name }}</td>
+                                <td>{{ position.feed__publisher__renowned }}</td>
+                                <td>{{ position.feed__publisher__language }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+
+                {% endif %}
+
+
                 </div>
 
 

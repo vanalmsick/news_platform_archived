@@ -1,3 +1,5 @@
+"""Containing all Django models related to an indiviual artcile/video"""
+
 from django.db import models
 
 from feeds.models import NEWS_IMPORTANCE, Feed, Publisher
@@ -5,16 +7,21 @@ from feeds.models import NEWS_IMPORTANCE, Feed, Publisher
 
 # Create your models here.
 class FeedPosition(models.Model):
+    """Django Model Class linking a single article/video with a specific feed and containing the relavent
+    position in that feed"""
+
     feed = models.ForeignKey(Feed, on_delete=models.CASCADE)
     position = models.SmallIntegerField()
     importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE)
-    relevance = models.SmallIntegerField(null=True)
+    relevance = models.DecimalField(null=True, decimal_places=6, max_digits=12)
 
     def __str__(self):
         return f"{self.feed} - {self.position}"
 
 
 class Article(models.Model):
+    """Django Model Class for each single article or video"""
+
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     feed_position = models.ManyToManyField(FeedPosition)
 
@@ -58,6 +65,8 @@ class Article(models.Model):
 
 
 class ArticleGroup(models.Model):
+    """Django Model Class for grouping single articles/video about the same topic"""
+
     feeds = models.ManyToManyField(Feed)
     articles = models.ManyToManyField(Article)
     title = models.CharField(max_length=30)

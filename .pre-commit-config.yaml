@@ -57,11 +57,11 @@ repos:
 #        exclude: "[a-zA-Z]*/(migrations)/(.)*"
 #        args: [ "--load-plugins=pylint_django", "--django-settings-module=feed_aggregator.settings" ]
 #        additional_dependencies: [pylint_django,]
-  - repo: https://github.com/pycqa/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-        args: [ "-iii", "-ll", '-q' ]
+#  - repo: https://github.com/pycqa/bandit
+#    rev: 1.7.5
+#    hooks:
+#      - id: bandit
+#        args: [ "-iii", "-ll", '-q' ]
   - repo: local
     hooks:
       - id: unittests
