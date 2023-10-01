@@ -49,7 +49,7 @@ def get_article_data(pk, debug=False):
             article["feed_position"] = []
             if len(feed_positions) > 0:
                 for pos in feed_positions:
-                    content_type = "article" if pos.feed.feed_type == "rss" else "video"
+                    content_type = "art" if pos.feed.feed_type == "rss" else "vid"
                     publisher_article_count = cache.get(
                         f"publisher_{content_type}_cnt_{pos.feed.publisher.pk}"
                     )

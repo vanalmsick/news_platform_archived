@@ -110,7 +110,7 @@ def get_stats():
         added_date__lte=added_date__lte_30d
     )
 
-    for content_type, query in [("article", all_articles), ("video", all_videos)]:
+    for content_type, query in [("art", all_articles), ("vid", all_videos)]:
         summary = (
             query.exclude(feed_position=None)
             .values("publisher__pk")
