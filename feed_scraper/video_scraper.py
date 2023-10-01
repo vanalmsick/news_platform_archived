@@ -66,19 +66,18 @@ def fetch_feed(feed, max_per_feed=200):
             limit=max_per_feed,
             sort_by="popular" if feed.feed_ordering == "r" else "newest",
         )
+        delete_feed_positions(feed)
     elif feed.feed_type == "y-playlist":
         parsed_url = urllib.parse.parse_qs(urllib.parse.urlparse(feed.url).query)
         if "list" in parsed_url:
             playlist = parsed_url["list"][0]
             videos = scrapetube.get_playlist(playlist)
+            delete_feed_positions(feed)
         else:
             print(f'Error: Invalid URL "{feed.url}" for YouTube Playlist "{feed.name}"')
             videos = []
     else:
         videos = []
-
-    if len(videos) > 0:
-        delete_feed_positions(feed)
 
     for i, video in enumerate(videos):
         no_new_video = 0
