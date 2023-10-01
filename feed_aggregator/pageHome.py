@@ -104,10 +104,10 @@ def get_stats():
     )
 
     all_articles = Article.objects.exclude(content_type="video").filter(
-        added_date__lte=added_date__lte_2d
+        pub_date__gte=added_date__lte_2d
     )
     all_videos = Article.objects.filter(content_type="video").filter(
-        added_date__lte=added_date__lte_30d
+        pub_date__gte=added_date__lte_30d
     )
 
     for content_type, query in [("art", all_articles), ("vid", all_videos)]:
