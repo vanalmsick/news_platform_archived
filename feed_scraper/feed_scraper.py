@@ -187,9 +187,9 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
 
     # age factor
     if feed__ordering == "r":
-        factor_age = (article_age / 10) ** (3 / 2) + 1
+        factor_age = ((article_age + 1) / 10) ** (3 / 2)
     else:  # d
-        factor_age = (article_age / 6) ** (3 / 2) + 1
+        factor_age = ((article_age + 1) / 6) ** (3 / 2)
 
     article_relevance = round(
         feed_position
