@@ -154,21 +154,14 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
             settings.TIME_ZONE_OBJ.localize(datetime.datetime.now()) - pub_date
         ).total_seconds() / 3600
 
-    # Top Publisher = 2x
-    # Higly Renowned Publisher = 1.2x
-    # Renowned Publisher = 1x
-    # Regular Publisher = 1x
-    # Lesser-known Publisher = 0.75x
-    # Unknown Publisher = 0.6x
-    # Inaccurate Publisher = 0.5x
     factor_publisher__renowned = {
-        3: 3 / 6,
-        2: 5 / 6,
-        1: 1,
-        0: 1,
-        -1: 8 / 6,
-        -2: 10 / 6,
-        -3: 12 / 6,
+        3: 2 / 6,  # Top Publisher = 3x
+        2: 4 / 6,  # Higly Renowned Publisher = 1.5x
+        1: 5 / 6,  # Renowned Publisher = 1.2x
+        0: 6 / 6,  # Regular Publisher = 1x
+        -1: 8 / 6,  # Lesser-known Publisher = 0.75x
+        -2: 10 / 6,  # Unknown Publisher = 0.6x
+        -3: 12 / 6,  # Inaccurate Publisher = 0.5x
     }[publisher__renowned]
 
     # Publisher artcile ccount normalization
@@ -177,14 +170,13 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     else:
         factor_article_normalization = min(publisher_article_count / 100, 6)
 
-    # Lead Articles News: 4x
-    # Breaking & Top News: 2x
-    # Frontpage News: 1.3x
-    # Latest News: 1x
-    # Normal: 0.8x
-    factor_feed__importance = {4: 1 / 4, 3: 2 / 4, 2: 3 / 4, 1: 1, 0: 5 / 4}[
-        feed__importance
-    ]
+    factor_feed__importance = {
+        4: 1 / 4,  # Lead Articles News: 4x
+        3: 2 / 4,  # Breaking & Top News: 2x
+        2: 3 / 4,  # Frontpage News: 1.3x
+        1: 4 / 4,  # Latest News: 1x
+        0: 5 / 4,  # Normal: 0.8x
+    }[feed__importance]
 
     # age factor
     if feed__ordering == "r":
