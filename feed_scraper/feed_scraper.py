@@ -3,6 +3,7 @@
 import datetime
 import hashlib
 import html
+import math
 import random
 import threading
 import time
@@ -187,16 +188,16 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
 
     # age factor
     if feed__ordering == "r":
-        factor_age = (article_age / 8 * 4 + 1) ** (4 / 3)
+        factor_age = 3 / (1 + math.exp(-0.25 * article_age - 4)) + 1
     else:  # d
-        factor_age = (article_age / 8 * 1 + 1) ** (4 / 3)
+        factor_age = 4 / (1 + math.exp(-0.25 * article_age - 4)) + 1
 
     article_relevance = round(
         feed_position
         * factor_publisher__renowned
         * factor_article_normalization
         * factor_feed__importance
-        + factor_age
+        * factor_age
         + random_int,
         6,
     )
