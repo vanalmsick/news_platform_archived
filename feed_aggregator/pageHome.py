@@ -199,14 +199,14 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
             .order_by("min_article_relevance")
         )
         if exclude_sidebar:
-            articles = articles.exclude(categories__icontains="SIDEBAR").exclude(
-                pub_date__gte=settings.TIME_ZONE_OBJ.localize(
-                    datetime.datetime.now() - datetime.timedelta(days=7)
-                )
-            )
+            articles = articles.exclude(categories__icontains="SIDEBAR")
         if special_filters is not None and "sidebar" in special_filters:
             articles = articles.order_by(
                 "-added_date", "-pub_date", "min_article_relevance"
+            ).exclude(
+                pub_date__lte=settings.TIME_ZONE_OBJ.localize(
+                    datetime.datetime.now() - datetime.timedelta(days=5)
+                )
             )
         if max_length is not None and len(articles) > max_length:
             articles = articles[:max_length]
