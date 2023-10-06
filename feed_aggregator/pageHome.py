@@ -200,7 +200,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
         )
         if exclude_sidebar:
             articles = articles.exclude(categories__icontains="SIDEBAR").exclude(
-                pub_date__lte=settings.TIME_ZONE_OBJ.localize(
+                pub_date__gte=settings.TIME_ZONE_OBJ.localize(
                     datetime.datetime.now() - datetime.timedelta(days=7)
                 )
             )
