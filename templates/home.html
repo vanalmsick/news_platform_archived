@@ -377,7 +377,7 @@
                 if (img_in_html | html_starts_with_img | myJson.content_type === 'video') {
                     img_html.innerHTML = '';
                 } else {
-                    img_html.innerHTML = '<img src="' + myJson.image_url + '" style="max-width: 100%; max-height: 80vh; object-fit: cover;">';
+                    img_html.innerHTML = '<img src="' + myJson.image_url + '" referrerpolicy="no-referrer" style="max-width: 100%; max-height: 80vh; object-fit: cover;">';
                 }
                 fullText.innerHTML = myJson.full_text;
                 aiSummary.innerHTML = myJson.ai_summary;

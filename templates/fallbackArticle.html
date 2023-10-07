@@ -40,7 +40,7 @@
                         {% endif %}
                         {% if article.image_url is not None and article.image_url|length > 5 and article.content_type != 'video' %}
                             <div id="modalIMG" class="pb-2" style="text-align: center;"><img
-                                    src="{{ article.image_url }}"
+                                    src="{{ article.image_url }}" referrerpolicy="no-referrer"
                                     style="max-width: 100%; max-height: 80vh; object-fit: cover;"></div>
                         {% endif %}
                         <div id="modalFullText" style="font-family: Georgia, serif;">{{ article.full_text }}</div>
