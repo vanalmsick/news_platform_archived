@@ -179,10 +179,12 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     }[feed__importance]
 
     # age factor
-    if feed__ordering == "r":
-        factor_age = 3 / (1 + math.exp(-0.25 * article_age - 4)) + 1
+    if feed.feed_type != "rss":  # videos
+        factor_age = 10 / (1 + math.exp(-0.01 * article_age + 4)) + 1
+    elif feed__ordering == "r":
+        factor_age = 3 / (1 + math.exp(-0.25 * article_age + 4)) + 1
     else:  # d
-        factor_age = 4 / (1 + math.exp(-0.25 * article_age - 4)) + 1
+        factor_age = 4 / (1 + math.exp(-0.25 * article_age + 4)) + 1
 
     article_relevance = round(
         feed_position
