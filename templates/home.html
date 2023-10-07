@@ -175,7 +175,7 @@
                                  style="cursor: pointer;">
                             <div class="card mb-4 box-shadow h-100{% if article.type == 'breaking' or 'big read' in article.categories|lower or 'news in depth' in article.categories|lower %} breaking{% endif %}">
                             {% if article.image_url != Null %}
-                                <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
+                                <img class="card-img-top" alt="Thumbnail" style="width: 100%;" referrerpolicy="no-referrer"
                                      src="{{ article.image_url }}" loading="lazy">
                             {% endif %}
                             <div class="card-body d-flex flex-column align-items-start">
