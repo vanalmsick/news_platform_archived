@@ -149,6 +149,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = "en-uk"
+ALLOWED_LANGUAGES = (
+    "en" if os.getenv("ALLOWED_LANGUAGES") is None else os.getenv("ALLOWED_LANGUAGES")
+)
 
 TIME_ZONE = "Europe/London"
 TIME_ZONE_OBJ = pytz.timezone(TIME_ZONE)

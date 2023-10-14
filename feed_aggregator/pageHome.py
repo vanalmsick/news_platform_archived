@@ -1,5 +1,7 @@
 """Responaible for home view at base url / """
 import datetime
+import functools
+import operator
 
 from django.conf import settings
 from django.core.cache import cache
@@ -172,6 +174,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
         conditions = Q()
         special_filters = kwargs["special"] if "special" in kwargs else None
         exclude_sidebar = True
+        has_language_filters = False
         for field, condition_lst in kwargs.items():
             sub_conditions = Q()
             for condition in condition_lst:
@@ -187,6 +190,8 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                 else:
                     sub_conditions |= Q(**{f"{field}__icontains": condition})
                     exclude_sidebar = False
+            if field == "language":
+                has_language_filters = True
             try:
                 test_condition = Article.objects.filter(sub_conditions)
             except Exception:
@@ -206,6 +211,16 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
             ).exclude(
                 pub_date__lte=settings.TIME_ZONE_OBJ.localize(
                     datetime.datetime.now() - datetime.timedelta(days=5)
+                )
+            )
+        if has_language_filters is False:
+            articles = articles.filter(
+                functools.reduce(
+                    operator.or_,
+                    (
+                        Q(language__icontains=x)
+                        for x in settings.ALLOWED_LANGUAGES.split(",")
+                    ),
                 )
             )
         if max_length is not None and len(articles) > max_length:
