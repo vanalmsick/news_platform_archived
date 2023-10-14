@@ -213,7 +213,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                     datetime.datetime.now() - datetime.timedelta(days=5)
                 )
             )
-        if has_language_filters is False:
+        if has_language_filters is False and "*" not in settings.ALLOWED_LANGUAGES:
             articles = articles.filter(
                 functools.reduce(
                     operator.or_,

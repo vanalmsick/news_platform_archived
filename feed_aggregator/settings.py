@@ -150,7 +150,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-uk"
 ALLOWED_LANGUAGES = (
-    "en" if os.getenv("ALLOWED_LANGUAGES") is None else os.getenv("ALLOWED_LANGUAGES")
+    "*" if os.getenv("ALLOWED_LANGUAGES") is None else os.getenv("ALLOWED_LANGUAGES")
 )
 
 TIME_ZONE = "Europe/London"
