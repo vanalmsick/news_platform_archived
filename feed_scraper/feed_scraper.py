@@ -523,6 +523,13 @@ def fetch_feed(feed):
                 else:
                     article_kwargs[kwarg_X] = scraped_article[kwarg_Y]
 
+        if (
+            hasattr(scraped_article, "content")
+            and len(scraped_article.content) > 0
+            and hasattr(scraped_article.content[0], "value")
+        ):
+            article_kwargs["full_text"] = scraped_article.content[0].value
+
         # add unique id/hash
         if feed.publisher.unique_article_id == "guid" and "guid" in article_kwargs:
             article_kwargs["hash"] = f'{feed.publisher.pk}_{article_kwargs["guid"]}'
@@ -670,8 +677,10 @@ def fetch_feed(feed):
                             img["src"] = img["data-url"].replace("${formatId}", "906")
                         elif "data-src" in img:
                             img["src"] = img["data-src"]
+                        img["referrerpolicy"] = "no-referrer"
                 for a in soup.find_all("a"):
                     a["target"] = "_blank"
+                    a["referrerpolicy"] = "no-referrer"
                 for link in soup.find_all("link"):
                     if link is not None:
                         link.decompose()
@@ -706,7 +715,9 @@ def fetch_feed(feed):
             # add additional properties
             if (
                 "full_text" not in article_kwargs
-                or len(article_kwargs["full_text"]) < 200
+                or len(article_kwargs["full_text"]) < 750
+                or len(BeautifulSoup(article_kwargs["full_text"], "html5lib").text)
+                < 750
                 or (
                     "During your trial you will have complete digital access to FT.com"
                     " with everything in both of our Standard Digital and Premium"

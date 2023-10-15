@@ -16,7 +16,7 @@
                         <h2 id="modalTitle"
                             style="font-family: Georgia, serif; font-weight: bold;">{{ article.title }}</h2>
                         <div id="modalSummary" class="lead pb-2"
-                             style="font-family: Georgia, serif;">{{ article.summary|safe }}</div>
+                             style="font-family: Georgia, serif;">{{ article.summary|truncatechars:400|safe }}</div>
                         <div id="modalDate" class="mb-1 text-muted" style="font-family: Georgia, serif;">
                             Published <script>document.write(dateConvert("{{ article.pub_date|date:"c" }}"));</script> //
                             Added <script>document.write(dateConvert("{{ article.added_date|date:"c" }}"));</script>
@@ -140,7 +140,7 @@
                         Close
                     </button>
                     <a id="modalLink" class="btn btn-primary" href="{{ article.link }}" role="button"
-                       style="color: #FFFFFF;" target="_blank">Go to Article</a>
+                       style="color: #FFFFFF;" target="_blank" referrerpolicy="no-referrer">Go to Article</a>
                 </div>
             </div>
         </div>

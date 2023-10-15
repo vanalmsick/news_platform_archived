@@ -112,7 +112,7 @@
                     Close
                 </button>
                 <a id="modalLink" class="btn btn-primary" href="/" role="button" style="color: #FFFFFF;"
-                   target="_blank">Go to Article</a>
+                   target="_blank" referrerpolicy="no-referrer">Go to Article</a>
             </div>
         </div>
     </div>
@@ -372,7 +372,11 @@
                 if (summary_part_of_body) {
                     summary.innerText = '';
                 } else {
-                    summary.innerHTML = myJson.summary;
+                    if (myJson.summary.length > 400) {
+                        summary.innerHTML = myJson.summary.substring(0, 400) + '...';
+                    } else {
+                        summary.innerHTML = myJson.summary;
+                    }
                 }
                 if (img_in_html | html_starts_with_img | myJson.content_type === 'video') {
                     img_html.innerHTML = '';
