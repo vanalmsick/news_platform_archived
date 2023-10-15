@@ -11,12 +11,16 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 import pytz
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env files
+load_dotenv("data/.env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -25,20 +29,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-ut^e0pt(8g)wzhok&0hjitv#)c^pcq=#0jj9nx0vx%w_xslr(3"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (
-    True
-    if os.environ.get("DEBUG") is None
-    else str(os.environ.get("DEBUG")).lower() == "true"
-)
+DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
 DEBUG = True
 print(f'Debug modus is turned {"on" if DEBUG else "off"}')
 
-CSRF_TRUSTED_ORIGINS = ["https://news.vanalmsick.uk"]
-ALLOWED_HOSTS = ["*"]
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "https://news.vanalmsick.uk",
-]
+HOSTS = os.environ.get("HOSTS", "http://localhost,http://127.0.0.1/").split(",")
+CSRF_TRUSTED_ORIGINS = HOSTS
+ALLOWED_HOSTS = [urlparse(url).netloc for url in HOSTS]
+CORS_ALLOWED_ORIGINS = HOSTS
 
 
 # Application definition
@@ -149,11 +147,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = "en-uk"
-ALLOWED_LANGUAGES = (
-    "*" if os.getenv("ALLOWED_LANGUAGES") is None else os.getenv("ALLOWED_LANGUAGES")
-)
+ALLOWED_LANGUAGES = os.getenv("ALLOWED_LANGUAGES", "*")
 
-TIME_ZONE = "Europe/London"
+TIME_ZONE = os.getenv("TIME_ZONE", "Europe/London")
 TIME_ZONE_OBJ = pytz.timezone(TIME_ZONE)
 
 USE_I18N = True
@@ -182,8 +178,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 FULL_TEXT_URL = os.environ.get("FULL_TEXT_URL")
 FEED_CREATOR_URL = os.environ.get("FEED_CREATOR_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-if False:  # DEBUG:
-    FULL_TEXT_URL = "http://192.168.1.201:9280/full-text-rss/"
-    FEED_CREATOR_URL = "http://192.168.1.201:9280/feed-creator/"
-    OPENAI_API_KEY = ""

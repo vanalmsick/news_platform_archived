@@ -15,4 +15,5 @@ linkpreview
 scrapetube
 django-import-export
 langid
+python-dotenv
 #Werkzeug
