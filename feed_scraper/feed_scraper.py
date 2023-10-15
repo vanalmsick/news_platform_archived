@@ -677,7 +677,7 @@ def fetch_feed(feed):
                             img["src"] = img["data-url"].replace("${formatId}", "906")
                         elif "data-src" in img:
                             img["src"] = img["data-src"]
-                        img["referrerpolicy"] = "no-referrer"
+                    img["referrerpolicy"] = "no-referrer"
                 for a in soup.find_all("a"):
                     a["target"] = "_blank"
                     a["referrerpolicy"] = "no-referrer"

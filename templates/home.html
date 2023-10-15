@@ -208,7 +208,7 @@
                         <p class="card-text mb-auto"
                            style="font-family: Georgia, serif;">{{ article.summary|truncatechars:255|safe }}</p>
                         {% if article.has_full_text == False %}
-                            <a class="stretched-link" href="{{ article.link }}" target="_blank"></a>
+                            <a class="stretched-link" href="{{ article.link }}" target="_blank" referrerpolicy="no-referrer"></a>
                         {% endif %}
                         </div>
                         </div>
@@ -238,7 +238,7 @@
                 {% if side_article is not None and side_article.publisher is not None %}
                     <a class="list-group-item list-group-item-action link-dark {% if 'financial times' in side_article.title|lower or 'bloomberg' in side_article.title|lower or 'hedgeweek' in side_article.title|lower or 'the wall street journal' in side_article.title|lower %} breaking{% endif %}" aria-current="true"
                             {% if side_article.has_full_text == False %}
-                       href="{{ side_article.link }}" target="_blank"
+                       href="{{ side_article.link }}" target="_blank" referrerpolicy="no-referrer"
                             {% else %}
                        onclick="openModal({{ side_article.pk }})"
                             {% endif %}
