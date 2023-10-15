@@ -620,13 +620,47 @@ def fetch_feed(feed):
                         "language": "language",
                     }.items():
                         if (
-                            (
-                                kwarg_X not in article_kwargs
-                                or len(article_kwargs[kwarg_X]) < 6
-                            )
-                            and kwarg_Y in full_text_data
+                            kwarg_Y in full_text_data
                             and full_text_data[kwarg_Y] is not None
-                            and full_text_data[kwarg_Y] != ""
+                            and (
+                                kwarg_X not in article_kwargs
+                                or (
+                                    kwarg_X == "language"
+                                    and len(article_kwargs[kwarg_X]) < 2
+                                    and len(full_text_data[kwarg_Y]) <= 5
+                                )
+                                or (
+                                    kwarg_X == "author"
+                                    and len(article_kwargs[kwarg_X]) < 5
+                                    and len(full_text_data[kwarg_Y]) > 5
+                                )
+                                or (
+                                    kwarg_X == "summary"
+                                    and len(article_kwargs[kwarg_X]) < 100
+                                    and len(full_text_data[kwarg_Y]) > 100
+                                )
+                                or (
+                                    kwarg_X == "image_url"
+                                    and len(article_kwargs[kwarg_X]) < 35
+                                    and len(full_text_data[kwarg_Y]) > 35
+                                )
+                                or (
+                                    kwarg_X == "full_text"
+                                    and len(article_kwargs[kwarg_X]) * 1.5
+                                    < len(full_text_data[kwarg_Y])
+                                    and len(
+                                        BeautifulSoup(
+                                            article_kwargs[kwarg_X], "html5lib"
+                                        ).text
+                                    )
+                                    * 1.5
+                                    < len(
+                                        BeautifulSoup(
+                                            full_text_data[kwarg_Y], "html5lib"
+                                        ).text
+                                    )
+                                )
+                            )
                         ):
                             if kwarg_X in ["title", "summary", "author", "language"]:
                                 bs_html = BeautifulSoup(
