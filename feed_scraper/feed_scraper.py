@@ -646,14 +646,14 @@ def fetch_feed(feed):
                                 )
                                 or (
                                     kwarg_X == "full_text"
-                                    and len(article_kwargs[kwarg_X]) * 1.5
+                                    and len(article_kwargs[kwarg_X]) * 1.75
                                     < len(full_text_data[kwarg_Y])
                                     and len(
                                         BeautifulSoup(
                                             article_kwargs[kwarg_X], "html5lib"
                                         ).text
                                     )
-                                    * 1.5
+                                    * 1.75
                                     < len(
                                         BeautifulSoup(
                                             full_text_data[kwarg_Y], "html5lib"
