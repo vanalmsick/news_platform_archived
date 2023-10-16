@@ -636,7 +636,7 @@ def fetch_feed(feed):
                                 )
                                 or (
                                     kwarg_X == "summary"
-                                    and len(article_kwargs[kwarg_X]) < 100
+                                    and len(article_kwargs[kwarg_X]) < 70
                                     and len(full_text_data[kwarg_Y]) > 100
                                 )
                                 or (
