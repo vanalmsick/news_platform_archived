@@ -8,6 +8,8 @@ from django.core.cache import cache
 from django.db.models import Count, Q
 from django.shortcuts import render
 from django.template.defaulttags import register
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 
 from articles.models import Article
 from feed_scraper.feed_scraper import update_feeds
@@ -159,6 +161,9 @@ def refresh_feeds():
         print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
         cache.set("videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24)
 
+    cached_views = [i[3:] for i in list(cache._cache.keys()) if "article" in i]
+    for cached_view in cached_views:
+        _ = cache.delete(cached_view)
     for kwargs in views_to_cache:
         _ = get_articles(force_recache=True, **kwargs)
 
@@ -234,6 +239,8 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
     return articles
 
 
+@cache_page(60 * 1)
+@vary_on_cookie
 def homeView(request):
     """Return django view of home page"""
     debug = (

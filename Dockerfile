@@ -37,8 +37,15 @@ LABEL org.opencontainers.image.documentation="https://vanalmsick.github.io/news_
 LABEL org.opencontainers.image.source="https://hub.docker.com/r/vanalmsick/news_platform"
 LABEL org.opencontainers.image.licenses="MIT"
 
+# Main website
 EXPOSE 80
+# Celery Flower - for dev
+EXPOSE 5555
+# Supervisord - for dev
+EXPOSE 9001
+# Permanent storage for databse and config files
 VOLUME /feed_aggregator/data
+
 HEALTHCHECK --interval=20m --timeout=60s --retries=3 \
     CMD echo Successful Docker Container Healthcheck && curl --max-time 30 --connect-timeout 30 --silent --output /dev/null --show-error --fail http://localhost:80/ || exit 1
 
