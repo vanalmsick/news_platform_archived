@@ -20,7 +20,6 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
 from django.core.validators import URLValidator
-from django.db import connection
 from django.db.models import Max, Q
 from linkpreview import Link, LinkPreview
 from linkpreview.exceptions import (
@@ -70,18 +69,6 @@ def update_feeds():
 
     # calculate next refesh time
     end_time = time.time()
-    now = datetime.datetime.now()
-    if now.hour >= 6 and now.hour < 19:
-        refresh_time = 60 * 15 - (end_time - start_time)
-    else:
-        refresh_time = 60 * 30 - (end_time - start_time)
-    cache.set("upToDate", True, int(refresh_time))
-    cache.set("lastRefreshed", now, 60 * 60 * 48)
-
-    # Updating cached artciles
-    cached_views = [i[3:] for i in list(cache._cache.keys()) if "article" in i]
-    for cached_view in cached_views:
-        cache.set(cached_view, None, 10)
 
     now = datetime.datetime.now()
     if now.hour >= 18 or now.hour < 6 or now.weekday() in [5, 6]:
@@ -125,13 +112,12 @@ def update_feeds():
     else:
         print("No old articles to delete")
 
-    cache.set("currentlyRefreshing", False, 60 * 60)
     print(
         f"Refreshed articles and added {added_articles} articles in"
         f" {int(end_time - start_time)} seconds"
     )
 
-    connection.close()
+    # connection.close()
 
 
 def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):

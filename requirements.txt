@@ -16,4 +16,8 @@ scrapetube
 django-import-export
 langid
 python-dotenv
+supervisor
+celery
+flower
+celery[redis]
 #Werkzeug

@@ -10,9 +10,10 @@ from django.shortcuts import render
 from django.template.defaulttags import register
 
 from articles.models import Article
-from feed_scraper.feed_scraper import postpone, update_feeds
+from feed_scraper.feed_scraper import update_feeds
 from feed_scraper.video_scraper import update_videos
 
+from .celery import app
 from .pageAPI import get_article_data
 from .pageLogin import LoginView
 
@@ -126,16 +127,18 @@ def get_stats():
             )
 
 
-@postpone
+# @postpone
+@app.task
 def refresh_feeds():
     """Main function to refresh all articles and videos"""
-    currentlyRefreshing = cache.get("currentlyRefreshing")
+    print("refreshing started")
+
     videoRefreshCycleCount = cache.get("videoRefreshCycleCount")
 
     get_stats()
 
     # Caching artciles before updaing
-    for kwargs in [
+    views_to_cache = [
         dict(categories="frontpage"),
         {"special": ["free-only"]},
         {"language": ["de"]},
@@ -144,20 +147,22 @@ def refresh_feeds():
         {"publisher__name": ["financial times"]},
         {"publisher__name": ["bloomberg"]},
         {"content_type": ["video"]},
-    ]:
+    ]
+    for kwargs in views_to_cache:
         _ = get_articles(**kwargs)
 
-    if currentlyRefreshing is not True:
-        cache.set("currentlyRefreshing", True, 60 * 60)
-        update_feeds()
-        if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
-            update_videos()
-            cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
-        else:
-            print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
-            cache.set(
-                "videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24
-            )
+    update_feeds()
+    if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
+        update_videos()
+        cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
+    else:
+        print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
+        cache.set("videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24)
+
+    for kwargs in views_to_cache:
+        _ = get_articles(force_recache=True, **kwargs)
+
+    print("refreshing finished")
 
 
 def get_articles(max_length=72, force_recache=False, **kwargs):
@@ -168,9 +173,8 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
     )
     kwargs_hash = "".join([i if i.isalnum() else "_" for i in kwargs_hash])
     articles = cache.get(kwargs_hash)
-    currentlyRefreshing = cache.get("currentlyRefreshing")
 
-    if (articles is None or force_recache) and currentlyRefreshing is not True:
+    if articles is None or force_recache:
         conditions = Q()
         special_filters = kwargs["special"] if "special" in kwargs else None
         exclude_sidebar = True
@@ -269,17 +273,15 @@ def homeView(request):
         )
 
     # Get Homepage
-    selected_page = "frontpage" if len(request.GET) == 0 else "unknown"
-    upToDate = cache.get("upToDate")
     articles = (
         get_articles(categories="frontpage")
-        if selected_page == "frontpage"
+        if len(request.GET) == 0
         else get_articles(**request.GET)
     )
     sidebar = get_articles(special="sidebar", max_length=100)
     lastRefreshed = cache.get("lastRefreshed")
-    currentlyRefreshing = cache.get("currentlyRefreshing")
 
+    selected_page = "frontpage"
     if "publisher__name" in request.GET:
         if "financial times" in request.GET["publisher__name"]:
             selected_page = "financial times"
@@ -303,17 +305,6 @@ def homeView(request):
     elif "content_type" in request.GET:
         if "video" in request.GET["content_type"]:
             selected_page = "video"
-
-    if not upToDate and not currentlyRefreshing:
-        now = datetime.datetime.now()
-        if now.hour >= 0 and now.hour < 5:
-            print(
-                "Don't update articles between 0:00-4:59am to avoid forceful shutdown"
-                " of container during server updates."
-            )
-        else:
-            print("News are being refreshed now")
-            refresh_feeds()
 
     return render(
         request,

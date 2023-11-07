@@ -6,7 +6,6 @@ import urllib
 
 import scrapetube
 from django.conf import settings
-from django.core.cache import cache
 
 from articles.models import Article, FeedPosition
 from feeds.models import Feed
@@ -40,14 +39,6 @@ def update_videos():
     added_videos = 0
     for feed in feeds:
         added_videos += fetch_feed(feed)
-
-    # Updating cached artciles
-    cached_views = [
-        i[3:] for i in list(cache._cache.keys()) if "article" in i and "video" in i
-    ]
-    for cached_view in cached_views:
-        cache.set(cached_view, None, 10)
-        print(f"Delete cached {cached_view}")
 
     end_time = time.time()
     print(
