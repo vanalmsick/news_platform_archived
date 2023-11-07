@@ -239,8 +239,8 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
     return articles
 
 
-@cache_page(60 * 1)
-@vary_on_cookie
+#@cache_page(60 * 1)
+#@vary_on_cookie
 def homeView(request):
     """Return django view of home page"""
     debug = (
