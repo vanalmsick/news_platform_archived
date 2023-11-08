@@ -178,6 +178,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CELERY_BROKER_URL = "redis://localhost:6379"
 CELERY_RESULT_BACKEND = "redis://localhost:6379"
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://localhost:6379",
+    }
+}
+
 # Custom Variables
 FULL_TEXT_URL = os.environ.get("FULL_TEXT_URL")
 FEED_CREATOR_URL = os.environ.get("FEED_CREATOR_URL")
