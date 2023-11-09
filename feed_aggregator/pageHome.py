@@ -133,42 +133,57 @@ def refresh_feeds():
     """Main function to refresh all articles and videos"""
     print("refreshing started")
 
-    videoRefreshCycleCount = cache.get("videoRefreshCycleCount")
+    currentlyRefreshing = cache.get("currentlyRefreshing")
+    if currentlyRefreshing:
+        print("Already other task that is refreshing articles")
+        return None
 
-    get_stats()
+    try:
+        cache.set("currentlyRefreshing", True, 60 * 60 * 48)
+        videoRefreshCycleCount = cache.get("videoRefreshCycleCount")
 
-    # Caching artciles before updaing
-    views_to_cache = [
-        dict(categories="frontpage"),
-        {"special": ["free-only"]},
-        {"language": ["de"]},
-        {"categories": ["fund"]},
-        {"categories": ["tech"]},
-        {"publisher__name": ["financial times"]},
-        {"publisher__name": ["bloomberg"]},
-        {"content_type": ["video"]},
-    ]
-    for kwargs in views_to_cache:
-        _ = get_articles(**kwargs)
+        get_stats()
 
-    update_feeds()
-    if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
-        update_videos()
-        cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
-    else:
-        print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
-        cache.set("videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24)
+        # Caching artciles before updaing
+        views_to_cache = [
+            dict(categories="frontpage"),
+            {"special": ["free-only"]},
+            {"language": ["de"]},
+            {"categories": ["fund"]},
+            {"categories": ["tech"]},
+            {"publisher__name": ["financial times"]},
+            {"publisher__name": ["bloomberg"]},
+            {"content_type": ["video"]},
+        ]
+        for kwargs in views_to_cache:
+            _ = get_articles(**kwargs)
 
-    cached_views_lst = cache.get("cached_views_lst")
-    if cached_views_lst is None:
-        cached_views_lst = {i: j for i, j in enumerate(views_to_cache)}
-    for kwargs_hash, kwargs in cached_views_lst.items():
-        _ = get_articles(force_recache=True, **kwargs)
+        update_feeds()
+        if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
+            update_videos()
+            cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
+        else:
+            print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
+            cache.set(
+                "videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24
+            )
 
-    now = datetime.datetime.now()
-    cache.set("lastRefreshed", now, 60 * 60 * 48)
+        cached_views_lst = cache.get("cached_views_lst")
+        if cached_views_lst is None:
+            cached_views_lst = {i: j for i, j in enumerate(views_to_cache)}
+        for kwargs_hash, kwargs in cached_views_lst.items():
+            _ = get_articles(force_recache=True, **kwargs)
 
-    print("refreshing finished")
+        now = datetime.datetime.now()
+        cache.set("lastRefreshed", now, 60 * 60 * 48)
+
+        print("refreshing finished")
+
+    except Exception as e:
+        raise Exception(e)
+
+    finally:
+        cache.set("currentlyRefreshing", False, 60 * 60 * 48)
 
 
 def get_articles(max_length=72, force_recache=False, **kwargs):
