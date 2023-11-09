@@ -162,7 +162,7 @@ def refresh_feeds():
     cached_views_lst = cache.get("cached_views_lst")
     if cached_views_lst is None:
         cached_views_lst = {i: j for i, j in enumerate(views_to_cache)}
-    for kwargs_hash, kwargs in views_to_cache.items():
+    for kwargs_hash, kwargs in cached_views_lst.items():
         _ = get_articles(force_recache=True, **kwargs)
 
     now = datetime.datetime.now()
