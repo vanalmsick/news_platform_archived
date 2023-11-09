@@ -159,7 +159,10 @@ def refresh_feeds():
         print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
         cache.set("videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24)
 
-    for kwargs in views_to_cache:
+    cached_views_lst = cache.get("cached_views_lst")
+    if cached_views_lst is None:
+        cached_views_lst = {i: j for i, j in enumerate(views_to_cache)}
+    for kwargs_hash, kwargs in views_to_cache.items():
         _ = get_articles(force_recache=True, **kwargs)
 
     now = datetime.datetime.now()
@@ -176,6 +179,16 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
     )
     kwargs_hash = "".join([i if i.isalnum() else "_" for i in kwargs_hash])
     articles = cache.get(kwargs_hash)
+
+    cached_views_lst = cache.get("cached_views_lst")
+    if cached_views_lst is None:
+        cache.set("cached_views_lst", {kwargs_hash: kwargs}, 60 * 60 * 48)
+    elif kwargs_hash not in cached_views_lst:
+        cache.set(
+            "cached_views_lst",
+            {**cached_views_lst, **{kwargs_hash: kwargs}},
+            60 * 60 * 48,
+        )
 
     if articles is None or force_recache:
         conditions = Q()
