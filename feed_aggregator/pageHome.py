@@ -136,7 +136,7 @@ def refresh_feeds():
     currentlyRefreshing = cache.get("currentlyRefreshing")
     if currentlyRefreshing:
         print("Already other task that is refreshing articles")
-        return None
+        return "ALREADY RUNNING"
 
     try:
         cache.set("currentlyRefreshing", True, 60 * 60 * 48)
