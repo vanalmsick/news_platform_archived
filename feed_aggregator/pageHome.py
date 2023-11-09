@@ -159,9 +159,6 @@ def refresh_feeds():
         print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
         cache.set("videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24)
 
-    cached_views = [i[3:] for i in list(cache._cache.keys()) if "article" in i]
-    for cached_view in cached_views:
-        _ = cache.delete(cached_view)
     for kwargs in views_to_cache:
         _ = get_articles(force_recache=True, **kwargs)
 

@@ -26,7 +26,7 @@ app.conf.beat_schedule = {
     },
     "nighttime": {
         "task": "feed_aggregator.pageHome.refresh_feeds",
-        "schedule": crontab(minute="*/30"),  # , hour="18-23"
+        "schedule": crontab(minute="*/30", hour="18-23"),
         "args": (),
     },
 }
