@@ -12,6 +12,7 @@ from django.template.defaulttags import register
 from articles.models import Article
 from feed_scraper.feed_scraper import update_feeds
 from feed_scraper.video_scraper import update_videos
+from preferences.models import get_pages, url_parm_encode
 
 from .celery import app
 from .pageAPI import get_article_data
@@ -99,6 +100,7 @@ def getDuration(then, now=datetime.datetime.now(), interval="default"):
 
 
 def get_stats():
+    """Get stats about number of artciles/videos per publisher for relevance ranking"""
     added_date__lte_2d = settings.TIME_ZONE_OBJ.localize(
         datetime.datetime.now() - datetime.timedelta(days=2)
     )
@@ -156,7 +158,7 @@ def refresh_feeds():
             {"content_type": ["video"]},
         ]
         for kwargs in views_to_cache:
-            _ = get_articles(**kwargs)
+            _, _ = get_articles(**kwargs)
 
         update_feeds()
         if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
@@ -172,7 +174,7 @@ def refresh_feeds():
         if cached_views_lst is None:
             cached_views_lst = {i: j for i, j in enumerate(views_to_cache)}
         for kwargs_hash, kwargs in cached_views_lst.items():
-            _ = get_articles(force_recache=True, **kwargs)
+            _, _ = get_articles(force_recache=True, **kwargs)
 
         now = datetime.datetime.now()
         cache.set("lastRefreshed", now, 60 * 60 * 48)
@@ -188,11 +190,8 @@ def refresh_feeds():
 
 def get_articles(max_length=72, force_recache=False, **kwargs):
     """Gets artcile request by user either from database or from cache"""
-    kwargs = {k: [v] if type(v) is str else v for k, v in kwargs.items()}
-    kwargs_hash = "articles_" + str(
-        {k.lower(): [i.lower() for i in sorted(v)] for k, v in kwargs.items()}
-    )
-    kwargs_hash = "".join([i if i.isalnum() else "_" for i in kwargs_hash])
+    kwargs_hash, kwargs = url_parm_encode(**kwargs)
+
     articles = cache.get(kwargs_hash)
 
     cached_views_lst = cache.get("cached_views_lst")
@@ -262,7 +261,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
             articles = articles[:max_length]
         cache.set(kwargs_hash, articles, 60 * 60 * 48)
         print(f"Got {kwargs_hash} from database and cached it")
-    return articles
+    return kwargs_hash, articles
 
 
 # @cache_page(60 * 1)
@@ -306,38 +305,14 @@ def homeView(request):
         )
 
     # Get Homepage
-    articles = (
+    kwargs_hash, articles = (
         get_articles(categories="frontpage")
         if len(request.GET) == 0
         else get_articles(**request.GET)
     )
-    sidebar = get_articles(special="sidebar", max_length=100)
+    _, sidebar = get_articles(special="sidebar", max_length=100)
     lastRefreshed = cache.get("lastRefreshed")
-
-    selected_page = "frontpage"
-    if "publisher__name" in request.GET:
-        if "financial times" in request.GET["publisher__name"]:
-            selected_page = "financial times"
-        elif "bloomberg" in request.GET["publisher__name"]:
-            selected_page = "bloomberg"
-        elif "medium" in request.GET["publisher__name"]:
-            selected_page = "medium"
-    elif "categories" in request.GET:
-        if "fund" in request.GET["categories"]:
-            selected_page = "funds"
-        elif "tech" in request.GET["categories"]:
-            selected_page = "tech"
-    elif "special" in request.GET:
-        if "free-only" in request.GET["special"]:
-            selected_page = "free-only"
-        elif "sidebar" in request.GET["special"]:
-            selected_page = "sidebar"
-    elif "language" in request.GET:
-        if "de" in request.GET["language"]:
-            selected_page = "german"
-    elif "content_type" in request.GET:
-        if "video" in request.GET["content_type"]:
-            selected_page = "video"
+    html_nav_bar = get_pages(recache=False)
 
     return render(
         request,
@@ -350,7 +325,9 @@ def homeView(request):
                 if lastRefreshed is None
                 else getDuration(lastRefreshed, datetime.datetime.now(), "short")
             ),
-            "page": selected_page,
+            "navbar_html": html_nav_bar,
+            "selected_page": kwargs_hash,
+            "sidebar_title": settings.SIDEBAR_TITLE,
             "meta": "<title>vA News Platform</title>",
         },
     )

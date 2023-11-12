@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 
 import feedparser
 import langid
+import openai
 import ratelimit
 import requests
 from bs4 import BeautifulSoup
@@ -26,7 +27,6 @@ from linkpreview.exceptions import (
     InvalidMimeTypeError,
     MaximumContentSizeError,
 )
-from openai import OpenAI
 
 from articles.models import Article, FeedPosition
 from feeds.models import Feed
@@ -206,7 +206,8 @@ def add_ai_summary(article_obj_lst):
     """Use OpenAI's ChatGPT API to get artcile summaries"""
     print(f"Requesting AI article summaries for {len(article_obj_lst)} articles.")
 
-    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    openai.api_key = settings.OPENAI_API_KEY
+    # client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
     TOTAL_API_COST = (
         0
@@ -242,7 +243,8 @@ def add_ai_summary(article_obj_lst):
             else:
                 bullets = 4
             check_limit()
-            completion = client.chat.completions.create(
+            # completion = client.chat.completions.create(
+            completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {

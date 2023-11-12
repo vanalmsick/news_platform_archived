@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "djoser",
     "articles",
     "feeds",
+    "preferences",
 ]
 
 
@@ -149,6 +150,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-uk"
 ALLOWED_LANGUAGES = os.getenv("ALLOWED_LANGUAGES", "*")
+SIDEBAR_TITLE = os.getenv("SIDEBAR_TITLE", "Latest News")
 
 TIME_ZONE = os.getenv("TIME_ZONE", "Europe/London")
 TIME_ZONE_OBJ = pytz.timezone(TIME_ZONE)
