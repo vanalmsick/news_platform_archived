@@ -55,10 +55,11 @@ class Page(models.Model):
         max_length=500,
         default="publisher__name=financial+times,bloomberg&categories=usa&content_type=article",
     )
-    html_icon = models.TextField(default="#")
+    html_icon = models.TextField(default="#", blank=True)
     position_index = models.SmallIntegerField()
 
     def __str__(self):
+        """display/string repreesentation of individual element"""
         if "<" in self.html_icon:
             return f"[ICON]{self.name}"
         else:
