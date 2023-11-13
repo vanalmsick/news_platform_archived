@@ -222,11 +222,11 @@ def add_ai_summary(article_obj_lst):
 
     for article_obj in article_obj_lst:
         logging = [
-            datetime.datetime.now().isoformat(),
-            article_obj.pubisher.name,
+            str(datetime.datetime.now().isoformat()),
+            str(article_obj.publisher.name),
             str(article_obj.pk),
             str(article_obj.min_article_relevance),
-            article_obj.title,
+            str(article_obj.title),
         ]
         try:
             soup = BeautifulSoup(article_obj.full_text, "html5lib")
