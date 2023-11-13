@@ -9,7 +9,7 @@ django-extensions
 djangorestframework
 djoser
 django-filter
-openai
+openai>=1.0.0
 ratelimit
 linkpreview
 scrapetube
