@@ -274,7 +274,7 @@ def add_ai_summary(article_obj_lst):
             print(f"Error getting AI article summary for {article_obj}:", e)
             logging.extend(["ERROR", str(0)])
 
-        with open(settings.BASE_DIR + "/data/ai_summaries.csv", "a+") as myfile:
+        with open(str(settings.BASE_DIR) + "/data/ai_summaries.csv", "a+") as myfile:
             myfile.write(";".join(logging) + "\n")
 
     THIS_RUN_API_COST = round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 4)
