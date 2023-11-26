@@ -1,5 +1,4 @@
 """Get artcile data for all views"""
-import urllib
 
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
@@ -28,22 +27,7 @@ def get_article_data(pk, debug=False):
         ):
             article["summary"] = ""
         article.pop("_state")
-        SHARE_EMAIL_SUBJECT = f"{article['publisher__name']}: {article['title']}"
-        SHARE_EMAIL_BODY = (
-            "Hi,\n\nHave you seen this"
-            f" article:\n\n{SHARE_EMAIL_SUBJECT}\n{article['link']}\n\nBest wishes,\n\n"
-        )
-        SHARE_TEAMS_LINK = f"""{SHARE_EMAIL_SUBJECT}\n{article['link']}"""
-        article["email__link"] = (
-            "mailto:?subject="
-            + urllib.parse.quote(SHARE_EMAIL_SUBJECT)
-            + "&body="
-            + urllib.parse.quote(SHARE_EMAIL_BODY)
-        )
-        article["teams__link"] = (
-            "https://teams.microsoft.com/l/chat/0/0?users=sven.van.almsick@morganstanley.com&message="
-            + urllib.parse.quote(SHARE_TEAMS_LINK)
-        )
+        article["save__link"] = f"/save/{pk}"
         if debug:
             feed_positions = FeedPosition.objects.filter(article=requested_article)
             article["feed_position"] = []
@@ -83,6 +67,7 @@ class ExampleView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk, format=None):
+        """get method for Django"""
         article = get_article_data(pk)
 
         return Response(article)
