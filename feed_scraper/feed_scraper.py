@@ -204,86 +204,92 @@ def check_limit():
 
 def add_ai_summary(article_obj_lst):
     """Use OpenAI's ChatGPT API to get artcile summaries"""
-    print(f"Requesting AI article summaries for {len(article_obj_lst)} articles.")
+    if settings.OPENAI_API_KEY is None:
+        print("Not Requesting AI article summaries as OPENAI_API_KEY not set.")
+    else:
+        print(f"Requesting AI article summaries for {len(article_obj_lst)} articles.")
 
-    # openai.api_key = settings.OPENAI_API_KEY
-    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        # openai.api_key = settings.OPENAI_API_KEY
+        client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-    TOTAL_API_COST = (
-        0
-        if cache.get("OPENAI_API_COST_LAUNCH") is None
-        else cache.get("OPENAI_API_COST_LAUNCH")
-    )
-    COST_TOKEN_INPUT = 0.0015
-    COST_TOKEN_OUTPUT = 0.002
-    NET_USD_TO_GROSS_GBP = 1.2 * 0.785
-    token_cost = 0
-    articles_summarized = 0
+        TOTAL_API_COST = (
+            0
+            if cache.get("OPENAI_API_COST_LAUNCH") is None
+            else cache.get("OPENAI_API_COST_LAUNCH")
+        )
+        COST_TOKEN_INPUT = 0.0015
+        COST_TOKEN_OUTPUT = 0.002
+        NET_USD_TO_GROSS_GBP = 1.2 * 0.785
+        token_cost = 0
+        articles_summarized = 0
 
-    for article_obj in article_obj_lst:
-        logging = [
-            str(datetime.datetime.now().isoformat()),
-            str(article_obj.publisher.name),
-            str(article_obj.pk),
-            str(article_obj.min_article_relevance),
-            str(article_obj.title),
-        ]
-        try:
-            soup = BeautifulSoup(article_obj.full_text, "html5lib")
-            article_text = " ".join(html.unescape(soup.text).split())
-            # article_text = re.sub(r'\n+', '\n', article_text).strip()
-            if len(article_text) > 3000 * 5:
-                article_text = article_text[: 3000 * 5]
-            if len(article_text) / 5 < 500:
-                continue
-            elif len(article_text) / 5 < 1000:
-                bullets = 2
-            elif len(article_text) / 5 < 2000:
-                bullets = 3
-            else:
-                bullets = 4
-            check_limit()
-            completion = client.chat.completions.create(
-                # completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": (
-                            f"Summarize this article in {bullets} bullet"
-                            f' points:\n"{article_text}"'
-                        ),
-                    }
-                ],
-            )
-            article_summary = completion["choices"][0]["message"]["content"]
-            article_summary = article_summary.replace("- ", "<li>").replace(
-                "\n", "</li>\n"
-            )
-            article_summary = "<ul>\n" + article_summary + "</li>\n</ul>"
-            token_cost += round(
-                (completion["usage"]["prompt_tokens"] * COST_TOKEN_INPUT)
-                + (completion["usage"]["completion_tokens"] * COST_TOKEN_OUTPUT),
-                4,
-            )
-            setattr(article_obj, "ai_summary", article_summary)
-            article_obj.save()
-            articles_summarized += 1
-            logging.extend(["SUCCESS", str(token_cost)])
-        except Exception as e:
-            print(f"Error getting AI article summary for {article_obj}:", e)
-            logging.extend(["ERROR", str(0)])
+        for article_obj in article_obj_lst:
+            logging = [
+                str(datetime.datetime.now().isoformat()),
+                str(article_obj.publisher.name),
+                str(article_obj.pk),
+                str(article_obj.min_article_relevance),
+                str(article_obj.title),
+            ]
+            try:
+                soup = BeautifulSoup(article_obj.full_text, "html5lib")
+                article_text = " ".join(html.unescape(soup.text).split())
+                # article_text = re.sub(r'\n+', '\n', article_text).strip()
+                if len(article_text) > 3000 * 5:
+                    article_text = article_text[: 3000 * 5]
+                if len(article_text) / 5 < 500:
+                    continue
+                elif len(article_text) / 5 < 1000:
+                    bullets = 2
+                elif len(article_text) / 5 < 2000:
+                    bullets = 3
+                else:
+                    bullets = 4
+                check_limit()
+                completion = client.chat.completions.create(
+                    # completion = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": (
+                                f"Summarize this article in {bullets} bullet"
+                                f' points:\n"{article_text}"'
+                            ),
+                        }
+                    ],
+                )
+                article_summary = completion["choices"][0]["message"]["content"]
+                article_summary = article_summary.replace("- ", "<li>").replace(
+                    "\n", "</li>\n"
+                )
+                article_summary = "<ul>\n" + article_summary + "</li>\n</ul>"
+                token_cost += round(
+                    (completion["usage"]["prompt_tokens"] * COST_TOKEN_INPUT)
+                    + (completion["usage"]["completion_tokens"] * COST_TOKEN_OUTPUT),
+                    4,
+                )
+                setattr(article_obj, "ai_summary", article_summary)
+                article_obj.save()
+                articles_summarized += 1
+                logging.extend(["SUCCESS", str(token_cost)])
+            except Exception as e:
+                print(f"Error getting AI article summary for {article_obj}:", e)
+                logging.extend(["ERROR", str(0)])
 
-        with open(str(settings.BASE_DIR) + "/data/ai_summaries.csv", "a+") as myfile:
-            myfile.write(";".join(logging) + "\n")
+            with open(
+                str(settings.BASE_DIR) + "/data/ai_summaries.csv", "a+"
+            ) as myfile:
+                myfile.write(";".join(logging) + "\n")
 
-    THIS_RUN_API_COST = round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 4)
-    TOTAL_API_COST += THIS_RUN_API_COST
-    cache.set("OPENAI_API_COST_LAUNCH", TOTAL_API_COST, 3600 * 1000)
-    print(
-        f"Summarized {articles_summarized} articles costing {THIS_RUN_API_COST} GBP."
-        f" Total API cost since container launch {TOTAL_API_COST} GBP."
-    )
+        THIS_RUN_API_COST = round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 4)
+        TOTAL_API_COST += THIS_RUN_API_COST
+        cache.set("OPENAI_API_COST_LAUNCH", TOTAL_API_COST, 3600 * 1000)
+        print(
+            f"Summarized {articles_summarized} articles costing"
+            f" {THIS_RUN_API_COST} GBP. Total API cost since container launch"
+            f" {TOTAL_API_COST} GBP."
+        )
 
 
 def scarpe_img(url):
