@@ -20,15 +20,23 @@ from preferences.models import url_parm_encode
 
 
 def __convert_type(n):
+    """convert string to float, int, or bool if possible"""
+    print(f'n="{n}"')
     try:
+        print("int check")
         return int(n)
     except ValueError:
+        print("not int")
         try:
+            print("float check")
             return float(n)
         except ValueError:
+            print("not float")
             try:
+                print("bool check")
                 return bool(n)
             except ValueError:
+                print("must be str")
                 return n
 
 
@@ -121,6 +129,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                         exclude_sidebar = False
                 else:
                     condition = __convert_type(condition)
+                    print(type(condition))
                     if type(condition) is str:
                         sub_conditions |= Q(**{f"{field}__icontains": condition})
                     else:
