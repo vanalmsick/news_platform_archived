@@ -1,6 +1,12 @@
 """Get artcile data for all views"""
 
+import datetime
+import functools
+import operator
+
+from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
@@ -10,8 +16,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from articles.models import Article, FeedPosition
+from preferences.models import url_parm_encode
 
-from .pageHome import get_articles
+
+def __convert_type(n):
+    try:
+        return int(n)
+    except ValueError:
+        try:
+            return float(n)
+        except ValueError:
+            try:
+                return bool(n)
+            except ValueError:
+                return n
 
 
 def get_article_data(pk, debug=False):
@@ -66,6 +84,86 @@ def get_article_data(pk, debug=False):
         article = {"error": True}
 
     return article
+
+
+def get_articles(max_length=72, force_recache=False, **kwargs):
+    """Gets artcile request by user either from database or from cache"""
+    kwargs_hash, kwargs = url_parm_encode(**kwargs)
+
+    articles = cache.get(kwargs_hash)
+
+    cached_views_lst = cache.get("cached_views_lst")
+    if cached_views_lst is None:
+        cache.set("cached_views_lst", {kwargs_hash: kwargs}, 60 * 60 * 48)
+    elif kwargs_hash not in cached_views_lst:
+        cache.set(
+            "cached_views_lst",
+            {**cached_views_lst, **{kwargs_hash: kwargs}},
+            60 * 60 * 48,
+        )
+
+    if articles is None or force_recache:
+        conditions = Q()
+        special_filters = kwargs["special"] if "special" in kwargs else None
+        exclude_sidebar = True
+        has_language_filters = False
+        for field, condition_lst in kwargs.items():
+            sub_conditions = Q()
+            for condition in condition_lst:
+                if field.lower() == "special":
+                    if condition.lower() == "free-only":
+                        sub_conditions &= Q(
+                            Q(Q(has_full_text=True) | Q(publisher__paywall="N"))
+                            & Q(categories__icontains="frontpage")
+                        )
+                    elif condition.lower() == "sidebar":
+                        sub_conditions &= Q(categories__icontains="SIDEBAR")
+                        exclude_sidebar = False
+                else:
+                    condition = __convert_type(condition)
+                    if type(condition) is str:
+                        sub_conditions |= Q(**{f"{field}__icontains": condition})
+                    else:
+                        sub_conditions |= Q(**{f"{field}": condition})
+                    exclude_sidebar = False
+            if field == "language":
+                has_language_filters = True
+            try:
+                test_condition = Article.objects.filter(sub_conditions)
+            except Exception:
+                test_condition = []
+            if len(test_condition) > 0:
+                conditions &= sub_conditions
+        articles = (
+            Article.objects.filter(conditions)
+            .exclude(min_article_relevance__isnull=True)
+            .order_by("min_article_relevance")
+        )
+        if exclude_sidebar:
+            articles = articles.exclude(categories__icontains="SIDEBAR")
+        if special_filters is not None and "sidebar" in special_filters:
+            articles = articles.order_by(
+                "-added_date", "-pub_date", "min_article_relevance"
+            ).exclude(
+                pub_date__lte=settings.TIME_ZONE_OBJ.localize(
+                    datetime.datetime.now() - datetime.timedelta(days=5)
+                )
+            )
+        if has_language_filters is False and "*" not in settings.ALLOWED_LANGUAGES:
+            articles = articles.filter(
+                functools.reduce(
+                    operator.or_,
+                    (
+                        Q(language__icontains=x)
+                        for x in settings.ALLOWED_LANGUAGES.split(",")
+                    ),
+                )
+            )
+        if max_length is not None and len(articles) > max_length:
+            articles = articles[:max_length]
+        cache.set(kwargs_hash, articles, 60 * 60 * 48)
+        print(f"Got {kwargs_hash} from database and cached it")
+    return kwargs_hash, articles
 
 
 class RestArticleView(APIView):
