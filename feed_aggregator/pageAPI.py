@@ -4,13 +4,14 @@ from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
-from pageHome import get_articles
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from articles.models import Article, FeedPosition
+
+from .pageHome import get_articles
 
 
 def get_article_data(pk, debug=False):
