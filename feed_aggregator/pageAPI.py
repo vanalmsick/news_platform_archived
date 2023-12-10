@@ -21,28 +21,19 @@ from preferences.models import url_parm_encode
 
 def __convert_type(n):
     """convert string to float, int, or bool if possible"""
-    print(f'n="{n}"')
     try:
-        print("int check")
         return int(n)
     except ValueError:
-        print("not int")
         try:
-            print("float check")
             return float(n)
         except ValueError:
-            print("not float")
             if n.lower() == "true":
-                print("is true")
                 return True
             elif n.lower() == "false":
-                print("is false")
                 return False
             elif n.lower() == "none" or n.lower() == "null":
-                print("is none")
                 return None
             else:
-                print("must be str")
                 return n
 
 

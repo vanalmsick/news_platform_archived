@@ -104,7 +104,7 @@ def update_feeds():
         feed_position=None,
         added_date__lte=settings.TIME_ZONE_OBJ.localize(
             datetime.datetime.now() - datetime.timedelta(days=7)
-        ),
+        ).exclude(read_later=True),
     )
     if len(old_articles) > 0:
         print(f"Delete {len(old_articles)} old articles")
