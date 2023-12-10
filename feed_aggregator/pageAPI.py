@@ -3,6 +3,7 @@
 import datetime
 import functools
 import operator
+import urllib
 
 from django.conf import settings
 from django.core.cache import cache
@@ -54,6 +55,19 @@ def get_article_data(pk, debug=False):
         ):
             article["summary"] = ""
         article.pop("_state")
+        SHARE_EMAIL_SUBJECT = f"{article['publisher__name']}: {article['title']}"
+        SHARE_EMAIL_BODY = (
+            "Hi,\n\nHave you seen this article:\n\n"
+            f"{SHARE_EMAIL_SUBJECT}\n"
+            f"{article['link']}\n\n"
+            "Best wishes,\n\n"
+        )
+        article["email__link"] = (
+            "mailto:?subject="
+            + urllib.parse.quote(SHARE_EMAIL_SUBJECT)
+            + "&body="
+            + urllib.parse.quote(SHARE_EMAIL_BODY)
+        )
         article["save__link"] = (
             f"/read-later/remove/{pk}"
             if requested_article.read_later
