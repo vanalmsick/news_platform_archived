@@ -829,14 +829,15 @@ class Command(BaseCommand):
                 "position_index": 2,
                 "html_icon": (
                     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"'
-                    ' fill="currentColor" class="bi bi-translate" viewBox="0 0 16'
-                    ' 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8'
-                    " 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679"
-                    ' 2.022H6.18z"/><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2'
-                    " 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0"
-                    " 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1"
-                    " 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673"
-                    " 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844"
+                    ' fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"'
+                    ' style="margin: 0px 5px 0px 0px;"><path d="M4.545 6.714 4.11'
+                    " 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5"
+                    ' 3.956h-.049l-.679 2.022H6.18z"/><path d="M0 2a2 2 0 0 1 2-2h7a2 2'
+                    " 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0"
+                    " 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1"
+                    " 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138"
+                    " 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768"
+                    " 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844"
                     " 2.886-1.494.777.665 1.739 1.165 2.93"
                     " 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747"
                     " 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74"
@@ -856,10 +857,11 @@ class Command(BaseCommand):
                 "position_index": 4,
                 "html_icon": (
                     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"'
-                    ' fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path'
-                    ' d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0'
-                    ' .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0'
-                    ' 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>'
+                    ' fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"'
+                    ' style="margin: 0px 5px 0px 0px;"><path d="M8 3.5a.5.5 0 0 0-1'
+                    " 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8"
+                    ' 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7'
+                    ' 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>'
                 ),
                 "name": "Latest: Funds",
                 "url_parameters": "special=sidebar",
@@ -876,12 +878,12 @@ class Command(BaseCommand):
                 "position_index": 6,
                 "html_icon": (
                     '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"'
-                    ' fill="currentColor" class="bi bi-play-btn" viewBox="0 0 16'
-                    ' 16"><path d="M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0'
-                    ' .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/><path d="M0 4a2 2 0'
-                    " 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm15"
-                    " 0a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0"
-                    ' 1-1V4z"/></svg>'
+                    ' fill="currentColor" class="bi bi-play-btn" viewBox="0 0 16 16"'
+                    ' style="margin: 0px 5px 0px 0px;"><path d="M6.79 5.093A.5.5 0 0 0'
+                    " 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0"
+                    ' 0-.814l-3.5-2.5z"/><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2'
+                    " 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm15 0a1 1 0 0 0-1-1H2a1 1 0 0"
+                    ' 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg>'
                 ),
                 "name": "Videos",
                 "url_parameters": "content_type=video",
@@ -890,10 +892,11 @@ class Command(BaseCommand):
                 "position_index": 7,
                 "html_icon": (
                     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"'
-                    ' fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16"> '
-                    ' <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0'
-                    " 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0"
-                    " 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0"
+                    ' fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16"'
+                    ' style="margin: 0px 5px 0px 0px;">  <path d="M2 2a2 2 0 0 1'
+                    " 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223"
+                    " 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1"
+                    " 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0"
                     ' 0-1-1z"/></svg>'
                 ),
                 "name": "Read Later",
