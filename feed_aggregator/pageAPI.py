@@ -1,6 +1,8 @@
 """Get artcile data for all views"""
 
 from django.core.cache import cache
+from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -27,7 +29,11 @@ def get_article_data(pk, debug=False):
         ):
             article["summary"] = ""
         article.pop("_state")
-        article["save__link"] = f"/save/{pk}"
+        article["save__link"] = (
+            f"/read-later/remove/{pk}"
+            if requested_article.read_later
+            else f"/read-later/add/{pk}"
+        )
         if debug:
             feed_positions = FeedPosition.objects.filter(article=requested_article)
             article["feed_position"] = []
@@ -71,3 +77,21 @@ class ExampleView(APIView):
         article = get_article_data(pk)
 
         return Response(article)
+
+
+def ReadLaterView(request, action, pk):
+    try:
+        requested_article = Article.objects.get(pk=pk)
+        if action == "add":
+            setattr(requested_article, "read_later", True)
+        else:
+            setattr(requested_article, "read_later", True)
+        requested_article.save()
+
+        return redirect("/")
+
+    except Exception:
+        return HttpResponse(
+            "Error! Maybe the article was not found or other unknonw error.",
+            content_type="text/plain",
+        )

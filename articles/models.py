@@ -46,6 +46,8 @@ class Article(models.Model):
     guid = models.CharField(max_length=95, null=True)
     image_url = models.URLField(max_length=300, null=True)
 
+    read_later = models.BooleanField(default=False, null=True)
+
     added_date = models.DateTimeField(auto_now_add=True)
     last_updated_date = models.DateTimeField(auto_now=True)
 
@@ -87,4 +89,5 @@ class ArticleGroup(models.Model):
     hash = models.CharField(max_length=80)
 
     def __str__(self):
+        """print-out name of individual entry"""
         return f"{self.title}"
