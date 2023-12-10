@@ -60,7 +60,7 @@
                         onclick="closeModal()"></button>
             </div>
             <div class="modal-body bg-body-tertiary">
-                <div id="modaltext" class="mx-auto my-3 bg-body rounded shadow-sm">
+                <div id="modaltext" class="mx-auto my-3 bg-body rounded shadow-sm text-break">
                     <h2 id="modalTitle" style="font-family: Georgia, serif; font-weight: bold;"></h2>
                     <div id="modalSummary" class="lead pb-2" style="font-family: Georgia, serif;"></div>
                     <div id="modalDate" class="mb-1 text-muted" style="font-family: Georgia, serif;"></div>
@@ -147,7 +147,7 @@
                                 <img class="card-img-top" alt="Thumbnail" style="width: 100%;" referrerpolicy="no-referrer"
                                      src="{{ article.image_url }}" loading="lazy">
                             {% endif %}
-                            <div class="card-body d-flex flex-column align-items-start">
+                            <div class="card-body d-flex flex-column align-items-start text-break">
                             <strong class="d-inline-block mb-2 text-primary"
                                     style="font-family: Georgia, serif;">{{ article.genre }}</strong>
                             <h3 class="mb-0 text-dark fs-5"
