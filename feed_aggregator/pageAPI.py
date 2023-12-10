@@ -66,7 +66,7 @@ def get_article_data(pk, debug=False):
     return article
 
 
-class ExampleView(APIView):
+class RestArticleView(APIView):
     """View for url request to article/<int:pk>/"""
 
     authentication_classes = [SessionAuthentication, BasicAuthentication]

@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from .pageAPI import ExampleView
+from .pageAPI import ReadLaterView, RestArticleView
 from .pageHome import homeView
 from .pageLogin import LoginURLView, LoginView
 
@@ -24,8 +24,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("login/", LoginView, name="login"),
     path("login-url/<str:password>/", LoginURLView, name="login-url"),
-    path("article/<int:pk>/", ExampleView.as_view(), name="article"),
-    path("read-later/<str:action>/<int:pk>/", LoginURLView, name="read-later"),
+    path("article/<int:pk>/", RestArticleView.as_view(), name="article"),
+    path("read-later/<str:action>/<int:pk>/", ReadLaterView, name="read-later"),
     path("", homeView, name="home"),
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
