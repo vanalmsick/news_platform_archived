@@ -32,10 +32,16 @@ def __convert_type(n):
             return float(n)
         except ValueError:
             print("not float")
-            try:
-                print("bool check")
-                return bool(n)
-            except ValueError:
+            if n.lower() == "true":
+                print("is true")
+                return True
+            elif n.lower() == "false":
+                print("is false")
+                return False
+            elif n.lower() == "none" or n.lower() == "null":
+                print("is none")
+                return None
+            else:
                 print("must be str")
                 return n
 
