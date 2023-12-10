@@ -126,7 +126,6 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                         exclude_sidebar = False
                 else:
                     condition = __convert_type(condition)
-                    print(type(condition))
                     if type(condition) is str:
                         sub_conditions |= Q(**{f"{field}__icontains": condition})
                     else:

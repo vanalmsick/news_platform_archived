@@ -161,7 +161,8 @@ def fetch_feed(feed, max_per_feed=200):
         <iframe style="width: 100%; height: auto; min-height: 30vw; max-height:400px; aspect-ratio: 16 / 9;"
         referrerpolicy="no-referrer"
         src="https://www.youtube-nocookie.com/embed/{video['videoId']}?rel=0&autoplay=1"
-        frameborder="0" allow="autoplay; encrypted-media" tabindex="0" allowfullscreen></iframe>
+        frameborder="0" allow="autoplay; encrypted-media" tabindex="0" allowfullscreen></iframe><br>\n
+        <div>{article_kwargs["summary"]}</div>
         """
         article_kwargs["has_full_text"] = True
 
