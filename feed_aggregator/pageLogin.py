@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -10,7 +11,7 @@ class LoginForm(forms.Form):
     )
 
 
-def LoginView(request, meta="<title>vA News Platform</title>"):
+def LoginView(request, meta=f"<title>{settings.CUSTOM_PLATFORM_NAME}</title>"):
     form = LoginForm()
     message = ""
     if request.method == "POST":
@@ -32,7 +33,14 @@ def LoginView(request, meta="<title>vA News Platform</title>"):
             else:
                 message = "Login failed!"
     return render(
-        request, "login.html", context={"form": form, "message": message, "meta": meta}
+        request,
+        "login.html",
+        context={
+            "form": form,
+            "message": message,
+            "meta": meta,
+            "platform_name": settings.CUSTOM_PLATFORM_NAME,
+        },
     )
 
 
@@ -48,19 +56,3 @@ def LoginURLView(request, password):
     else:
         # Login failed!
         return HttpResponse("Incorrect password provided!", content_type="text/plain")
-
-
-def LoginHowToView(request):
-    return HttpResponse(
-        """
-                        <html>
-                        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-                              integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-                        <div class="p-3">
-                        <h1>How-to Login:</h1>
-                        <p><b>Normal Login Page:</b> <a class="btn btn-primary" href="/login/">Normal Login Page</a> (for not firewall blocked browsers)</p>
-                        <p><b>Firewall blocked Login:</b> Please modify and open this link <b>news.vanAlmsick.uk/login-url/<i>[put password here]</i>/</b></p>
-                        </div>
-                        </html>
-                        """
-    )

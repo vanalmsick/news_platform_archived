@@ -191,3 +191,4 @@ CACHES = {
 FULL_TEXT_URL = os.environ.get("FULL_TEXT_URL")
 FEED_CREATOR_URL = os.environ.get("FEED_CREATOR_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+CUSTOM_PLATFORM_NAME = os.getenv("CUSTOM_PLATFORM_NAME", "Personal News Platform")

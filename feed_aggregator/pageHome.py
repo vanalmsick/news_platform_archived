@@ -289,7 +289,7 @@ def homeView(request):
             """
         else:
             if article["error"]:
-                meta = "<title>vA News Platform</title>"
+                meta = f"<title>{settings.CUSTOM_PLATFORM_NAME}</title>"
             else:
                 meta = (
                     f"<title>{article['title']} - {article['publisher__name']}</title>"
@@ -301,7 +301,12 @@ def homeView(request):
         return render(
             request,
             "fallbackArticle.html",
-            {"article": article, "meta": meta, "debug": debug},
+            {
+                "article": article,
+                "meta": meta,
+                "debug": debug,
+                "platform_name": settings.CUSTOM_PLATFORM_NAME,
+            },
         )
 
     # Get Homepage
@@ -320,6 +325,7 @@ def homeView(request):
         {
             "articles": articles,
             "sidebar": sidebar,
+            "platform_name": settings.CUSTOM_PLATFORM_NAME,
             "lastRefreshed": (
                 "Never"
                 if lastRefreshed is None
@@ -328,6 +334,6 @@ def homeView(request):
             "navbar_html": html_nav_bar,
             "selected_page": kwargs_hash,
             "sidebar_title": settings.SIDEBAR_TITLE,
-            "meta": "<title>vA News Platform</title>",
+            "meta": f"<title>{settings.CUSTOM_PLATFORM_NAME}</title>",
         },
     )
