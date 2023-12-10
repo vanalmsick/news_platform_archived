@@ -188,6 +188,19 @@ def refresh_feeds():
         cache.set("currentlyRefreshing", False, 60 * 60 * 48)
 
 
+def __convert_type(n):
+    try:
+        return int(n)
+    except ValueError:
+        try:
+            return float(n)
+        except ValueError:
+            try:
+                return bool(n)
+            except ValueError:
+                return n
+
+
 def get_articles(max_length=72, force_recache=False, **kwargs):
     """Gets artcile request by user either from database or from cache"""
     kwargs_hash, kwargs = url_parm_encode(**kwargs)
@@ -222,7 +235,11 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                         sub_conditions &= Q(categories__icontains="SIDEBAR")
                         exclude_sidebar = False
                 else:
-                    sub_conditions |= Q(**{f"{field}__icontains": condition})
+                    condition = __convert_type(condition)
+                    if type(condition) is str:
+                        sub_conditions |= Q(**{f"{field}__icontains": condition})
+                    else:
+                        sub_conditions |= Q(**{f"{field}": condition})
                     exclude_sidebar = False
             if field == "language":
                 has_language_filters = True

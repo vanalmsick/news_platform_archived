@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
+from pageHome import get_articles
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -85,8 +86,15 @@ def ReadLaterView(request, action, pk):
         if action == "add":
             setattr(requested_article, "read_later", True)
         else:
-            setattr(requested_article, "read_later", True)
+            setattr(requested_article, "read_later", False)
         requested_article.save()
+
+        cached_views_lst = cache.get("cached_views_lst")
+        for kwargs_hash, kwargs in (
+            [].items() if cached_views_lst is None else cached_views_lst.items()
+        ):
+            if "read_later" in kwargs_hash:
+                _, _ = get_articles(force_recache=True, **kwargs)
 
         return redirect("/")
 
