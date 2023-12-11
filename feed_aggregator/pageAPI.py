@@ -160,6 +160,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
         articles = articles.order_by("min_article_relevance")
         if has_read_later is False:
             articles = articles.exclude(min_article_relevance__isnull=True)
+        else:
             articles = articles.order_by("-last_updated_date")
             has_language_filters = True
         if exclude_sidebar:
