@@ -126,6 +126,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
         special_filters = kwargs["special"] if "special" in kwargs else None
         exclude_sidebar = True
         has_language_filters = False
+        has_read_later = False
         for field, condition_lst in kwargs.items():
             sub_conditions = Q()
             for condition in condition_lst:
@@ -147,17 +148,20 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                     exclude_sidebar = False
             if field == "language":
                 has_language_filters = True
+            if field == "read_later":
+                has_read_later = True
             try:
                 test_condition = Article.objects.filter(sub_conditions)
             except Exception:
                 test_condition = []
             if len(test_condition) > 0:
                 conditions &= sub_conditions
-        articles = (
-            Article.objects.filter(conditions)
-            .exclude(min_article_relevance__isnull=True)
-            .order_by("min_article_relevance")
-        )
+        articles = Article.objects.filter(conditions)
+        articles = articles.order_by("min_article_relevance")
+        if has_read_later is False:
+            articles = articles.exclude(min_article_relevance__isnull=True)
+            articles = articles.order_by("-last_updated_date")
+            has_language_filters = True
         if exclude_sidebar:
             articles = articles.exclude(categories__icontains="SIDEBAR")
         if special_filters is not None and "sidebar" in special_filters:
