@@ -34,7 +34,7 @@ def update_videos():
     all_videos.update(max_importance=None)
     all_videos.update(min_article_relevance=None)
 
-    feeds = Feed.objects.all().exclude(feed_type="rss")
+    feeds = Feed.objects.filter(active=True).exclude(feed_type="rss")
 
     added_videos = 0
     for feed in feeds:
