@@ -517,6 +517,11 @@ class ScrapedArticle:
             feed_attr_name="feed_article_title",
             scrape_attr_name="scrape_article_title",
         )
+        # Remove Publisher Name from Title if included
+        if hasattr(self, "feed_publisher_name"):
+            potential_inluded_name = f" - {self.feed_publisher_name}"
+            if potential_inluded_name in self.final_title:
+                self.final_title = self.final_title(potential_inluded_name, "")
 
         # Summary
         self.__calculate_final_value__(
