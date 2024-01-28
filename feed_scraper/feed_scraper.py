@@ -29,7 +29,9 @@ from linkpreview.exceptions import (
 from openai import OpenAI
 
 from articles.models import Article, FeedPosition
-from feeds.models import Feed
+from feeds.models import Feed, Publisher
+
+from .new_article_scraper import ScrapedArticle
 
 
 def postpone(function):
@@ -65,7 +67,8 @@ def update_feeds():
 
     added_articles = 0
     for feed in feeds:
-        added_articles += fetch_feed(feed)
+        # added_articles += fetch_feed(feed)
+        added_articles += fetch_feed_new(feed)
 
     # calculate next refesh time
     end_time = time.time()
@@ -458,6 +461,113 @@ def scarpe_meta(url):
         return None
     finally:
         cache.set("metaScrapeWait", "wait", 5)
+
+
+def fetch_feed_new(feed):
+    """Fetch/update/scrape all articles for a specific source feed"""
+    added_articles = 0
+
+    feed_url = feed.url
+    if "http://FEED-CREATOR.local" in feed_url:
+        feed_url = feed_url.replace(
+            "http://FEED-CREATOR.local", settings.FEED_CREATOR_URL
+        )
+    if "http://FULL-TEXT.local" in feed_url:
+        feed_url = feed_url.replace("http://FULL-TEXT.local", settings.FULL_TEXT)
+
+    fetched_feed = feedparser.parse(feed_url)
+
+    if len(fetched_feed.entries) > 0:
+        delete_feed_positions(feed)
+
+    if len(fetched_feed.entries) > 10:
+        fetched_feed.entries = fetched_feed.entries[:10]
+
+    for article_feed_position, scraped_article in enumerate(fetched_feed.entries):
+        article_feed_position = +1
+
+        ScrapedArticle_obj = ScrapedArticle(
+            feed_entry=scraped_article, source_feed=feed
+        )
+
+        guid = ScrapedArticle_obj.final_guid
+        full_text_fetch = ScrapedArticle_obj.prop_full_text_fetch
+
+        if guid is None:
+            print("Error no GUID without scrape_source()")
+
+        # Check if artcile already exists
+        matches = Article.objects.filter(guid=guid)
+
+        if len(matches) > 0:
+            article_obj = matches[0]
+            ScrapedArticle_obj.get_final_attributes()
+        else:
+            if full_text_fetch:
+                ScrapedArticle_obj.scrape_source()
+            # add article
+            article_kwargs = ScrapedArticle_obj.get_final_attributes()
+            if type(article_kwargs["publisher"]) is dict:
+                url = ".".join(article_kwargs["publisher"]["link"].split(".")[-2:])
+                matching_publishers = Publisher.objects.filter(link__icontains=url)
+                if len(matching_publishers) > 0:
+                    article_kwargs["publisher"] = matching_publishers[0]
+                else:
+                    publisher_obj = Publisher(**article_kwargs["publisher"])
+                    publisher_obj.save()
+                    article_kwargs["publisher"] = publisher_obj
+            article_obj = Article(**article_kwargs)
+            article_obj.save()
+            added_articles += 1
+
+        # Update article metrics
+        (new_max_importance, new_min_article_relevance) = calcualte_relevance(
+            publisher=feed.publisher,
+            feed=feed,
+            feed_position=article_feed_position,
+            hash=guid,
+            pub_date=ScrapedArticle_obj.final_pub_date,
+        )
+        new_categories = getattr(ScrapedArticle_obj, "final_categories", None)
+        current_max_importance = (
+            0
+            if getattr(article_obj, "max_importance", None) is None
+            else getattr(article_obj, "max_importance", None)
+        )
+        current_min_article_relevance = (
+            10**10
+            if getattr(article_obj, "min_article_relevance", None) is None
+            else getattr(article_obj, "min_article_relevance", None)
+        )
+        current_categories = getattr(article_obj, "categories", None)
+        if new_max_importance > current_max_importance:
+            setattr(article_obj, "max_importance", new_max_importance)
+        if new_min_article_relevance < current_min_article_relevance:
+            setattr(article_obj, "min_article_relevance", new_min_article_relevance)
+        if new_categories is not None and new_categories != "":
+            final_categories = current_categories
+            for c in new_categories.split(";"):
+                if c.lower() not in final_categories.lower():
+                    final_categories += ";" + new_categories
+            setattr(article_obj, "categories", final_categories)
+        article_obj.save()
+
+        # Add feed position linking
+        feed_position = FeedPosition(
+            feed=feed,
+            position=article_feed_position,
+            importance=article_obj.max_importance,
+            relevance=article_obj.min_article_relevance,
+        )
+        feed_position.save()
+
+        article_obj.feed_position.add(feed_position)
+
+    print(
+        f"Refreshed {feed} with {added_articles} new articles out of"
+        f" {len(fetched_feed.entries)}"
+    )
+    return added_articles
 
 
 def fetch_feed(feed):
