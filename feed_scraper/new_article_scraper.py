@@ -424,6 +424,8 @@ class ScrapedArticle:
                         img["src"] = img["data-url"].replace("${formatId}", "906")
                     elif "data-src" in img:
                         img["src"] = img["data-src"]
+                    if "srcset" in img:
+                        img["srcset"] = ""
                 img["referrerpolicy"] = "no-referrer"
             for a in soup.find_all("a"):
                 a["target"] = "_blank"
@@ -444,6 +446,7 @@ class ScrapedArticle:
                 ("div", "print_blocked_message"),
                 ("div", "copy_blocked_message"),
                 ("button", "toolbar-item-parent-share-2909"),
+                ("button", "CreateFreeAccountButton-buttonContainer"),
                 ("ul", "toolbar-item-dropdown-share-2909"),
             ]:
                 div = soup.find(div_type, id=id)
