@@ -530,30 +530,6 @@ class ScrapedArticle:
             scrape_attr_name="scrape_article_summary_text",
         )
 
-        # News type
-        if (
-            hasattr(self, "final_title")
-            and any(
-                [
-                    i in self.final_title.lower()
-                    for i in ["breaking news", "liveticker", "liveblog", "live blog"]
-                ]
-            )
-        ) or (
-            hasattr(self, "final_summary")
-            and any(
-                [
-                    i in self.final_summary.lower()
-                    for i in ["breaking news", "liveticker", "liveblog", "live blog"]
-                ]
-            )
-        ):
-            self.final_content_type = "ticker"
-            self.final_type = "breaking"
-        else:
-            self.final_content_type = "article"
-            self.final_type = "normal"
-
         # Full text / Body
 
         scrape_article_body_cnt = (
@@ -567,32 +543,59 @@ class ScrapedArticle:
 
         if feed_article_body_cnt == 0 and scrape_article_body_cnt == 0:
             body_cnt = 0
-            # body_text = ""
+            body_text = ""
         elif scrape_article_body_cnt != 0 and (
             feed_article_body_cnt == 0 or self.publisher_equal_source is False
         ):
             self.final_full_text = self.scrape_article_body_html
-            # body_text = self.scrape_article_body_text
+            body_text = self.scrape_article_body_text
             body_cnt = scrape_article_body_cnt
         elif feed_article_body_cnt != 0 and scrape_article_body_cnt == 0:
             self.final_full_text = self.feed_article_body_html
-            # body_text = self.feed_article_body_text
+            body_text = self.feed_article_body_text
             body_cnt = feed_article_body_cnt
         elif (feed_article_body_cnt * 1.5 < scrape_article_body_cnt) or (
             feed_article_body_cnt * 100 < scrape_article_body_cnt
         ):
             self.final_full_text = self.scrape_article_body_html
-            # body_text = self.scrape_article_body_text
+            body_text = self.scrape_article_body_text
             body_cnt = scrape_article_body_cnt
         else:
             self.final_full_text = self.feed_article_body_html
-            # body_text = self.feed_article_body_text
+            body_text = self.feed_article_body_text
             body_cnt = feed_article_body_cnt
 
         if body_cnt > 80:
             self.final_has_full_text = True
         else:
             self.final_has_full_text = False
+
+        # News type
+        BREAKING_NEWS_KEYWORDS = [
+            "breaking news",
+            "liveticker",
+            "liveblog",
+            "live blog",
+            "developing story",
+        ]
+        if (
+            (
+                hasattr(self, "final_title")
+                and any([i in self.final_title.lower() for i in BREAKING_NEWS_KEYWORDS])
+            )
+            or (
+                hasattr(self, "final_summary")
+                and any(
+                    [i in self.final_summary.lower() for i in BREAKING_NEWS_KEYWORDS]
+                )
+            )
+            or (any([i in body_text.lower() for i in BREAKING_NEWS_KEYWORDS]))
+        ):
+            self.final_content_type = "ticker"
+            self.final_type = "breaking"
+        else:
+            self.final_content_type = "article"
+            self.final_type = "normal"
 
         # Language
         if (

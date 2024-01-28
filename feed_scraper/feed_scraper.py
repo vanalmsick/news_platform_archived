@@ -499,6 +499,34 @@ def fetch_feed_new(feed):
         if len(matches) > 0:
             article_obj = matches[0]
             ScrapedArticle_obj.get_final_attributes()
+            # check if artcile needs refreshing
+            if (
+                article_obj.type == "breaking"
+                or article_obj.content_type == "ticker"
+                or (article_obj.has_full_text is False and full_text_fetch)
+                or (article_obj.title != ScrapedArticle_obj.final_title)
+                or (article_obj.image_url is None and full_text_fetch)
+            ):
+                if full_text_fetch:
+                    ScrapedArticle_obj.scrape_source()
+                # get article props and update if changed
+                article_kwargs = ScrapedArticle_obj.get_final_attributes()
+                for prop in [
+                    "title",
+                    "summary",
+                    "type",
+                    "content_type",
+                    "full_text",
+                    "has_full_text",
+                    "author",
+                    "image_url",
+                    "language",
+                ]:
+                    new_value = article_kwargs[prop]
+                    current_value = getattr(article_obj, prop)
+                    if new_value != current_value:
+                        setattr(article_obj, prop, new_value)
+                article_obj.save()
         else:
             if full_text_fetch:
                 ScrapedArticle_obj.scrape_source()
