@@ -503,8 +503,11 @@ def fetch_feed_new(feed):
             if (
                 article_obj.type == "breaking"
                 or article_obj.content_type == "ticker"
-                or (article_obj.full_text is None and full_text_fetch)
-                or (article_obj.image_url is None and full_text_fetch)
+                or (
+                    article_obj.full_text is None
+                    and full_text_fetch
+                    and article_obj.image_url is None
+                )
             ):
                 if full_text_fetch:
                     ScrapedArticle_obj.scrape_source()
