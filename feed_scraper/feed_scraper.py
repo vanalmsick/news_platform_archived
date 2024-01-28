@@ -480,9 +480,6 @@ def fetch_feed_new(feed):
     if len(fetched_feed.entries) > 0:
         delete_feed_positions(feed)
 
-    if len(fetched_feed.entries) > 10:
-        fetched_feed.entries = fetched_feed.entries[:10]
-
     for article_feed_position, scraped_article in enumerate(fetched_feed.entries):
         article_feed_position = +1
 
