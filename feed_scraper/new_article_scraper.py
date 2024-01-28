@@ -657,9 +657,13 @@ class ScrapedArticle:
             else ""
         )
         self.final_categories = (
-            feed_article_categories + ";"
-            if len(feed_article_categories) > 0 and len(source_feed_categories) > 0
-            else "" + source_feed_categories
+            feed_article_categories
+            + (
+                ";"
+                if len(feed_article_categories) > 0 and len(source_feed_categories) > 0
+                else ""
+            )
+            + source_feed_categories
         )
         print(self.final_categories)
 
