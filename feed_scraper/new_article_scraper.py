@@ -657,15 +657,14 @@ class ScrapedArticle:
             else ""
         )
         self.final_categories = (
-            feed_article_categories
+            source_feed_categories
             + (
                 ";"
                 if len(feed_article_categories) > 0 and len(source_feed_categories) > 0
                 else ""
             )
-            + source_feed_categories
+            + feed_article_categories
         )
-        print(self.final_categories)
 
         self.__html_body_clean_up__()
         self.final_hash = self.final_guid = self.calculate_guid()

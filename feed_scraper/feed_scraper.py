@@ -504,13 +504,16 @@ def fetch_feed_new(feed):
                 ScrapedArticle_obj.scrape_source()
             # add article
             article_kwargs = ScrapedArticle_obj.get_final_attributes()
+            # add publisher is new one
             if type(article_kwargs["publisher"]) is dict:
                 url = ".".join(article_kwargs["publisher"]["link"].split(".")[-2:])
                 matching_publishers = Publisher.objects.filter(link__icontains=url)
                 if len(matching_publishers) > 0:
                     article_kwargs["publisher"] = matching_publishers[0]
                 else:
-                    publisher_obj = Publisher(**article_kwargs["publisher"])
+                    publisher_obj = Publisher(
+                        **article_kwargs["publisher"], renowned=-2
+                    )
                     publisher_obj.save()
                     article_kwargs["publisher"] = publisher_obj
             article_obj = Article(**article_kwargs)
