@@ -332,7 +332,7 @@ class ScrapedArticle:
             else self.feed_article_url_str
         )
         request_url = (
-            f'{settings.FULL_TEXT}extract.php?url={urllib.parse.quote(article_url, safe="")}'
+            f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(article_url, safe="")}'
         )
         response = requests.get(request_url)
         if response.status_code == 200:

@@ -473,7 +473,7 @@ def fetch_feed_new(feed):
             "http://FEED-CREATOR.local", settings.FEED_CREATOR_URL
         )
     if "http://FULL-TEXT.local" in feed_url:
-        feed_url = feed_url.replace("http://FULL-TEXT.local", settings.FULL_TEXT)
+        feed_url = feed_url.replace("http://FULL-TEXT.local", settings.FULL_TEXT_URL)
 
     fetched_feed = feedparser.parse(feed_url)
 
