@@ -503,8 +503,7 @@ def fetch_feed_new(feed):
             if (
                 article_obj.type == "breaking"
                 or article_obj.content_type == "ticker"
-                or (article_obj.has_full_text is False and full_text_fetch)
-                or (article_obj.title != ScrapedArticle_obj.final_title)
+                or (article_obj.full_text is None and full_text_fetch)
                 or (article_obj.image_url is None and full_text_fetch)
             ):
                 if full_text_fetch:
@@ -522,10 +521,15 @@ def fetch_feed_new(feed):
                     "image_url",
                     "language",
                 ]:
-                    new_value = article_kwargs[prop]
-                    current_value = getattr(article_obj, prop)
-                    if new_value != current_value:
-                        setattr(article_obj, prop, new_value)
+                    if (
+                        prop in article_kwargs
+                        and article_kwargs[prop] is not None
+                        and article_kwargs[prop] != ""
+                    ):
+                        new_value = article_kwargs[prop]
+                        current_value = getattr(article_obj, prop)
+                        if new_value != current_value:
+                            setattr(article_obj, prop, new_value)
                 article_obj.save()
         else:
             if full_text_fetch:
