@@ -135,7 +135,9 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     feed__ordering = feed.feed_ordering  # r or d
     publisher__renowned = publisher.renowned  # -3-3
     content_type = "art" if feed.feed_type == "rss" else "vid"
-    publisher_article_count = cache.get(f"publisher_{content_type}_cnt_{publisher.pk}")
+    publisher_article_count = cache.get(
+        f"feed_publisher_{content_type}_cnt_{feed.publisher.pk}"
+    )
     if pub_date is None:
         article_age = 3
     else:

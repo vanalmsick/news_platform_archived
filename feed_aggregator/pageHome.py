@@ -116,12 +116,12 @@ def get_stats():
     for content_type, query in [("art", all_articles), ("vid", all_videos)]:
         summary = (
             query.exclude(feed_position=None)
-            .values("publisher__pk")
-            .annotate(count=Count("publisher__name"))
+            .values("feed_position__feed__publisher__pk")
+            .annotate(count=Count("pk"))
         )
         for i in summary:
             cache.set(
-                f'publisher_{content_type}_cnt_{i["publisher__pk"]}',
+                f'feed_publisher_{content_type}_cnt_{i["feed_position__feed__publisher__pk"]}',
                 i["count"],
                 60 * 60 * 24,
             )

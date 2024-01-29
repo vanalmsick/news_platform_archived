@@ -80,7 +80,7 @@ def get_article_data(pk, debug=False):
                 for pos in feed_positions:
                     content_type = "art" if pos.feed.feed_type == "rss" else "vid"
                     publisher_article_count = cache.get(
-                        f"publisher_{content_type}_cnt_{pos.feed.publisher.pk}"
+                        f"feed_publisher_{content_type}_cnt_{pos.feed.publisher.pk}"
                     )
                     article["feed_position"].append(
                         dict(
