@@ -160,6 +160,12 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
         factor_article_normalization = 25 / 100
     else:
         factor_article_normalization = min(publisher_article_count / 100, 6)
+    print(
+        "Feed normilization",
+        feed.publisher.name,
+        publisher_article_count,
+        factor_article_normalization,
+    )
 
     factor_feed__importance = {
         4: 1 / 4,  # Lead Articles News: 4x
