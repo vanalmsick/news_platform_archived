@@ -160,12 +160,6 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
         factor_article_normalization = 25 / 100
     else:
         factor_article_normalization = min(publisher_article_count / 100, 6)
-    print(
-        "Feed normilization",
-        feed.publisher.name,
-        publisher_article_count,
-        factor_article_normalization,
-    )
 
     factor_feed__importance = {
         4: 1 / 4,  # Lead Articles News: 4x
@@ -193,6 +187,17 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
         6,
     )
     article_relevance = min(float(article_relevance), 999999.0)
+
+    print(
+        feed.publisher.name,
+        article_relevance,
+        feed_position,
+        factor_publisher__renowned,
+        factor_article_normalization,
+        factor_feed__importance,
+        factor_age,
+        random_int,
+    )
 
     return 9, float(article_relevance)
 
@@ -489,7 +494,7 @@ def fetch_feed_new(feed):
         delete_feed_positions(feed)
 
     for article_feed_position, scraped_article in enumerate(fetched_feed.entries):
-        article_feed_position = +1
+        article_feed_position += 1
 
         ScrapedArticle_obj = ScrapedArticle(
             feed_entry=scraped_article, source_feed=feed
