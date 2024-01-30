@@ -188,17 +188,6 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     )
     article_relevance = min(float(article_relevance), 999999.0)
 
-    print(
-        feed.publisher.name,
-        article_relevance,
-        feed_position,
-        factor_publisher__renowned,
-        factor_article_normalization,
-        factor_feed__importance,
-        factor_age,
-        random_int,
-    )
-
     return 9, float(article_relevance)
 
 
