@@ -188,7 +188,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     )
     article_relevance = min(float(article_relevance), 999999.0)
 
-    return 9, float(article_relevance)
+    return int(feed__importance), float(article_relevance)
 
 
 def delete_feed_positions(feed):
@@ -593,8 +593,8 @@ def fetch_feed_new(feed):
         feed_position = FeedPosition(
             feed=feed,
             position=article_feed_position,
-            importance=article_obj.max_importance,
-            relevance=article_obj.min_article_relevance,
+            importance=new_max_importance,
+            relevance=new_min_article_relevance,
         )
         feed_position.save()
 
