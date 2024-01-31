@@ -421,9 +421,9 @@ class ScrapedArticle:
                 )
                 if img["src"] == "src":
                     if hasattr(img, "data-url"):
-                        img["src"] = img["data-url"].replace("${formatId}", "906")
+                        img["src"] = str(getattr(img, "data-url")).replace("${formatId}", "906")
                     elif hasattr(img, "data-src"):
-                        img["src"] = img["data-src"]
+                        img["src"] = getattr(img, "data-src")
                 if hasattr(img, "srcset"):
                     img["srcset"] = ""
                 img["referrerpolicy"] = "no-referrer"
