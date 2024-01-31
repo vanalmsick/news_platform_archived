@@ -146,7 +146,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
         ).total_seconds() / 3600
 
     factor_publisher__renowned = {
-        3: 2 / 6,  # Top Publisher = 3x
+        3: 2 / 9,  # Top Publisher = 4.5x
         2: 4 / 6,  # Higly Renowned Publisher = 1.5x
         1: 5 / 6,  # Renowned Publisher = 1.2x
         0: 6 / 6,  # Regular Publisher = 1x
@@ -156,8 +156,8 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     }[publisher__renowned]
 
     # Publisher artcile ccount normalization
-    if publisher_article_count is None or publisher_article_count < 25:
-        factor_article_normalization = 25 / 100
+    if publisher_article_count is None or publisher_article_count < 10:
+        factor_article_normalization = 10 / 100
     else:
         factor_article_normalization = min(publisher_article_count / 100, 6)
 
