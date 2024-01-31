@@ -158,6 +158,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     # Publisher artcile ccount normalization
     if publisher_article_count is None or publisher_article_count < 10:
         factor_article_normalization = 10 / 100
+        feed_position += 1
     else:
         factor_article_normalization = min(publisher_article_count / 100, 6)
 
