@@ -424,9 +424,13 @@ class ScrapedArticle:
                         img["src"] = img["data-url"].replace("${formatId}", "906")
                     elif "data-src" in img:
                         img["src"] = img["data-src"]
-                    if "srcset" in img:
-                        img["srcset"] = ""
+                if "srcset" in img:
+                    img["srcset"] = ""
                 img["referrerpolicy"] = "no-referrer"
+            for figure in soup.find_all("figure"):
+                figure["class"] = "figure"
+            for figcaption in soup.find_all("figcaption"):
+                figcaption["class"] = "figure-caption"
             for a in soup.find_all("a"):
                 a["target"] = "_blank"
                 a["referrerpolicy"] = "no-referrer"
