@@ -420,11 +420,11 @@ class ScrapedArticle:
                     "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
                 )
                 if img["src"] == "src":
-                    if "data-url" in img:
+                    if hasattr(img, "data-url"):
                         img["src"] = img["data-url"].replace("${formatId}", "906")
-                    elif "data-src" in img:
+                    elif hasattr(img, "data-src"):
                         img["src"] = img["data-src"]
-                if "srcset" in img:
+                if hasattr(img, "srcset"):
                     img["srcset"] = ""
                 img["referrerpolicy"] = "no-referrer"
             for figure in soup.find_all("figure"):
