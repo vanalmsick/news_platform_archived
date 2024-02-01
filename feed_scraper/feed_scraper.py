@@ -156,7 +156,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     }[publisher__renowned]
 
     # Publisher artcile ccount normalization
-    factor_article_normalization = max(min(100 / publisher_article_count, 3), 0.5)
+    #factor_article_normalization = max(min(100 / publisher_article_count, 3), 0.5)
     factor_article_normalization = 1
 
     factor_feed__importance = {
