@@ -51,6 +51,7 @@ class Article(models.Model):
     added_date = models.DateTimeField(auto_now_add=True)
     last_updated_date = models.DateTimeField(auto_now=True)
 
+    publisher_article_position = models.SmallIntegerField(null=True)
     min_feed_position = models.SmallIntegerField(null=True)
     min_article_relevance = models.DecimalField(
         null=True, decimal_places=6, max_digits=12

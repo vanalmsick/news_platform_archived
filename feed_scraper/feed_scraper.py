@@ -70,6 +70,39 @@ def update_feeds():
         # added_articles += fetch_feed(feed)
         added_articles += fetch_feed_new(feed)
 
+    # apply publisher feed position
+    publishers = Publisher.objects.all()
+    for publisher in publishers:
+        articles = (
+            Article.objects.filter(feed_position__feed__publisher__pk=publisher.pk)
+            .exclude(min_feed_position__isnull=True)
+            .exclude(min_article_relevance__isnull=True)
+            .order_by(
+                "-min_feed_position",
+                "pub_date__date",
+                "pub_date__hour",
+                "max_importance",
+            )
+        )
+        len_articles = len(articles)
+        for i, article in enumerate(articles):
+            setattr(article, "publisher_article_position", int(len_articles - i))
+            setattr(
+                article,
+                "min_article_relevance",
+                min(
+                    float(
+                        round(
+                            (len_articles - i)
+                            * float(getattr(article, "min_article_relevance")),
+                            6,
+                        )
+                    ),
+                    10_000,
+                ),
+            )
+            article.save()
+
     # calculate next refesh time
     end_time = time.time()
 
@@ -134,10 +167,10 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     feed__importance = feed.importance  # 0-4
     feed__ordering = feed.feed_ordering  # r or d
     publisher__renowned = publisher.renowned  # -3-3
-    content_type = "art" if feed.feed_type == "rss" else "vid"
-    publisher_article_count = cache.get(
-        f"feed_publisher_{content_type}_cnt_{feed.publisher.pk}"
-    )
+    # content_type = "art" if feed.feed_type == "rss" else "vid"
+    # publisher_article_count = cache.get(
+    #    f"feed_publisher_{content_type}_cnt_{feed.publisher.pk}"
+    # )
     if pub_date is None:
         article_age = 3
     else:
@@ -156,7 +189,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
     }[publisher__renowned]
 
     # Publisher artcile ccount normalization
-    #factor_article_normalization = max(min(100 / publisher_article_count, 3), 0.5)
+    # factor_article_normalization = max(min(100 / publisher_article_count, 3), 0.5)
     factor_article_normalization = 1
 
     factor_feed__importance = {
@@ -176,8 +209,8 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
         factor_age = 4 / (1 + math.exp(-0.25 * article_age + 4)) + 1
 
     article_relevance = round(
-        feed_position
-        * factor_publisher__renowned
+        # feed_position *
+        factor_publisher__renowned
         * factor_article_normalization
         * factor_feed__importance
         * factor_age
@@ -574,11 +607,18 @@ def fetch_feed_new(feed):
             if getattr(article_obj, "min_article_relevance", None) is None
             else getattr(article_obj, "min_article_relevance", None)
         )
+        current_min_feed_position = (
+            10**10
+            if getattr(article_obj, "min_feed_position", None) is None
+            else getattr(article_obj, "min_feed_position", None)
+        )
         current_categories = getattr(article_obj, "categories", None)
         if new_max_importance > current_max_importance:
             setattr(article_obj, "max_importance", new_max_importance)
         if new_min_article_relevance < current_min_article_relevance:
             setattr(article_obj, "min_article_relevance", new_min_article_relevance)
+        if article_feed_position < current_min_feed_position:
+            setattr(article_obj, "min_feed_position", article_feed_position)
         if new_categories is not None and new_categories != "":
             final_categories = current_categories
             for c in new_categories.split(";"):
