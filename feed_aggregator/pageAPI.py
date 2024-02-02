@@ -85,6 +85,7 @@ def get_article_data(pk, debug=False):
                     article["feed_position"].append(
                         dict(
                             feed__name=pos.feed.name,
+                            feed__pk=pos.feed.pk,
                             feed__importance=pos.feed.importance,
                             feed__source_categories=pos.feed.source_categories,
                             feed__feed_ordering=pos.feed.feed_ordering,
