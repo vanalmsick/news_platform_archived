@@ -98,7 +98,7 @@
                         </tr>
                         {% for position in article.feed_position %}
                             <tr>
-                                <td scope="row">{{ position.feed__name }}</td>
+                                <td scope="row"><a href="/?feed_position__feed__pk={{ position.feed__pk }}">{{ position.feed__name }}</a></td>
                                 <td>{{ position.position }}</td>
                                 <td>{{ position.importance }}</td>
                                 <td>{{ position.relevance }}</td>
