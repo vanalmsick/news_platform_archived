@@ -13,6 +13,8 @@ YES_NO = [("Y", "Yes"), ("N", "No")]
 
 # Create your models here.
 class Publisher(models.Model):
+    """Model for news publishers."""
+
     name = models.CharField(max_length=30)
     link = models.URLField()
     RENOWNED_LEVES = [
@@ -30,13 +32,16 @@ class Publisher(models.Model):
     unique_article_id = models.CharField(
         choices=UNIQUE_ARTICLE_ID, default="guid", max_length=5
     )
-    language = models.CharField(max_length=5, default="en")
+    language = models.CharField(max_length=5, default="en", blank=True)
 
     def __str__(self):
+        """print-out representation of individual model entry"""
         return f"{self.name}"
 
 
 class Feed(models.Model):
+    """Model for individual rss/youtube news feeds."""
+
     name = models.CharField(max_length=40)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     url = models.URLField(max_length=600)
@@ -55,4 +60,5 @@ class Feed(models.Model):
     full_text_fetch = models.CharField(max_length=1, choices=YES_NO, default="Y")
 
     def __str__(self):
+        """print-out representation of individual model entry"""
         return f"{self.publisher.name} - {self.name}"
