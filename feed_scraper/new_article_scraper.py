@@ -5,6 +5,7 @@ import time
 import urllib
 
 import langid
+import ratelimit
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -143,6 +144,14 @@ from .google_news_decode import decode_google_news_url
 #         out = Artcile_obj.get_final_attributes()
 #
 #         print("")
+
+
+@ratelimit.sleep_and_retry
+@ratelimit.limits(calls=3, period=5)
+def check_limit():
+    """Empty function to limit url calls to not get blocked"""
+    # every 5 seconds 3 calls
+    return
 
 
 class ScrapedArticle:
@@ -326,6 +335,7 @@ class ScrapedArticle:
 
     def scrape_source(self):
         """Use full-text scraper to get additional data beyond the RSS feed"""
+        check_limit()  # url request limit of 3 calls every 5 seconds to not get blocked
         article_url = (
             self.true_article_url_str
             if hasattr(self, "true_article_url_str")
@@ -421,7 +431,9 @@ class ScrapedArticle:
                 )
                 if img["src"] == "src":
                     if hasattr(img, "data-url"):
-                        img["src"] = str(getattr(img, "data-url")).replace("${formatId}", "906")
+                        img["src"] = str(getattr(img, "data-url")).replace(
+                            "${formatId}", "906"
+                        )
                     elif hasattr(img, "data-src"):
                         img["src"] = getattr(img, "data-src")
                 if hasattr(img, "srcset"):
