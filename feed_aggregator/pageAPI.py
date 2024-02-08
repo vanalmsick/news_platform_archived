@@ -47,8 +47,6 @@ def get_article_data(pk, debug=False):
         article["ai_summary"] = mark_safe(article["ai_summary"])
         article["publisher__name"] = requested_article.publisher.name
         article["publisher__paywall"] = requested_article.publisher.paywall
-        if "<img " in article["full_text"][: min(250, len(article["full_text"]))]:
-            article["image_url"] = ""
         if (
             len(article["summary"]) > 30
             and article["summary"][:30] in article["full_text"]
