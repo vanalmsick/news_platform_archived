@@ -139,7 +139,7 @@ def update_feeds():
         min_article_relevance__isnull=True,
         feed_position=None,
         added_date__lte=settings.TIME_ZONE_OBJ.localize(
-            datetime.datetime.now() - datetime.timedelta(days=7)
+            datetime.datetime.now() - datetime.timedelta(days=21)
         ),
     ).exclude(read_later=True)
     if len(old_articles) > 0:
