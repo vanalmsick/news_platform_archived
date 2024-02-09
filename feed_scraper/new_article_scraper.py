@@ -480,7 +480,10 @@ class ScrapedArticle:
                 feed_attr_name="feed_article_url_str",
                 scrape_attr_name="true_article_url_str",
             )
-            return f"{self.source_publisher_pk}_{hashlib.sha256(self.final_link.encode('utf-8')).hexdigest()}"
+            return (
+                f"{self.source_publisher_pk}_"
+                f"{hashlib.sha256(self.final_link.split('?')[0].encode('utf-8')).hexdigest()}"
+            )
         elif self.prop_unique_guid_method.lower() == "title":
             self.__calculate_final_value__(
                 final_attr_name="final_title",
