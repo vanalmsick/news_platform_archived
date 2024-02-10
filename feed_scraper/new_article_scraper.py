@@ -480,9 +480,18 @@ class ScrapedArticle:
 
     def calculate_guid(self):
         """Function which calculates the Unique GUID"""
-        if self.prop_unique_guid_method.lower() == "guid":
+        if self.prop_unique_guid_method.lower() == "guid" and hasattr(
+            self, "feed_article_guid"
+        ):
             return f"{self.source_publisher_pk}_{self.feed_article_guid}"
-        elif self.prop_unique_guid_method.lower() == "url":
+        elif self.prop_unique_guid_method.lower() == "title":
+            self.__calculate_final_value__(
+                final_attr_name="final_title",
+                feed_attr_name="feed_article_title",
+                scrape_attr_name="scrape_article_title",
+            )
+            return f"{self.source_publisher_pk}_{hashlib.sha256(self.final_title.encode('utf-8')).hexdigest()}"
+        else:  # self.prop_unique_guid_method.lower() == "url":
             self.__calculate_final_value__(
                 final_attr_name="final_link",
                 feed_attr_name="feed_article_url_str",
@@ -491,17 +500,6 @@ class ScrapedArticle:
             return (
                 f"{self.source_publisher_pk}_"
                 f"{hashlib.sha256(self.final_link.split('?')[0].encode('utf-8')).hexdigest()}"
-            )
-        elif self.prop_unique_guid_method.lower() == "title":
-            self.__calculate_final_value__(
-                final_attr_name="final_title",
-                feed_attr_name="feed_article_title",
-                scrape_attr_name="scrape_article_title",
-            )
-            return f"{self.source_publisher_pk}_{hashlib.sha256(self.final_title.encode('utf-8')).hexdigest()}"
-        else:
-            raise Exception(
-                f'Undefined "unique_article_id"={self.prop_unique_guid_method.lower()}'
             )
 
     def __calculate_final_value__(
