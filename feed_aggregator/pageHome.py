@@ -210,15 +210,7 @@ def homeView(request):
             <meta property="og:url" content="{article['link']}">
             """
         else:
-            if article["error"]:
-                meta = f"<title>{settings.CUSTOM_PLATFORM_NAME}</title>"
-            else:
-                meta = (
-                    f"<title>{article['title']} -"
-                    f" {article['publisher__name']}</title><meta name=\"description\""
-                    ' content="Personal news platform aggregating news articles from'
-                    ' several RSS feeds and videos from different YouTube channels.">'
-                )
+            meta = f"<title>{settings.CUSTOM_PLATFORM_NAME}</title>"
 
         # if user is not autheticated
         if request.user.is_authenticated is False:
@@ -259,6 +251,11 @@ def homeView(request):
             "navbar_html": html_nav_bar,
             "selected_page": kwargs_hash,
             "sidebar_title": settings.SIDEBAR_TITLE,
-            "meta": f"<title>{settings.CUSTOM_PLATFORM_NAME}</title>",
+            "meta": (
+                f"<title>{settings.CUSTOM_PLATFORM_NAME}</title><meta"
+                ' name="description" content="Personal news platform aggregating news'
+                " articles from several RSS feeds and videos from different YouTube"
+                ' channels.">'
+            ),
         },
     )
