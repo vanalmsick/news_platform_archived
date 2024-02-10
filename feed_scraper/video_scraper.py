@@ -214,5 +214,10 @@ def fetch_feed(feed, max_per_feed=200):
 
         article_obj.feed_position.add(feed_position)
 
-    print(f"Refreshed {feed} with {added_vids} new videos out of {len(videos)}")
+    total_articles = (
+        article__feed_position
+        if "article__feed_position" in vars() or "article__feed_position" in globals()
+        else "Unknown"
+    )
+    print(f"Refreshed {feed} with {added_vids} new videos out of {total_articles}")
     return added_vids
