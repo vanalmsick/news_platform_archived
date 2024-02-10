@@ -214,7 +214,10 @@ def homeView(request):
                 meta = f"<title>{settings.CUSTOM_PLATFORM_NAME}</title>"
             else:
                 meta = (
-                    f"<title>{article['title']} - {article['publisher__name']}</title>"
+                    f"<title>{article['title']} -"
+                    f" {article['publisher__name']}</title><meta name=\"description\""
+                    ' content="Personal news platform aggregating news articles from'
+                    ' several RSS feeds and videos from different YouTube channels.">'
                 )
 
         # if user is not autheticated
