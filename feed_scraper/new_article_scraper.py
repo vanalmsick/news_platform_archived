@@ -177,6 +177,14 @@ class ScrapedArticle:
         self.__use_source_data__()
         self.__use_feed_data__()
         self.final_guid = self.calculate_guid()
+        final_link = (
+            self.true_article_url_str
+            if hasattr(self, "true_article_url_str")
+            else self.feed_article_url_str
+        )
+        self.final_hash = (
+            f"{hashlib.sha256(final_link.split('?')[0].encode('utf-8')).hexdigest()}"
+        )
 
     def __use_source_data__(self):
         """Extract relevant data from source objects - i.e. source_feed_obj and source_publisher_obj"""
@@ -697,7 +705,7 @@ class ScrapedArticle:
         )
 
         self.__html_body_clean_up__()
-        self.final_hash = self.final_guid = self.calculate_guid()
+        self.final_guid = self.calculate_guid()
 
         self.status_calculated_final_props = True
 
