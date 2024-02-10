@@ -214,7 +214,5 @@ def fetch_feed(feed, max_per_feed=200):
 
         article_obj.feed_position.add(feed_position)
 
-    print(
-        f"Refreshed {feed} with {added_vids} new videos out of {article__feed_position}"
-    )
+    print(f"Refreshed {feed} with {added_vids} new videos out of {len(videos)}")
     return added_vids
