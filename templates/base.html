@@ -87,13 +87,13 @@
                 if (duration_finding > 3) {
                     return htmlPub + ' / ' + htmlFound
                 } else {
-                    return htmlPub
+                    return dateConvert(date_pub_str, preferred_length)
                 }
             } else {
                 if (duration_finding > 18) {
                     return htmlPub + ' / ' + htmlFound
                 } else {
-                    return htmlPub
+                    return dateConvert(date_pub_str, preferred_length)
                 }
             }
 
