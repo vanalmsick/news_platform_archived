@@ -528,7 +528,7 @@ def fetch_feed_new(feed):
 
         # Check if artcile already exists
         matches = Article.objects.filter(guid=guid)
-        if len(matches) == 0 and hasattr(ScrapedArticle_obj, "true_article_url_str"):
+        if len(matches) == 0:
             hash = ScrapedArticle_obj.final_hash
             matches = Article.objects.filter(hash=hash)
 
