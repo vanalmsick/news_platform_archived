@@ -115,13 +115,13 @@
     </div>
 </div>
 
-<div class="py-3 px-4 w-100" style="text-align: center;">
+<div class="py-3 px-m-4 w-100" style="text-align: center;">
     <div id="leftSpace" style="text-align: left;">
         <div class="py-1 fs-5 border-bottom">
             <span><strong class="text-gray-dark ps-3">Markets</strong></span>
         </div>
 
-        <div class="mb-2 border-bottom fs-5">
+        <div class="mb-2 border-bottom">
             {% for group, entry_lst in marketData.items %}
                 <div class="p-2 px-3 mt-3 bg-body shadow-sm d-flex justify-content-between fs-5 fw-bold">{{ group.name }}</div>
                 {% for data in entry_lst %}
