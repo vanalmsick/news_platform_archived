@@ -1,4 +1,6 @@
 """Data scraping for Market Data i.e. Stock/FX/Comm prices"""
+from io import StringIO
+
 import numpy as np
 import pandas as pd
 import requests
@@ -15,7 +17,7 @@ def __get_quote_table(ticker, headers={"User-agent": "Mozilla/5.0"}):
 
     reponse = requests.get(site, headers=headers).text
 
-    tables = pd.read_html(reponse)
+    tables = pd.read_html(StringIO(reponse))
     one_table = np.concatenate(tables, axis=0)
     data = {x: y for x, y in one_table}
 
