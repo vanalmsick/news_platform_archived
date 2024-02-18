@@ -3,6 +3,8 @@ pytz
 requests
 feedparser
 beautifulsoup4
+numpy
+pandas
 lxml
 html5lib
 django-extensions
