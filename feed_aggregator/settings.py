@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     "articles",
     "feeds",
     "preferences",
-]
+    "market_data"
+    ]
 
 
 REST_FRAMEWORK = {

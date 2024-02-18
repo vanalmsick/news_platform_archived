@@ -10,11 +10,13 @@ from django.template.defaulttags import register
 from articles.models import Article
 from feed_scraper.feed_scraper import update_feeds
 from feed_scraper.video_scraper import update_videos
+from market_data.scrape import scrape_market_data
 from preferences.models import get_pages
 
 from .celery import app
 from .pageAPI import get_article_data, get_articles
 from .pageLogin import LoginView
+
 
 
 @register.filter(name="split")
@@ -174,6 +176,9 @@ def refresh_feeds():
         for kwargs_hash, kwargs in cached_views_lst.items():
             _, _ = get_articles(force_recache=True, **kwargs)
 
+        # Update marekt data
+        scrape_market_data()
+
         now = datetime.datetime.now()
         cache.set("lastRefreshed", now, 60 * 60 * 48)
 
@@ -234,6 +239,7 @@ def homeView(request):
     )
     _, sidebar = get_articles(special="sidebar", max_length=100)
     lastRefreshed = cache.get("lastRefreshed")
+    latestMarketData = cache.get("latestMarketData")
     html_nav_bar = get_pages(recache=False)
 
     return render(
@@ -242,6 +248,7 @@ def homeView(request):
         {
             "articles": articles,
             "sidebar": sidebar,
+            "marketData": latestMarketData,
             "platform_name": settings.CUSTOM_PLATFORM_NAME,
             "lastRefreshed": (
                 "Never"

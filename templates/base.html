@@ -188,10 +188,29 @@
             li {
                 padding-left: 2px;
             }
+            
+            
+            #leftSpace {
+                visibility: collapse;
+                display: none;
+                overflow: hidden;
+                width: 0px;
+                height: 0px;
+            }
+
+            #rightSpace {
+                visibility: collapse;
+                display: none;
+                overflow: hidden;
+                width: 0px;
+                height: 0px;
+            }
+
+            
         }
 
 
-        /* medium  Modal */
+        /* medium  Modal - tablet - only middle part */
         @media screen and (min-width: 601px) and (max-width: 1400px) {
             #modaltext {
                 max-width: 800px;
@@ -245,6 +264,7 @@
                 vertical-align: top;
                 width: 20%;
                 max-width: 400px;
+                margin: 5px auto;
             }
 
             #rightSpace {
@@ -252,6 +272,7 @@
                 vertical-align: top;
                 width: 20%;
                 max-width: 400px;
+                margin: 0px auto;
             }
 
 

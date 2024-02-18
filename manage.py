@@ -69,7 +69,7 @@ if __name__ == "__main__":
         # Load initial feeds
         if len(Feed.objects.all()) == 0:
             print("Add default data")
-            sys.argv = [INITIAL_ARGV[0], "add_default_feeds"]
+            sys.argv = [INITIAL_ARGV[0], "add_default_data"]
             main()
 
         # Create Admin
