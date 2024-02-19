@@ -11,6 +11,7 @@ from .models import DataEntry, DataSource
 
 
 def __get_bonds(tickers, headers={"User-agent": "Mozilla/5.0"}):
+    """Function to scrape rates market data form tradingeconomics.com"""
     site = "https://tradingeconomics.com/bonds"
     reponse = requests.get(site, headers=headers).text
     soup = BeautifulSoup(reponse, "lxml")
@@ -58,7 +59,7 @@ def __get_bonds(tickers, headers={"User-agent": "Mozilla/5.0"}):
                 obj = DataEntry(
                     source=ticker,
                     price=data_yield,
-                    change_today=data_day,
+                    change_today=data_day * 100,
                 )
                 obj.save()
                 latest_data.append(obj.pk)
@@ -78,6 +79,7 @@ def __get_quote_table(ticker, headers={"User-agent": "Mozilla/5.0"}):
     data = {x: y for x, y in one_table}
 
     soup = BeautifulSoup(reponse, "lxml")
+    data["quote-market-notice"] = soup.find(id="quote-market-notice").text
     items = soup.find(id="quote-market-notice").find_parent().find_all("fin-streamer")
     for i in items:
         if hasattr(i, "data-field") and hasattr(i, "value"):
@@ -118,6 +120,9 @@ def scrape_market_data():
             source=data_src,
             price=summary_box["regularMarketPrice"],
             change_today=summary_box["regularMarketChangePercent"] * 100,
+            market_closed=(
+                True if "close" in summary_box["quote-market-notice"].lower() else False
+            ),
         )
         obj.save()
         latest_data.append(obj.pk)
