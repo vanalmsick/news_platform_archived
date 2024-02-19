@@ -1,3 +1,4 @@
+"""All Market Data Models"""
 from django.db import models
 
 
@@ -39,6 +40,7 @@ class DataEntry(models.Model):
 
     price = models.DecimalField(decimal_places=4, max_digits=12)
     change_today = models.DecimalField(decimal_places=6, max_digits=12)
+    market_closed = models.BooleanField(default=False)
 
     def __str__(self):
         """print-out representation of individual model entry"""
