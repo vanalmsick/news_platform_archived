@@ -13,6 +13,8 @@ def __ensure_db_migration_folders_exist():
         "data/db_migrations/__init__.py",
         "data/db_migrations/articles/__init__.py",
         "data/db_migrations/feeds/__init__.py",
+        "data/db_migrations/preferences/__init__.py",
+        "data/db_migrations/markets/__init__.py",
     ]
 
     if all([os.path.isfile(i) for i in init_files]) is False:

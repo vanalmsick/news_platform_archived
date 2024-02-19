@@ -2,7 +2,7 @@
 from django.core.management import BaseCommand
 
 from feeds.models import Feed, Publisher
-from market_data.models import DataGroup, DataSource
+from markets.models import DataGroup, DataSource
 from preferences.models import Page
 
 
@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 "paywall": "Y",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "Tagesschau",
                 "link": "https://www.tagesschau.de",
@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "de",
-                },
+            },
             {
                 "name": "ZDF Heute",
                 "link": "https://www.heute.de",
@@ -38,7 +38,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "de",
-                },
+            },
             {
                 "name": "Redations Netzwerk Deutschland",
                 "link": "https://www.rnd.de",
@@ -46,7 +46,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "de",
-                },
+            },
             {
                 "name": "FAZ",
                 "link": "https://www.faz.net",
@@ -54,7 +54,7 @@ class Command(BaseCommand):
                 "paywall": "Y",
                 "unique_article_id": "guid",
                 "language": "de",
-                },
+            },
             {
                 "name": "The Economist",
                 "link": "http://www.economist.com",
@@ -62,7 +62,7 @@ class Command(BaseCommand):
                 "paywall": "Y",
                 "unique_article_id": "url",
                 "language": "en",
-                },
+            },
             {
                 "name": "Harvard Business Review",
                 "link": "https://hbr.org",
@@ -70,7 +70,7 @@ class Command(BaseCommand):
                 "paywall": "Y",
                 "unique_article_id": "url",
                 "language": "en",
-                },
+            },
             {
                 "name": "Wall Street Journal",
                 "link": "https://www.wsj.com/",
@@ -78,7 +78,7 @@ class Command(BaseCommand):
                 "paywall": "Y",
                 "unique_article_id": "url",
                 "language": "en",
-                },
+            },
             {
                 "name": "Al Jazeera",
                 "link": "https://www.aljazeera.com",
@@ -86,7 +86,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "CNBC",
                 "link": "https://www.cnbc.com",
@@ -94,7 +94,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "Risk.net",
                 "link": "https://www.risk.net",
@@ -102,7 +102,7 @@ class Command(BaseCommand):
                 "paywall": "Y",
                 "unique_article_id": "url",
                 "language": "en",
-                },
+            },
             {
                 "name": "Hedge Week",
                 "link": "https://www.hedgeweek.com",
@@ -110,7 +110,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "url",
                 "language": "en",
-                },
+            },
             {
                 "name": "Reuters",
                 "link": "https://www.reuters.com",
@@ -118,7 +118,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "url",
                 "language": "en",
-                },
+            },
             {
                 "name": "Deutsche Welle",
                 "link": "https://www.dw.com",
@@ -126,7 +126,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "title",
                 "language": "en",
-                },
+            },
             {
                 "name": "n-tv.de",
                 "link": "https://www.n-tv.de",
@@ -134,7 +134,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "de",
-                },
+            },
             {
                 "name": "Bloomberg",
                 "link": "https://www.bloomberg.com",
@@ -142,7 +142,7 @@ class Command(BaseCommand):
                 "paywall": "Y",
                 "unique_article_id": "url",
                 "language": "en",
-                },
+            },
             {
                 "name": "BBC",
                 "link": "https://www.bbc.com",
@@ -150,7 +150,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "url",
                 "language": "en",
-                },
+            },
             {
                 "name": "The Trade",
                 "link": "http://www.thetradenews.com",
@@ -158,7 +158,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "9to5mac.com",
                 "link": "http://www.9to5mac.com",
@@ -166,7 +166,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "TechCrunch",
                 "link": "https://techcrunch.com",
@@ -174,7 +174,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "The Verge",
                 "link": "http://www.theverge.com",
@@ -182,7 +182,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "Medium",
                 "link": "http://www.medium.com",
@@ -190,7 +190,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "Google News",
                 "link": "https://news.google.com",
@@ -198,7 +198,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "Stuff Made Here",
                 "link": "https://www.youtube.com/@StuffMadeHere",
@@ -206,7 +206,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "Teulu Tribe",
                 "link": "https://www.youtube.com/@TeuluTribe",
@@ -214,7 +214,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "BigThink",
                 "link": "https://www.youtube.com/@bigthink",
@@ -222,7 +222,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "EconomicsExplained",
                 "link": "https://www.youtube.com/@EconomicsExplained",
@@ -230,7 +230,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "Wendover Productions",
                 "link": "https://www.youtube.com/@Wendoverproductions",
@@ -238,7 +238,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "RealEngineering",
                 "link": "https://www.youtube.com/@RealEngineering",
@@ -246,7 +246,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "TED",
                 "link": "https://www.ted.com/",
@@ -254,7 +254,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "Vox",
                 "link": "https://www.vox.com/",
@@ -262,7 +262,7 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
+            },
             {
                 "name": "TheNextWeb",
                 "link": "https://www.thenextweb.com/",
@@ -270,11 +270,11 @@ class Command(BaseCommand):
                 "paywall": "N",
                 "unique_article_id": "guid",
                 "language": "en",
-                },
-            ]
+            },
+        ]
 
         for publisher in initial_publishers:
-            if len(Publisher.objects.filter(name=publisher['name'])) == 0:
+            if len(Publisher.objects.filter(name=publisher["name"])) == 0:
                 Publisher(**publisher).save()
 
         initial_feeds = [
@@ -288,7 +288,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage",
                 "importance": 4,
-                },
+            },
             {
                 "name": "Markets",
                 "publisher": Publisher.objects.get(name="Financial Times"),
@@ -298,7 +298,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;markets",
                 "importance": 1,
-                },
+            },
             {
                 "name": "News In Depth",
                 "publisher": Publisher.objects.get(name="Financial Times"),
@@ -308,7 +308,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;News In Depth",
                 "importance": 2,
-                },
+            },
             {
                 "name": "The Big Read",
                 "publisher": Publisher.objects.get(name="Financial Times"),
@@ -318,7 +318,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;The Big Read",
                 "importance": 2,
-                },
+            },
             {
                 "name": "Country US",
                 "publisher": Publisher.objects.get(name="Financial Times"),
@@ -328,7 +328,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;usa",
                 "importance": 0,
-                },
+            },
             {
                 "name": "Country UK",
                 "publisher": Publisher.objects.get(name="Financial Times"),
@@ -338,7 +338,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;uk",
                 "importance": 0,
-                },
+            },
             {
                 "name": "Region Europe",
                 "publisher": Publisher.objects.get(name="Financial Times"),
@@ -348,7 +348,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;europe",
                 "importance": 0,
-                },
+            },
             {
                 "name": "Top News",
                 "publisher": Publisher.objects.get(name="CNBC"),
@@ -358,7 +358,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Markets",
                 "publisher": Publisher.objects.get(name="CNBC"),
@@ -368,7 +368,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;markets",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Markets",
                 "publisher": Publisher.objects.get(name="Reuters"),
@@ -383,7 +383,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;markets",
                 "importance": 0,
-                },
+            },
             {
                 "name": "All News",
                 "publisher": Publisher.objects.get(name="Risk.net"),
@@ -393,7 +393,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage",
                 "importance": 0,
-                },
+            },
             {
                 "name": "All News",
                 "publisher": Publisher.objects.get(name="Al Jazeera"),
@@ -403,7 +403,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage",
                 "importance": 2,
-                },
+            },
             {
                 "name": "All News",
                 "publisher": Publisher.objects.get(name="Deutsche Welle"),
@@ -413,7 +413,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Markets",
                 "publisher": Publisher.objects.get(name="Bloomberg"),
@@ -423,7 +423,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "N",
                 "source_categories": "frontpage;markets",
                 "importance": 3,
-                },
+            },
             {
                 "name": "Politics",
                 "publisher": Publisher.objects.get(name="Bloomberg"),
@@ -433,7 +433,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "N",
                 "source_categories": "frontpage;politics",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Top News",
                 "publisher": Publisher.objects.get(name="The Economist"),
@@ -447,7 +447,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;magazine",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Countries",
                 "publisher": Publisher.objects.get(name="The Economist"),
@@ -466,7 +466,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;magazine;world",
                 "importance": 0,
-                },
+            },
             ########################### Fund News ###########################
             {
                 "name": "All News",
@@ -477,7 +477,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "frontpage;funds;sidebar",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Latest",
                 "publisher": Publisher.objects.get(name="Hedge Week"),
@@ -487,7 +487,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "hedge funds;funds;sidebar",
                 "importance": 3,
-                },
+            },
             {
                 "name": 'Search "Hedge Funds"',
                 "publisher": Publisher.objects.get(name="Google News"),
@@ -497,7 +497,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "google news;hedge funds;funds;sidebar",
                 "importance": 0,
-                },
+            },
             ########################### German News ###########################
             {
                 "name": "Startseite",
@@ -508,7 +508,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "startseite",
                 "importance": 2,
-                },
+            },
             {
                 "name": "Startseite",
                 "publisher": Publisher.objects.get(name="FAZ"),
@@ -518,7 +518,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "startseite",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Startseite",
                 "publisher": Publisher.objects.get(name="ZDF Heute"),
@@ -528,7 +528,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "startseite",
                 "importance": 2,
-                },
+            },
             {
                 "name": "Wirtschaft",
                 "publisher": Publisher.objects.get(name="n-tv.de"),
@@ -538,7 +538,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "wirtschaft",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Politik",
                 "publisher": Publisher.objects.get(name="n-tv.de"),
@@ -548,31 +548,31 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "politik",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Politik",
                 "publisher": Publisher.objects.get(
                     name="Redations Netzwerk Deutschland"
-                    ),
+                ),
                 "url": "https://www.rnd.de/arc/outboundfeeds/rss/category/politik/",
                 "active": True,
                 "feed_ordering": "r",
                 "full_text_fetch": "Y",
                 "source_categories": "wirtschaft",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Wirtschaft",
                 "publisher": Publisher.objects.get(
                     name="Redations Netzwerk Deutschland"
-                    ),
+                ),
                 "url": "https://www.rnd.de/arc/outboundfeeds/rss/category/wirtschaft/",
                 "active": True,
                 "feed_ordering": "r",
                 "full_text_fetch": "Y",
                 "source_categories": "politik",
                 "importance": 1,
-                },
+            },
             ########################### Tech News ###########################
             {
                 "name": "Technology",
@@ -583,7 +583,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "N",
                 "source_categories": "tech",
                 "importance": 0,
-                },
+            },
             {
                 "name": "Home",
                 "publisher": Publisher.objects.get(name="9to5mac.com"),
@@ -593,7 +593,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "tech",
                 "importance": 2,
-                },
+            },
             {
                 "name": "Home",
                 "publisher": Publisher.objects.get(name="TechCrunch"),
@@ -603,7 +603,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "tech",
                 "importance": 2,
-                },
+            },
             {
                 "name": "Home",
                 "publisher": Publisher.objects.get(name="The Verge"),
@@ -613,7 +613,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "tech",
                 "importance": 2,
-                },
+            },
             {
                 "name": "Home",
                 "publisher": Publisher.objects.get(name="TheNextWeb"),
@@ -623,7 +623,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "tech",
                 "importance": 2,
-                },
+            },
             {
                 "name": "#Python",
                 "publisher": Publisher.objects.get(name="Medium"),
@@ -633,7 +633,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "N",
                 "source_categories": "tech",
                 "importance": 0,
-                },
+            },
             ########################### YouTube Channels ###########################
             {
                 "name": "Originals - YouTube Channel",
@@ -644,7 +644,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 1,
-                },
+            },
             {
                 "name": "Quicktake - YouTube Channel",
                 "publisher": Publisher.objects.get(name="Bloomberg"),
@@ -654,7 +654,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 2,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="Financial Times"),
@@ -664,7 +664,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 1,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="The Economist"),
@@ -674,7 +674,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 1,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="Harvard Business Review"),
@@ -684,7 +684,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 2,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="Wall Street Journal"),
@@ -694,7 +694,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 2,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="Stuff Made Here"),
@@ -704,7 +704,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 0,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="Teulu Tribe"),
@@ -714,7 +714,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 1,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="Deutsche Welle"),
@@ -724,7 +724,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 2,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="CNBC"),
@@ -734,7 +734,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 2,
-                },
+            },
             {
                 "name": "TED - YouTube Channel",
                 "publisher": Publisher.objects.get(name="TED"),
@@ -744,7 +744,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 2,
-                },
+            },
             {
                 "name": "TEDed - YouTube Channel",
                 "publisher": Publisher.objects.get(name="TED"),
@@ -754,7 +754,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 1,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="Vox"),
@@ -764,7 +764,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 1,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="Wendover Productions"),
@@ -774,7 +774,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 1,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="BigThink"),
@@ -784,7 +784,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 1,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="EconomicsExplained"),
@@ -794,7 +794,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 2,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="RealEngineering"),
@@ -804,7 +804,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "importance": 1,
-                },
+            },
             {
                 "name": "World Services - YouTube Playlist",
                 "publisher": Publisher.objects.get(name="BBC"),
@@ -814,11 +814,11 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-playlist",
                 "importance": 1,
-                },
-            ]
+            },
+        ]
 
         for feed in initial_feeds:
-            if len(Feed.objects.filter(url=feed['url'])) == 0:
+            if len(Feed.objects.filter(url=feed["url"])) == 0:
                 Feed(**feed).save()
 
         initial_pages = [
@@ -827,7 +827,7 @@ class Command(BaseCommand):
                 "html_icon": "",
                 "name": "Frontpage",
                 "url_parameters": "categories=frontpage",
-                },
+            },
             {
                 "position_index": 2,
                 "html_icon": (
@@ -849,13 +849,13 @@ class Command(BaseCommand):
                 ),
                 "name": "German",
                 "url_parameters": "language=de",
-                },
+            },
             {
                 "position_index": 3,
                 "html_icon": "#",
                 "name": "Tech",
                 "url_parameters": "categories=tech",
-                },
+            },
             {
                 "position_index": 4,
                 "html_icon": (
@@ -868,7 +868,7 @@ class Command(BaseCommand):
                 ),
                 "name": "Latest: Funds",
                 "url_parameters": "special=sidebar",
-                },
+            },
             {
                 "position_index": 5,
                 "html_icon": "@",
@@ -876,7 +876,7 @@ class Command(BaseCommand):
                 "url_parameters": (
                     "publisher__name=financial+times,bloomberg&content_type=article"
                 ),
-                },
+            },
             {
                 "position_index": 6,
                 "html_icon": (
@@ -890,7 +890,7 @@ class Command(BaseCommand):
                 ),
                 "name": "Videos",
                 "url_parameters": "content_type=video",
-                },
+            },
             {
                 "position_index": 7,
                 "html_icon": (
@@ -904,11 +904,11 @@ class Command(BaseCommand):
                 ),
                 "name": "Read Later",
                 "url_parameters": "read_later=true",
-                },
-            ]
+            },
+        ]
 
         for page in initial_pages:
-            if len(Page.objects.filter(position_index=page['position_index'])) == 0:
+            if len(Page.objects.filter(position_index=page["position_index"])) == 0:
                 Page(**page).save()
 
         # For Marekt Data
@@ -916,23 +916,27 @@ class Command(BaseCommand):
             {
                 "name": "Indices",
                 "position": 1,
-                },
+            },
             {
                 "name": "FX",
                 "position": 2,
-                },
+            },
+            {
+                "name": "Rates",
+                "position": 3,
+            },
             {
                 "name": "Commodities",
-                "position": 3,
-                },
+                "position": 4,
+            },
             {
                 "name": "Winners/Loosers",
-                "position": 4,
-                },
-            ]
+                "position": 5,
+            },
+        ]
 
         for group in initial_data_groups:
-            if len(DataGroup.objects.filter(name=group['name'])) == 0:
+            if len(DataGroup.objects.filter(name=group["name"])) == 0:
                 DataGroup(**group).save()
 
         initial_data_sources = [
@@ -940,152 +944,190 @@ class Command(BaseCommand):
                 "group": DataGroup.objects.get(name="Indices"),
                 "name": "S&P 500 (US)",
                 "pinned": False,
-                "yfin_tck": "^GSPC",
-                },
+                "ticker": "^GSPC",
+            },
             {
                 "group": DataGroup.objects.get(name="Indices"),
                 "name": "NASDAQ (US)",
                 "pinned": False,
-                "yfin_tck": "^IXIC",
-                },
+                "ticker": "^IXIC",
+            },
             {
                 "group": DataGroup.objects.get(name="Indices"),
                 "name": "FTSE 100 (UK)",
                 "pinned": False,
-                "yfin_tck": "^FTSE",
-                },
+                "ticker": "^FTSE",
+            },
             {
                 "group": DataGroup.objects.get(name="Indices"),
                 "name": "DAX (DE)",
                 "pinned": False,
-                "yfin_tck": "^GDAXI",
-                },
+                "ticker": "^GDAXI",
+            },
             {
                 "group": DataGroup.objects.get(name="Indices"),
                 "name": "STOXX600 (EU)",
                 "pinned": False,
-                "yfin_tck": "^STOXX",
-                },
+                "ticker": "^STOXX",
+            },
             {
                 "group": DataGroup.objects.get(name="Indices"),
                 "name": "Nikkei 225 (JP)",
                 "pinned": False,
-                "yfin_tck": "^N225",
-                },
+                "ticker": "^N225",
+            },
             {
                 "group": DataGroup.objects.get(name="Indices"),
                 "name": "Hang Seng (HK)",
                 "pinned": False,
-                "yfin_tck": "^HSI",
-                },
+                "ticker": "^HSI",
+            },
             {
                 "group": DataGroup.objects.get(name="Indices"),
                 "name": "Shenzhen (CN)",
                 "pinned": False,
-                "yfin_tck": "399001.SZ",
-                },
+                "ticker": "399001.SZ",
+            },
             {
                 "group": DataGroup.objects.get(name="Indices"),
                 "name": "Vix (Vola)",
                 "pinned": True,
-                "yfin_tck": "^VIX",
-                },
-
-
+                "ticker": "^VIX",
+            },
+            {
+                "group": DataGroup.objects.get(name="Rates"),
+                "name": "US 10Y",
+                "pinned": True,
+                "data_source": "te",
+                "ticker": "United States",
+            },
+            {
+                "group": DataGroup.objects.get(name="Rates"),
+                "name": "UK 10Y",
+                "pinned": True,
+                "data_source": "te",
+                "ticker": "United Kingdom",
+            },
+            {
+                "group": DataGroup.objects.get(name="Rates"),
+                "name": "JP 10Y",
+                "pinned": True,
+                "data_source": "te",
+                "ticker": "Japan",
+            },
+            {
+                "group": DataGroup.objects.get(name="Rates"),
+                "name": "DE 10Y",
+                "pinned": True,
+                "data_source": "te",
+                "ticker": "Germany",
+            },
+            {
+                "group": DataGroup.objects.get(name="Rates"),
+                "name": "FR 10Y",
+                "pinned": True,
+                "data_source": "te",
+                "ticker": "France",
+            },
+            {
+                "group": DataGroup.objects.get(name="Rates"),
+                "name": "IT 10Y",
+                "pinned": True,
+                "data_source": "te",
+                "ticker": "Italy",
+            },
             {
                 "group": DataGroup.objects.get(name="FX"),
                 "name": "USD",
                 "pinned": True,
-                "yfin_tck": "EURUSD=X",
-                },
+                "ticker": "EURUSD=X",
+            },
             {
                 "group": DataGroup.objects.get(name="FX"),
                 "name": "EUR",
                 "pinned": True,
-                "yfin_tck": "EUR=X",
-                },
+                "ticker": "EUR=X",
+            },
             {
                 "group": DataGroup.objects.get(name="FX"),
                 "name": "GBP",
                 "pinned": True,
-                "yfin_tck": "GBP=X",
-                },
+                "ticker": "GBP=X",
+            },
             {
                 "group": DataGroup.objects.get(name="FX"),
                 "name": "CNY",
                 "pinned": False,
-                "yfin_tck": "CNY=X",
-                },
+                "ticker": "CNY=X",
+            },
             {
                 "group": DataGroup.objects.get(name="FX"),
                 "name": "JPY",
                 "pinned": False,
-                "yfin_tck": "JPY=X",
-                },
+                "ticker": "JPY=X",
+            },
             {
                 "group": DataGroup.objects.get(name="FX"),
                 "name": "IDR",
                 "pinned": False,
-                "yfin_tck": "IDR=X",
-                },
+                "ticker": "IDR=X",
+            },
             {
                 "group": DataGroup.objects.get(name="FX"),
                 "name": "BTC",
                 "pinned": False,
-                "yfin_tck": "BTC-USD",
-                },
-
+                "ticker": "BTC-USD",
+            },
             {
                 "group": DataGroup.objects.get(name="Commodities"),
                 "name": "Gold",
                 "pinned": True,
-                "yfin_tck": "GC=F",
-                },
+                "ticker": "GC=F",
+            },
             {
                 "group": DataGroup.objects.get(name="Commodities"),
                 "name": "Crude Oil",
                 "pinned": True,
-                "yfin_tck": "CL=F",
-                },
+                "ticker": "CL=F",
+            },
             {
                 "group": DataGroup.objects.get(name="Commodities"),
                 "name": "Silver",
                 "pinned": False,
-                "yfin_tck": "SI=F",
-                },
+                "ticker": "SI=F",
+            },
             {
                 "group": DataGroup.objects.get(name="Commodities"),
                 "name": "Platinum",
                 "pinned": False,
-                "yfin_tck": "PL=F",
-                },
+                "ticker": "PL=F",
+            },
             {
                 "group": DataGroup.objects.get(name="Commodities"),
                 "name": "Copper",
                 "pinned": False,
-                "yfin_tck": "HG=F",
-                },
+                "ticker": "HG=F",
+            },
             {
                 "group": DataGroup.objects.get(name="Commodities"),
                 "name": "Palladium",
                 "pinned": False,
-                "yfin_tck": "PA=F",
-                },
+                "ticker": "PA=F",
+            },
             {
                 "group": DataGroup.objects.get(name="Commodities"),
                 "name": "Natural Gas",
                 "pinned": False,
-                "yfin_tck": "NG=F",
-                },
+                "ticker": "NG=F",
+            },
             {
                 "group": DataGroup.objects.get(name="Commodities"),
                 "name": "Brent Crude Oil",
                 "pinned": False,
-                "yfin_tck": "BZ=F",
-                },
-
-            ]
+                "ticker": "BZ=F",
+            },
+        ]
 
         for data_src in initial_data_sources:
-            if len(DataSource.objects.filter(yfin_tck=data_src['yfin_tck'])) == 0:
+            if len(DataSource.objects.filter(ticker=data_src["ticker"])) == 0:
                 DataSource(**data_src).save()

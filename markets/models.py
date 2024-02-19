@@ -18,11 +18,16 @@ class DataSource(models.Model):
     name = models.CharField(max_length=200)
     pinned = models.BooleanField(default=False)
 
-    yfin_tck = models.CharField(max_length=20)
+    DATA_SRC = [
+        ("yfin", "Yahoo Finance"),
+        ("te", "Trading Economics"),
+    ]
+    data_source = models.CharField(max_length=4, choices=DATA_SRC, default="yfin")
+    ticker = models.CharField(max_length=20)
 
     def __str__(self):
         """print-out representation of individual model entry"""
-        return f"{self.name} ({self.yfin_tck} / {self.group})"
+        return f"{self.name} ({self.ticker} / {self.group})"
 
 
 class DataEntry(models.Model):
