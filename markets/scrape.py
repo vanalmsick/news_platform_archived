@@ -1,10 +1,12 @@
 """Data scraping for Market Data i.e. Stock/FX/Comm prices"""
+import datetime
 from io import StringIO
 
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.core.cache import cache
 
 from .models import DataEntry, DataSource
@@ -135,6 +137,13 @@ def scrape_market_data():
         if i.source.group not in final_data:
             final_data[i.source.group] = []
         final_data[i.source.group].append(i)
+
+    # delete market data older than 45 days
+    DataEntry.objects.filter(
+        ref_date_time__lte=settings.TIME_ZONE_OBJ.localize(
+            datetime.datetime.now() - datetime.timedelta(days=45)
+        )
+    ).delete()
 
     print("Market Data was successfully refreshed.")
 
