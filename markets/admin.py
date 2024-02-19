@@ -24,7 +24,7 @@ class DataSourceAdmin(ImportExportModelAdmin):
         "group",
         "name",
         "pinned",
-        "yfin_tck",
+        "ticker",
     ]
     ordering = ("group__position", "-pinned", "name")
     resource_classes = [DataSource]

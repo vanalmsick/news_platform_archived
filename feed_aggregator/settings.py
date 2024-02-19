@@ -57,8 +57,8 @@ INSTALLED_APPS = [
     "articles",
     "feeds",
     "preferences",
-    "market_data"
-    ]
+    "markets",
+]
 
 
 REST_FRAMEWORK = {
@@ -87,6 +87,8 @@ MIDDLEWARE = [
 MIGRATION_MODULES = {
     "articles": "data.db_migrations.articles",
     "feeds": "data.db_migrations.feeds",
+    "preferences": "data.db_migrations.preferences",
+    "markets": "data.db_migrations.markets",
 }
 
 ROOT_URLCONF = "feed_aggregator.urls"

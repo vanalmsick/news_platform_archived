@@ -10,6 +10,62 @@ from django.core.cache import cache
 from .models import DataEntry, DataSource
 
 
+def __get_bonds(tickers, headers={"User-agent": "Mozilla/5.0"}):
+    site = "https://tradingeconomics.com/bonds"
+    reponse = requests.get(site, headers=headers).text
+    soup = BeautifulSoup(reponse, "lxml")
+
+    span = soup.find("span", {"class": "market-negative-image"})
+    while span is not None:
+        new_tag = soup.new_tag("span")
+        new_tag.string = "-"
+        span.replace_with(new_tag)
+        span = soup.find("span", {"class": "market-negative-image"})
+
+    tables = pd.read_html(StringIO(str(soup)))
+    data = tables[0].iloc[:, 1:].set_index("Major10Y").to_dict(orient="index")
+
+    latest_data = []
+    if len(tickers) > 0:
+        for ticker in tickers:
+            if ticker.ticker in data:
+                data_yield = (
+                    float(
+                        "".join(
+                            [
+                                i
+                                for i in data[ticker.ticker]["Yield"]
+                                if i.isdigit() or i == "-" or i == "."
+                            ]
+                        )
+                    )
+                    if type(data[ticker.ticker]["Yield"]) is str
+                    else data[ticker.ticker]["Yield"]
+                )
+                data_day = (
+                    float(
+                        "".join(
+                            [
+                                i
+                                for i in data[ticker.ticker]["Day"]
+                                if i.isdigit() or i == "-" or i == "."
+                            ]
+                        )
+                    )
+                    if type(data[ticker.ticker]["Day"]) is str
+                    else data[ticker.ticker]["Day"]
+                )
+                obj = DataEntry(
+                    source=ticker,
+                    price=data_yield,
+                    change_today=data_day,
+                )
+                obj.save()
+                latest_data.append(obj.pk)
+
+    return latest_data
+
+
 def __get_quote_table(ticker, headers={"User-agent": "Mozilla/5.0"}):
     """Scrape Market Data from Yahoo Finance"""
 
@@ -49,13 +105,15 @@ def __get_quote_table(ticker, headers={"User-agent": "Mozilla/5.0"}):
 
 def scrape_market_data():
     """Get all data sources, scrape the data from the web, and update cached market data."""
-    all_scources = DataSource.objects.all()
-    latest_data = []
 
     print("Refreshing Market Data...")
 
+    all_scources = DataSource.objects.exclude(data_source="yfin")
+    latest_data = __get_bonds(all_scources)
+
+    all_scources = DataSource.objects.filter(data_source="yfin")
     for data_src in all_scources:
-        summary_box = __get_quote_table(data_src.yfin_tck)
+        summary_box = __get_quote_table(data_src.ticker)
         obj = DataEntry(
             source=data_src,
             price=summary_box["regularMarketPrice"],

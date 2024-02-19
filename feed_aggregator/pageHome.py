@@ -10,13 +10,12 @@ from django.template.defaulttags import register
 from articles.models import Article
 from feed_scraper.feed_scraper import update_feeds
 from feed_scraper.video_scraper import update_videos
-from market_data.scrape import scrape_market_data
+from markets.scrape import scrape_market_data
 from preferences.models import get_pages
 
 from .celery import app
 from .pageAPI import get_article_data, get_articles
 from .pageLogin import LoginView
-
 
 
 @register.filter(name="split")
