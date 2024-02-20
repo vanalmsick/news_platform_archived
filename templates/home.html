@@ -171,10 +171,10 @@
     <!-- Main website -->
     <div id="mainSpace" style="text-align: left;">
 
-        <div id="topSpace" class="container mb-3">
+        <div id="topSpace" class="container mb-3"  style="overflow-x: scroll; white-space: nowrap;">
             {% for group, entry_lst in marketData.items %}
                 <div class="row">
-                    <div class="col-md-12" style="overflow-x: scroll; white-space: nowrap;">
+                    <div class="col-md-12">
                         <div class="my-div bg-body shadow-sm p-2 fw-bold" style="margin: 4px 1px;">
                             {{ group.name }}
                         </div>
