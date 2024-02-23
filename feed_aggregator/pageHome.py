@@ -157,7 +157,7 @@ def refresh_feeds():
             {"content_type": ["video"]},
         ]
         for kwargs in views_to_cache:
-            _, _ = get_articles(**kwargs)
+            _, _, _ = get_articles(**kwargs)
 
         update_feeds()
         if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
@@ -173,7 +173,7 @@ def refresh_feeds():
         if cached_views_lst is None:
             cached_views_lst = {i: j for i, j in enumerate(views_to_cache)}
         for kwargs_hash, kwargs in cached_views_lst.items():
-            _, _ = get_articles(force_recache=True, **kwargs)
+            _, _, _ = get_articles(force_recache=True, **kwargs)
 
         # Update marekt data
         scrape_market_data()
@@ -231,12 +231,12 @@ def homeView(request):
         )
 
     # Get Homepage
-    kwargs_hash, articles = (
+    kwargs_hash, articles, page_num = (
         get_articles(categories="frontpage")
         if len(request.GET) == 0
         else get_articles(**request.GET)
     )
-    _, sidebar = get_articles(special="sidebar", max_length=100)
+    _, sidebar, _ = get_articles(special="sidebar", max_length=100)
     lastRefreshed = cache.get("lastRefreshed")
     latestMarketData = cache.get("latestMarketData")
     html_nav_bar = get_pages(recache=False)
@@ -249,6 +249,15 @@ def homeView(request):
             "sidebar": sidebar,
             "marketData": latestMarketData,
             "platform_name": settings.CUSTOM_PLATFORM_NAME,
+            "page_pagination": (
+                {
+                    page_num - 1: "",
+                    page_num: "active",
+                    page_num + 1: "disabled" if len(articles) < 72 else "",
+                }
+                if page_num > 1
+                else {1: "active", 2: "", 3: ""}
+            ),
             "lastRefreshed": (
                 "Never"
                 if lastRefreshed is None

@@ -304,6 +304,14 @@
                         {% endfor %}
                     </div>
 
+                    <nav>
+                        <ul class="pagination  justify-content-center">
+                            {% for page_num, page_class in page_pagination.items %}
+                                <li class="page-item"><a class="page-link {{ page_class }}" onclick="changePage({{ page_num }})">{{ page_num }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+
                 </div>
             </div>
         </div>
@@ -609,6 +617,14 @@
     function topFunction() {
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
+    }
+
+    function changePage(page) {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        urlParams.set('page', page);
+
+        window.location.search = urlParams;
     }
 
 
