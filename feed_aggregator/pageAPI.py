@@ -107,6 +107,7 @@ def get_article_data(pk, debug=False):
 def get_articles(max_length=72, force_recache=False, **kwargs):
     """Gets artcile request by user either from database or from cache"""
     kwargs_hash, kwargs = url_parm_encode(**kwargs)
+    page_num = max(int(kwargs.pop("page", ["1"])[0]), 1) - 1
 
     articles = cache.get(kwargs_hash)
 
@@ -185,11 +186,13 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                     ),
                 )
             )
-        if max_length is not None and len(articles) > max_length:
-            articles = articles[:max_length]
-        cache.set(kwargs_hash, articles, 60 * 60 * 48)
+        if max_length is not None:
+            lower_bound = page_num * max_length
+            upper_bound = min((page_num + 1) * max_length, len(articles))
+            articles = articles[lower_bound:upper_bound]
+        cache.set(kwargs_hash, articles, 60 * 60 * 48 if page_num == 0 else 10 * 60)
         print(f"Got {kwargs_hash} from database and cached it")
-    return kwargs_hash, articles
+    return kwargs_hash, articles, page_num + 1
 
 
 class RestArticleView(APIView):
@@ -219,7 +222,7 @@ def ReadLaterView(request, action, pk):
             [].items() if cached_views_lst is None else cached_views_lst.items()
         ):
             if "read_later" in kwargs_hash:
-                _, _ = get_articles(force_recache=True, **kwargs)
+                _, _, _ = get_articles(force_recache=True, **kwargs)
 
         return redirect("/")
 
