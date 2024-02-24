@@ -161,6 +161,11 @@ PWA_APP_SCOPE = "/"
 PWA_APP_START_URL = "/"
 PWA_APP_ORIENTATION = "any"
 PWA_APP_ICONS = [{"src": "/static/apple-touch-icon.png", "sizes": "180x180"}]
+PWA_APP_SHORTCUTS = [
+    {"name": "Frontpage", "url": "/?categories=frontpage"},
+    {"name": "Sidebar", "url": "/?categories=sidebar"},
+    {"name": "Read Later", "url": "/?read_later=true"},
+]
 PWA_APP_SPLASH_SCREEN = [
     {
         "rel": "apple-touch-startup-image",
