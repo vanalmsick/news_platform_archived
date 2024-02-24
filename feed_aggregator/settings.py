@@ -165,91 +165,16 @@ PWA_APP_SPLASH_SCREEN = [
     {
         "rel": "apple-touch-startup-image",
         "media": (
-            "(device-width: 390px) and (device-height: 663px) and"
-            " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+            f"(device-width: {f.split('_')[1]}px) and (device-height:"
+            f" {f.split('_')[2]}px) and (-webkit-device-pixel-ratio:"
+            f" {f.split('_')[3].split('.')[0]}) and (orientation: portrait)"
         ),
-        "src": "/static/splashscreens/iphone12_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 320px) and (device-height: 568px) and"
-            " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/iphone5_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 375px) and (device-height: 667px) and"
-            " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/iphone6_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 621px) and (device-height: 1104px) and"
-            " (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/iphoneplus_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 375px) and (device-height: 812px) and"
-            " (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/iphonex_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 414px) and (device-height: 896px) and"
-            " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/iphonexr_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 414px) and (device-height: 896px) and"
-            " (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/iphonexsmax_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 768px) and (device-height: 1024px) and"
-            " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/ipad_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 834px) and (device-height: 1112px) and"
-            " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/ipadpro1_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 834px) and (device-height: 1194px) and"
-            " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/ipadpro3_splash.png",
-    },
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            "(device-width: 1024px) and (device-height: 1366px) and"
-            " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        ),
-        "src": "/static/splashscreens/ipadpro2_splash.png",
-    },
+        "src": f"/static/splashscreens/{f}",
+    }
+    for f in os.listdir("./static/splashscreens")
+    if os.path.isfile(os.path.join("./static/splashscreens", f))
+    and ".png" in f
+    and len(f.split("_")) == 4
 ]
 PWA_APP_DIR = "ltr"
 

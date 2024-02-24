@@ -5,10 +5,13 @@ import os
 import sys
 import warnings
 
+from feed_aggregator.pwa_splash_screen_generator import create
+
 
 def __ensure_db_migration_folders_exist():
     """Ensure that init files exist in the data dir for the migration files."""
     init_files = [
+        "static/splashscreens/__init__.py",
         "data/__init__.py",
         "data/db_migrations/__init__.py",
         "data/db_migrations/articles/__init__.py",
@@ -42,6 +45,7 @@ if __name__ == "__main__":
     INITIAL_ARGV = sys.argv.copy()
 
     __ensure_db_migration_folders_exist()
+    create()
 
     if os.environ.get("RUN_MAIN", "false") == "false":
         print(
