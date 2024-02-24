@@ -6,6 +6,7 @@ from PIL import Image
 IPONE_SCREENS = [
     dict(width=1024, height=1366, scale=2),
     dict(width=834, height=1194, scale=2),
+    dict(width=834, height=1115, scale=2),
     dict(width=834, height=1112, scale=2),
     dict(width=810, height=1080, scale=2),
     dict(width=768, height=1024, scale=2),

@@ -162,9 +162,17 @@ PWA_APP_START_URL = "/"
 PWA_APP_ORIENTATION = "any"
 PWA_APP_ICONS = [{"src": "/static/apple-touch-icon.png", "sizes": "180x180"}]
 PWA_APP_SHORTCUTS = [
-    {"name": "Frontpage", "url": "/?categories=frontpage"},
-    {"name": "Sidebar", "url": "/?categories=sidebar"},
-    {"name": "Read Later", "url": "/?read_later=true"},
+    {
+        "name": "Frontpage",
+        "url": "/?categories=frontpage",
+        "description": "Frontpage News",
+    },
+    {"name": "Sidebar", "url": "/?categories=sidebar", "description": "Newsticker"},
+    {
+        "name": "Read Later",
+        "url": "/?read_later=true",
+        "description": "Articles saved for reading later",
+    },
 ]
 PWA_APP_SPLASH_SCREEN = [
     {
