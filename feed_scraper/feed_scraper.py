@@ -669,7 +669,7 @@ def fetch_feed_new(feed):
                     "body": f"{article_obj.title}",
                     "url": f"{settings.MAIN_HOST}/?article={article_obj.pk}",
                 },
-                ttl=60,
+                ttl=60 * 30,  # keep 30 minutes on server
             )
 
     print(
