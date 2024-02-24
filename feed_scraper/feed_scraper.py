@@ -27,6 +27,7 @@ from linkpreview.exceptions import (
     MaximumContentSizeError,
 )
 from openai import OpenAI
+from webpush import send_group_notification
 
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher
@@ -640,6 +641,10 @@ def fetch_feed_new(feed):
         feed_position.save()
 
         article_obj.feed_position.add(feed_position)
+
+        # check if important news for push notification
+        if settings.WEBPUSH_SETTINGS["VAPID_PUBLIC_KEY"] is not None and 'sidebar' in article_obj.categories and (article_obj.publisher.renowned >= 2 or article_obj.type == 'breaking') and (settings.TIME_ZONE_OBJ.localize(datetime.datetime.now()) - article_obj.added_date).total_seconds() / 60 < 15:
+            send_group_notification(group_name="all", payload={"head": f"{article_obj.publisher.name}", "body": f"{article_obj.title}", "url": f"{settings.MAIN_HOST}/?article={article_obj.pk}"}, ttl=60)
 
     print(
         f"Refreshed {feed} with {added_articles} new articles out of"

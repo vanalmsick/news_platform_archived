@@ -249,6 +249,7 @@ def homeView(request):
             "sidebar": sidebar,
             "marketData": latestMarketData,
             "platform_name": settings.CUSTOM_PLATFORM_NAME,
+            "webpush": {"group": "all" },
             "page_pagination": (
                 {
                     page_num - 1: "",

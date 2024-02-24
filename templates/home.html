@@ -35,6 +35,8 @@
                             More
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            {% load webpush_notifications %}
+                            {% webpush_button with_class="dropdown-item link-dark" %}
                             <a class="dropdown-item link-dark" href="/login/">Login</a>
                             <a class="dropdown-item link-dark" href="/admin/">Admin</a>
                             <div class="dropdown-divider"></div>
