@@ -44,7 +44,7 @@ def create():
             y = (image.height - logo.height) // 2 - logo.height // 2
 
             # Draw the text in the middle
-            image.paste(logo, (x, y))
+            image.paste(logo, (x, y), logo)
 
             # Save the image
             image.save(file_name)

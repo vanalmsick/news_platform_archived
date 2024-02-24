@@ -165,7 +165,6 @@ PWA_APP_SPLASH_SCREEN = [
     {
         "rel": "apple-touch-startup-image",
         "media": (
-            "screen and "
             f"(device-width: {int(width)*int(scale)}px) and "
             f"(device-height: {int(height)*int(scale)}px) and "
             f"(-webkit-device-pixel-ratio: {scale}) and "
