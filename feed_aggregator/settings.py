@@ -165,6 +165,14 @@ PWA_APP_SPLASH_SCREEN = [
     {
         "rel": "apple-touch-startup-image",
         "media": (
+            "(device-width: 390px) and (device-height: 663px) and"
+            " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        ),
+        "src": "/static/splashscreens/iphone12_splash.png",
+    },
+    {
+        "rel": "apple-touch-startup-image",
+        "media": (
             "(device-width: 320px) and (device-height: 568px) and"
             " (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
         ),
