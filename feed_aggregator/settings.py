@@ -165,7 +165,7 @@ PWA_APP_SPLASH_SCREEN = [
     {
         "src": "/static/apple-touch-icon.png",
         "media": (
-            "(device-width: 320px) and (device-height: 568px) and"
+            "(device-width: 390px) and (device-height: 844px) and"
             " (-webkit-device-pixel-ratio: 2)"
         ),
     }
