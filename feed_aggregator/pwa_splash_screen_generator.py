@@ -11,6 +11,17 @@ IPONE_SCREENS = [
     dict(width=375, height=812, scale=3),  # 12 & 13 Mini
     dict(width=414, height=896, scale=3),  # X & 12 Max
     dict(width=375, height=812, scale=3),  # X & 11
+    dict(width=414, height=896, scale=2),
+    dict(width=414, height=896, scale=2),
+    dict(width=414, height=896, scale=3),
+    dict(width=375, height=812, scale=3),
+    dict(width=414, height=736, scale=3),
+    dict(width=375, height=667, scale=2),
+    dict(width=1024, height=1366, scale=2),
+    dict(width=834, height=1112, scale=2),
+    dict(width=320, height=568, scale=2),
+    dict(width=834, height=1194, scale=2),
+    dict(width=768, height=1024, scale=2),
 ]
 
 
