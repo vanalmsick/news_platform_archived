@@ -175,9 +175,9 @@ PWA_APP_SPLASH_SCREEN = [
     for file, width, height, scale in [
         (
             f,
-            int(f.split("_")[0]),
             int(f.split("_")[1]),
-            int(f.split("_")[2].split(".")[0]),
+            int(f.split("_")[2]),
+            int(f.split("_")[3].split(".")[0]),
         )
         for f in os.listdir("./static/splashscreens")
         if os.path.isfile(os.path.join("./static/splashscreens", f))
