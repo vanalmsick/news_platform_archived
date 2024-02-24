@@ -163,12 +163,75 @@ PWA_APP_ORIENTATION = "any"
 PWA_APP_ICONS = [{"src": "/static/apple-touch-icon.png", "sizes": "180x180"}]
 PWA_APP_SPLASH_SCREEN = [
     {
-        "src": "/static/apple-touch-icon.png",
+        "src": "/static/splashscreens/iphone5_splash.png",
         "media": (
-            "(device-width: 390px) and (device-height: 844px) and"
+            "(device-width: 320px) and (device-height: 568px) and"
             " (-webkit-device-pixel-ratio: 2)"
         ),
-    }
+    },
+    {
+        "src": "/static/splashscreens/iphone6_splash.png",
+        "media": (
+            "(device-width: 375px) and (device-height: 667px) and"
+            " (-webkit-device-pixel-ratio: 2)"
+        ),
+    },
+    {
+        "src": "/static/splashscreens/iphoneplus_splash.png",
+        "media": (
+            "(device-width: 621px) and (device-height: 1104px) and"
+            " (-webkit-device-pixel-ratio: 3)"
+        ),
+    },
+    {
+        "src": "/static/splashscreens/iphonex_splash.png",
+        "media": (
+            "(device-width: 375px) and (device-height: 812px) and"
+            " (-webkit-device-pixel-ratio: 3)"
+        ),
+    },
+    {
+        "src": "/static/splashscreens/iphonexr_splash.png",
+        "media": (
+            "(device-width: 414px) and (device-height: 896px) and"
+            " (-webkit-device-pixel-ratio: 2)"
+        ),
+    },
+    {
+        "src": "/static/splashscreens/iphonexsmax_splash.png",
+        "media": (
+            "(device-width: 414px) and (device-height: 896px) and"
+            " (-webkit-device-pixel-ratio: 3)"
+        ),
+    },
+    {
+        "src": "/static/splashscreens/ipad_splash.png",
+        "media": (
+            "(device-width: 768px) and (device-height: 1024px) and"
+            " (-webkit-device-pixel-ratio: 2)"
+        ),
+    },
+    {
+        "src": "/static/splashscreens/ipadpro1_splash.png",
+        "media": (
+            "(device-width: 834px) and (device-height: 1112px) and"
+            " (-webkit-device-pixel-ratio: 2)"
+        ),
+    },
+    {
+        "src": "/static/splashscreens/ipadpro3_splash.png",
+        "media": (
+            "(device-width: 834px) and (device-height: 1194px) and"
+            " (-webkit-device-pixel-ratio: 2)"
+        ),
+    },
+    {
+        "src": "/static/splashscreens/ipadpro2_splash.png",
+        "media": (
+            "(device-width: 1024px) and (device-height: 1366px) and"
+            " (-webkit-device-pixel-ratio: 2)"
+        ),
+    },
 ]
 PWA_APP_DIR = "ltr"
 
