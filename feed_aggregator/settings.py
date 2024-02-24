@@ -165,12 +165,12 @@ PWA_APP_SPLASH_SCREEN = [
     {
         "rel": "apple-touch-startup-image",
         "media": (
-            f"(device-width: {int(width)*int(scale)}px) and "
-            f"(device-height: {int(height)*int(scale)}px) and "
+            f"(device-width: {int(width)}px) and "
+            f"(device-height: {int(height)}px) and "
             f"(-webkit-device-pixel-ratio: {scale}) and "
             f"(orientation: {'landscape' if int(width) > int(height) else 'portrait'})"
         ),
-        "src": f"/static/splashscreens/{file}",
+        "src": f"static/splashscreens/{file}",
     }
     for file, width, height, scale in [
         (
