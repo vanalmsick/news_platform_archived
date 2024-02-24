@@ -165,16 +165,25 @@ PWA_APP_SPLASH_SCREEN = [
     {
         "rel": "apple-touch-startup-image",
         "media": (
-            f"(device-width: {f.split('_')[1]}px) and (device-height:"
-            f" {f.split('_')[2]}px) and (-webkit-device-pixel-ratio:"
-            f" {f.split('_')[3].split('.')[0]}) and (orientation: portrait)"
+            f"(device-width: {int(width)*int(scale)}px) and "
+            f"(device-height: {int(height)*int(scale)}px) and "
+            f"(-webkit-device-pixel-ratio: {scale}) and "
+            f"(orientation: {'landscape' if int(width) > int(height) else 'portrait'})"
         ),
-        "src": f"/static/splashscreens/{f}",
+        "src": f"/static/splashscreens/{file}",
     }
-    for f in os.listdir("./static/splashscreens")
-    if os.path.isfile(os.path.join("./static/splashscreens", f))
-    and ".png" in f
-    and len(f.split("_")) == 4
+    for file, width, height, scale in [
+        (
+            f,
+            int(f.split("_")[0]),
+            int(f.split("_")[1]),
+            int(f.split("_")[2].split(".")[0]),
+        )
+        for f in os.listdir("./static/splashscreens")
+        if os.path.isfile(os.path.join("./static/splashscreens", f))
+        and ".png" in f
+        and len(f.split("_")) == 4
+    ]
 ]
 PWA_APP_DIR = "ltr"
 
