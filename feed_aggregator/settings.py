@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "django_extensions",
     "djoser",
-    'webpush',
+    "webpush",
+    "pwa",
     "articles",
     "feeds",
     "preferences",
@@ -153,7 +154,26 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = "en-uk"
+PWA_APP_THEME_COLOR = "#dee2e6"
+PWA_APP_BACKGROUND_COLOR = "#ffffff"
+PWA_APP_DISPLAY = "standalone"
+PWA_APP_SCOPE = "/"
+PWA_APP_START_URL = "/"
+PWA_APP_ORIENTATION = "any"
+PWA_APP_ICONS = [{"src": "/static/apple-touch-icon.png", "sizes": "180x180"}]
+PWA_APP_SPLASH_SCREEN = [
+    {
+        "src": "/static/apple-touch-icon.png",
+        "media": (
+            "(device-width: 320px) and (device-height: 568px) and"
+            " (-webkit-device-pixel-ratio: 2)"
+        ),
+    }
+]
+PWA_APP_DIR = "ltr"
+
+
+PWA_APP_LANG = LANGUAGE_CODE = "en-uk"
 ALLOWED_LANGUAGES = os.getenv("ALLOWED_LANGUAGES", "*")
 SIDEBAR_TITLE = os.getenv("SIDEBAR_TITLE", "Latest News")
 
@@ -196,11 +216,13 @@ CACHES = {
 WEBPUSH_SETTINGS = {
     "VAPID_PUBLIC_KEY": os.environ.get("WEBPUSH_PUBLIC_KEY"),
     "VAPID_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY"),
-    "VAPID_ADMIN_EMAIL": "admin@example.com"
+    "VAPID_ADMIN_EMAIL": "admin@example.com",
 }
 
 # Custom Variables
 FULL_TEXT_URL = os.environ.get("FULL_TEXT_URL")
 FEED_CREATOR_URL = os.environ.get("FEED_CREATOR_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-CUSTOM_PLATFORM_NAME = os.getenv("CUSTOM_PLATFORM_NAME", "Personal News Platform")
+PWA_APP_DESCRIPTION = PWA_APP_NAME = CUSTOM_PLATFORM_NAME = os.getenv(
+    "CUSTOM_PLATFORM_NAME", "Personal News Platform"
+)

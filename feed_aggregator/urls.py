@@ -29,7 +29,8 @@ urlpatterns = [
     path("", homeView, name="home"),
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
-    path('webpush/', include('webpush.urls'))
+    path("webpush/", include("webpush.urls")),
+    path("", include("pwa.urls")),
     # path('restapi/v1/accounts/', transactions.api_views.AccountList.as_view()),
     # path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('favicon.ico')))
 ]

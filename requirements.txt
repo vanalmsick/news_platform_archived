@@ -23,4 +23,5 @@ celery
 flower
 celery[redis]
 django-webpush
+django-pwa
 #Werkzeug
