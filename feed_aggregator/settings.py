@@ -33,6 +33,7 @@ DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
 DEBUG = True
 print(f'Debug modus is turned {"on" if DEBUG else "off"}')
 
+MAIN_HOST = os.environ.get("MAIN_HOST", "http://localhost")
 HOSTS = os.environ.get("HOSTS", "http://localhost,http://127.0.0.1/").split(",")
 CSRF_TRUSTED_ORIGINS = HOSTS
 ALLOWED_HOSTS = [urlparse(url).netloc for url in HOSTS]
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "django_extensions",
     "djoser",
+    'webpush',
     "articles",
     "feeds",
     "preferences",
@@ -188,6 +190,13 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://localhost:6379",
     }
+}
+
+# Webpush
+WEBPUSH_SETTINGS = {
+    "VAPID_PUBLIC_KEY": os.environ.get("WEBPUSH_PUBLIC_KEY"),
+    "VAPID_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY"),
+    "VAPID_ADMIN_EMAIL": "admin@example.com"
 }
 
 # Custom Variables
