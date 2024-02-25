@@ -643,8 +643,12 @@ def fetch_feed_new(feed):
         article_obj.feed_position.add(feed_position)
 
         # check if important news for push notification
+        max_article_importance = FeedPosition.objects.filter(
+            article=article_obj
+        ).aggregate(Max("importance"))["importance__max"]
+        notifications_sent = cache.get("notifications_sent", [])
         if (
-            settings.WEBPUSH_SETTINGS["VAPID_PUBLIC_KEY"] is not None
+            article_obj.pk not in notifications_sent
             and (
                 (
                     "sidebar" in str(article_obj.categories).lower()
@@ -654,6 +658,7 @@ def fetch_feed_new(feed):
                     "frontpage" in str(article_obj.categories).lower()
                     and article_obj.type == "breaking"
                 )
+                or (max_article_importance > 3 and article_obj.publisher.renowned >= 2)
             )
             and (
                 settings.TIME_ZONE_OBJ.localize(datetime.datetime.now())
@@ -670,6 +675,13 @@ def fetch_feed_new(feed):
                     "url": f"{settings.MAIN_HOST}/?article={article_obj.pk}",
                 },
                 ttl=60 * 30,  # keep 30 minutes on server
+            )
+            cache.set(
+                "notifications_sent", notifications_sent + [article_obj.pk], 3600 * 1000
+            )
+            print(
+                f"Web Push Notification sent for ({article_obj.pk})"
+                f" {article_obj.publisher.name} - {article_obj.title}"
             )
 
     print(
