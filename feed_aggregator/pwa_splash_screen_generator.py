@@ -15,6 +15,7 @@ IPONE_SCREENS = [
     dict(width=640, height=940, scale=1),  # test
     dict(width=430, height=932, scale=3),
     dict(width=428, height=926, scale=3),
+    dict(width=418, height=1024, scale=2),  # test
     dict(width=414, height=896, scale=3),
     dict(width=414, height=896, scale=2),
     dict(width=414, height=736, scale=3),
