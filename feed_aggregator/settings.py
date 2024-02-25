@@ -26,7 +26,9 @@ load_dotenv("data/.env")
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-ut^e0pt(8g)wzhok&0hjitv#)c^pcq=#0jj9nx0vx%w_xslr(3"
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "django-insecure-ut^e0pt(8g)wzhok&0hjitv#)c^pcq=#0jj9nx0vx%w_xslr(3"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
@@ -201,7 +203,7 @@ PWA_APP_SPLASH_SCREEN = [
 PWA_APP_DIR = "ltr"
 
 
-PWA_APP_LANG = LANGUAGE_CODE = "en-uk"
+PWA_APP_LANG = LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "en-uk")
 ALLOWED_LANGUAGES = os.getenv("ALLOWED_LANGUAGES", "*")
 SIDEBAR_TITLE = os.getenv("SIDEBAR_TITLE", "Latest News")
 
@@ -242,8 +244,13 @@ CACHES = {
 
 # Webpush
 WEBPUSH_SETTINGS = {
-    "VAPID_PUBLIC_KEY": os.environ.get("WEBPUSH_PUBLIC_KEY"),
-    "VAPID_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY"),
+    "VAPID_PUBLIC_KEY": os.environ.get(
+        "WEBPUSH_PUBLIC_KEY",
+        "BBo5KGjBBVbVmExjdzYybDz8fHn2U7H37Sy88cPt8vb92jWTtFQ8wVeMYweOgC5s4TMkH5XPXPG-WdMxtOXL5dQ",
+    ),
+    "VAPID_PRIVATE_KEY": os.environ.get(
+        "WEBPUSH_PRIVATE_KEY", "0anK-34GkEU-sgRJ5nlam-zH0QtHXYH2xJxzm3a9twg"
+    ),
     "VAPID_ADMIN_EMAIL": "admin@example.com",
 }
 
