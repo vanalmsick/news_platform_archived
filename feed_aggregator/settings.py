@@ -176,30 +176,34 @@ PWA_APP_SHORTCUTS = [
         "description": "Articles saved for reading later",
     },
 ]
-PWA_APP_SPLASH_SCREEN = [
-    {
-        "rel": "apple-touch-startup-image",
-        "media": (
-            f"(device-width: {min(int(width),int(height))}px) and "
-            f"(device-height: {max(int(width),int(height))}px) and "
-            f"(-webkit-device-pixel-ratio: {scale}) and "
-            f"(orientation: {'landscape' if int(width) > int(height) else 'portrait'})"
-        ),
-        "src": f"static/splashscreens/{file}",
-    }
-    for file, width, height, scale in [
-        (
-            f,
-            int(f.split("_")[1]),
-            int(f.split("_")[2]),
-            int(f.split("_")[3].split(".")[0]),
-        )
-        for f in os.listdir("./static/splashscreens")
-        if os.path.isfile(os.path.join("./static/splashscreens", f))
-        and ".png" in f
-        and len(f.split("_")) == 4
+PWA_APP_SPLASH_SCREEN = (
+    [
+        {
+            "rel": "apple-touch-startup-image",
+            "media": (
+                f"(device-width: {min(int(width),int(height))}px) and (device-height:"
+                f" {max(int(width),int(height))}px) and (-webkit-device-pixel-ratio:"
+                f" {scale}) and (orientation:"
+                f" {'landscape' if int(width) > int(height) else 'portrait'})"
+            ),
+            "src": f"static/splashscreens/{file}",
+        }
+        for file, width, height, scale in [
+            (
+                f,
+                int(f.split("_")[1]),
+                int(f.split("_")[2]),
+                int(f.split("_")[3].split(".")[0]),
+            )
+            for f in os.listdir("./static/splashscreens")
+            if os.path.isfile(os.path.join("./static/splashscreens", f))
+            and ".png" in f
+            and len(f.split("_")) == 4
+        ]
     ]
-]
+    if os.path.isdir("./static/splashscreens")
+    else []
+)
 PWA_APP_DIR = "ltr"
 
 
