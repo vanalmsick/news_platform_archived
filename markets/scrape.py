@@ -8,6 +8,8 @@ import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Q
+from webpush import send_group_notification
 
 from .models import DataEntry, DataSource
 
@@ -132,6 +134,53 @@ def scrape_market_data():
     latest_data = DataEntry.objects.filter(pk__in=latest_data).order_by(
         "source__group__position", "-source__pinned", "change_today"
     )
+
+    # Notify user of large daily changes
+    notifications_sent = cache.get("market_notifications_sent", {})
+    notifications = latest_data.filter(market_closed=False).filter(
+        (
+            Q(source__data_source="yfin")
+            & (Q(change_today__gte=5) | Q(change_today__lte=-5))
+        )
+        | (
+            Q(source__data_source="te")
+            & (Q(change_today__gte=25) | Q(change_today__lte=-25))
+        )
+    )
+    for notification in notifications:
+        if notification.source.pk not in notifications_sent or (
+            datetime.date.today() != notifications_sent[notification.source.pk]
+        ):
+            send_group_notification(
+                group_name="all",
+                payload={
+                    "head": "Market Alert",
+                    "body": (
+                        f"{notification.source.group.name}: {notification.source.name} "
+                        f" {'{0:.2f}'.format(notification.change_today)}"
+                        f"{'%' if notification.source.data_source == 'yfin' else 'bps'}"
+                    ),
+                    "url": (
+                        "https://finance.yahoo.com/quote/"
+                        + notification.source.ticker
+                        + "?p="
+                        + notification.source.ticker
+                        if notification.source.data_source == "yfin"
+                        else (
+                            f"https://tradingeconomics.com/{notification.source.ticker.lower().replace(' ', '-')}"
+                            "/government-bond-yield"
+                        )
+                    ),
+                },
+                ttl=60 * 90,  # keep 90 minutes on server
+            )
+            print(
+                f"Web Push Notification sent for ({notification.source.pk}) Market"
+                f" Alert - {notification.source.name}"
+            )
+            notifications_sent[notification.source.pk] = datetime.date.today()
+            cache.set("market_notifications_sent", notifications_sent, 3600 * 1000)
+
     final_data = {}
     for i in latest_data:
         if i.source.group not in final_data:

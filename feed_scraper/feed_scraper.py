@@ -503,7 +503,7 @@ def fetch_feed_new(feed):
                         else article_obj.link
                     ),
                 },
-                ttl=60 * 30,  # keep 30 minutes on server
+                ttl=60 * 90,  # keep 90 minutes on server
             )
             cache.set(
                 "notifications_sent", notifications_sent + [article_obj.pk], 3600 * 1000
