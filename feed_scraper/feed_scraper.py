@@ -643,9 +643,6 @@ def fetch_feed_new(feed):
         article_obj.feed_position.add(feed_position)
 
         # check if important news for push notification
-        max_article_importance = FeedPosition.objects.filter(
-            article=article_obj
-        ).aggregate(Max("importance"))["importance__max"]
         notifications_sent = cache.get("notifications_sent", [])
         if (
             article_obj.pk not in notifications_sent
@@ -658,7 +655,11 @@ def fetch_feed_new(feed):
                     "frontpage" in str(article_obj.categories).lower()
                     and article_obj.type == "breaking"
                 )
-                or (max_article_importance > 3 and article_obj.publisher.renowned >= 2)
+                or (
+                    article_obj.max_importance > 3
+                    and article_obj.min_feed_position <= 5
+                    and article_obj.publisher.renowned >= 2
+                )
             )
             and (
                 settings.TIME_ZONE_OBJ.localize(datetime.datetime.now())
