@@ -451,12 +451,24 @@ class ScrapedArticle:
                 figure["class"] = "figure"
             for figcaption in soup.find_all("figcaption"):
                 figcaption["class"] = "figure-caption"
+            for span in soup.find_all("span"):
+                if hasattr(span, "data-caps"):
+                    span["class"] = "h3"
             for a in soup.find_all("a"):
                 a["target"] = "_blank"
                 a["referrerpolicy"] = "no-referrer"
             for link in soup.find_all("link"):
                 if link is not None:
                     link.decompose()
+            for form in soup.find_all("form"):
+                if form is not None:
+                    form.decompose()
+            for input in soup.find_all("input"):
+                if input is not None:
+                    input.decompose()
+            for button in soup.find_all("button"):
+                if button is not None:
+                    button.decompose()
             for meta in soup.find_all("meta"):
                 if meta is not None:
                     meta.decompose()
