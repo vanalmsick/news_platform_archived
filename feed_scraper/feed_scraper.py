@@ -602,7 +602,7 @@ def fetch_feed_new(feed):
         )
         new_categories = getattr(ScrapedArticle_obj, "final_categories", None)
         current_max_importance = (
-            0
+            -1
             if getattr(article_obj, "max_importance", None) is None
             else getattr(article_obj, "max_importance", None)
         )
