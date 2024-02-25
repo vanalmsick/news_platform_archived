@@ -5,11 +5,10 @@ import hashlib
 import html
 import math
 import random
+import re
 import threading
 import time
-import traceback
 import urllib
-from urllib.parse import urlparse
 
 import feedparser
 import langid
@@ -18,21 +17,14 @@ import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
-from django.core.validators import URLValidator
 from django.db.models import Max, Q
-from linkpreview import Link, LinkPreview
-from linkpreview.exceptions import (
-    InvalidContentError,
-    InvalidMimeTypeError,
-    MaximumContentSizeError,
-)
 from openai import OpenAI
 from webpush import send_group_notification
 
 from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher
 
-from .new_article_scraper import ScrapedArticle
+from .google_news_decode import decode_google_news_url
 
 
 def postpone(function):
@@ -231,7 +223,7 @@ def delete_feed_positions(feed):
 
 @ratelimit.sleep_and_retry
 @ratelimit.limits(calls=30, period=60)
-def check_limit():
+def check_limit_openai():
     """Empty function just to check for calls to API"""
     # limit of 90k tokens per minute = 90k / 3k per request = 30 requets
     # limit of 3500 requests per minute
@@ -282,7 +274,7 @@ def add_ai_summary(article_obj_lst):
                     bullets = 3
                 else:
                     bullets = 4
-                check_limit()
+                check_limit_openai()
                 completion = client.chat.completions.create(
                     # completion = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
@@ -327,174 +319,6 @@ def add_ai_summary(article_obj_lst):
             f" {THIS_RUN_API_COST} GBP. Total API cost since container launch"
             f" {TOTAL_API_COST} GBP."
         )
-
-
-def scarpe_img(url):
-    """Manual image scraping from homepage - bascially searches for any image on homepage"""
-    img_url = None
-    try:
-        _ = URLValidator(url)
-        resp = requests.get(url)
-        soup = BeautifulSoup(resp.content, "html5lib")
-        body = soup.find("body")
-        images = body.find_all("img")
-        new_images = []
-        for i in images:
-            i_alt = ""
-            i_class = ""
-            i_src = ""
-            try:
-                i_src = str(i["src"]).lower()
-                i_alt = str(i["alt"]).lower()
-                i_class = str(i["class"]).lower()
-            except Exception:
-                pass
-            if (
-                len(i_src) > 3
-                and any(
-                    [
-                        j in i_src
-                        for j in [
-                            ".avif",
-                            ".gif",
-                            ".jpg",
-                            ".jpeg",
-                            ".jfif",
-                            ".pjpeg",
-                            ".pjp",
-                            ".png",
-                            ".svg",
-                            ".webp",
-                        ]
-                    ]
-                )
-                and "logo" not in i_class
-                and "logo" not in i_alt
-                and "author" not in i_class
-                and "author" not in i_alt
-            ):
-                new_images.append(i)
-        if len(new_images) > 0:
-            images = new_images
-            image = images[0]["src"]
-            if "www." not in image and "http" not in image:
-                url_parts = urlparse(url)
-                image = url_parts.scheme + "://" + url_parts.hostname + image
-            img_url = image
-
-    except Exception as e:
-        print(f'Error sccraping image for acticle from "{url}"')
-        print(e)
-
-    return img_url
-
-
-class LinkGrabber:
-    """linkpreview's LinkGrabber had bug with html content-type attribute - this custom class fixes the bug"""
-
-    headers = {
-        "user-agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0)"
-            " Gecko/20100101"
-            " Firefox/95.0"
-        ),
-        "accept-language": "en-US,en;q=0.5",
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    }
-
-    def __init__(
-        self,
-        initial_timeout: int = 20,
-        maxsize: int = 1048576,
-        receive_timeout: int = 10,
-        chunk_size: int = 1024,
-    ):
-        """
-        :param initial_timeout in seconds
-        :param maxsize in bytes (default 1048576 = 1 MB)
-        :param receive_timeout in seconds
-        :param chunk_size in bytes
-        """
-        self.initial_timeout = initial_timeout
-        self.maxsize = maxsize
-        self.receive_timeout = receive_timeout
-        self.chunk_size = chunk_size
-
-    def get_content(self, url: str, headers: dict = {}):
-        r = requests.get(
-            url,
-            stream=True,
-            timeout=self.initial_timeout,
-            headers={**self.headers, **headers} if headers else self.headers,
-        )
-        r.raise_for_status()
-
-        content_type = r.headers.get("content-type")
-        if not content_type:
-            raise InvalidContentError("Invalid content type")
-
-        mime_type = content_type.split(";")[0].lower()
-        if "text/html" not in mime_type:
-            raise InvalidMimeTypeError("Invalid mime type")
-
-        length = r.headers.get("Content-Length")
-        if length and int(length) > self.maxsize:
-            raise MaximumContentSizeError("response too large")
-
-        size = 0
-        start = time.time()
-        content = b""
-        for chunk in r.iter_content(self.chunk_size):
-            if time.time() - start > self.receive_timeout:
-                raise TimeoutError("timeout reached")
-
-            size += len(chunk)
-            if size > self.maxsize:
-                raise MaximumContentSizeError("response too large")
-
-            content += chunk
-
-        return content, r.url
-
-
-def scarpe_meta(url):
-    """Scrape <meta> data from website"""
-    try:
-        while cache.get("metaScrapeWait") == "wait":
-            print("meta scraping wait")
-            time.sleep(2)
-        grabber = LinkGrabber(
-            initial_timeout=20,
-            maxsize=1048576,
-            receive_timeout=10,
-            chunk_size=1024,
-        )
-        content, url = grabber.get_content(url)
-        link = Link(url, content)
-        preview = LinkPreview(link, parser="lxml")
-        if hasattr(preview, "image") and preview.image is not None:
-            if type(preview.image) is dict:
-                img_url = preview.image["url"]
-            else:
-                img_url = preview.image
-            if "www." not in img_url and "http" not in img_url:
-                url_parts = urlparse(url)
-                print(url_parts.scheme, "://", url_parts.hostname, img_url)
-                preview.cust_image = (
-                    url_parts.scheme + "://" + url_parts.hostname + img_url
-                )
-            else:
-                preview.cust_image = img_url
-            print(preview.cust_image)
-        else:
-            print("no image for", url)
-        return preview
-    except Exception as e:
-        print("Error getting meta data:", e)
-        traceback.print_exc()
-        return None
-    finally:
-        cache.set("metaScrapeWait", "wait", 5)
 
 
 def fetch_feed_new(feed):
@@ -696,426 +520,589 @@ def fetch_feed_new(feed):
     return added_articles
 
 
-def fetch_feed(feed):
-    """Fetch/update/scrape all articles for a specific source feed"""
-    added_articles = 0
+@ratelimit.sleep_and_retry
+@ratelimit.limits(calls=3, period=5)
+def check_limit_full_text():
+    """Empty function to limit url calls to not get blocked"""
+    # every 5 seconds 3 calls
+    return
 
-    feed_url = feed.url
-    if "http://FEED-CREATOR.local" in feed_url:
-        feed_url = feed_url.replace(
-            "http://FEED-CREATOR.local", settings.FEED_CREATOR_URL
+
+class ScrapedArticle:
+    """Class to scrape artcile and store all data with inteligent selction of final output attributes"""
+
+    def __init__(self, feed_entry, source_feed):
+        self.source_feed_obj = source_feed
+        self.source_publisher_obj = source_feed.publisher
+        self.feed_article_obj = feed_entry
+
+        self.status_fetched_full_text = False
+        self.status_calculated_final_props = False
+
+        self.publisher_equal_source = None
+
+        self.prop_unique_guid_method = (
+            self.source_publisher_obj.unique_article_id.lower()
         )
-    if "http://FULL-TEXT.local" in feed_url:
-        feed_url = feed_url.replace("http://FULL-TEXT.local", settings.FULL_TEXT)
+        self.prop_feed_ordering = self.source_feed_obj.feed_ordering.lower()
+        self.prop_full_text_fetch = self.source_feed_obj.full_text_fetch.upper() == "Y"
 
-    fetched_feed = feedparser.parse(feed_url)
-
-    if len(fetched_feed.entries) > 0:
-        delete_feed_positions(feed)
-
-    for i, scraped_article in enumerate(fetched_feed.entries):
-        hash_obj = hashlib.new("sha256")
-        article__feed_position = i + 1
-        article_kwargs = dict(
-            min_feed_position=article__feed_position,
-            publisher=feed.publisher,
-            categories=(
-                ""
-                if feed.source_categories is None
-                or len(feed.source_categories.split(";")) == 0
-                else ";".join(
-                    [str(i).upper() for i in feed.source_categories.split(";") + [""]]
-                )
-            ),
+        # save all data already received from feedparser
+        self.__use_source_data__()
+        self.__use_feed_data__()
+        self.final_guid = self.calculate_guid()
+        final_link = (
+            self.true_article_url_str
+            if hasattr(self, "true_article_url_str")
+            else self.feed_article_url_str
         )
-        for kwarg_X, kwarg_Y in {
-            "title": "title",
-            "summary": "summary",
-            "link": "link",
-            "guid": "id",
-            "pub_date": "published_parsed",
-            "categories": "tags",
+        self.final_hash = (
+            f"{hashlib.sha256(final_link.split('?')[0].encode('utf-8')).hexdigest()}"
+        )
+
+    def __use_source_data__(self):
+        """Extract relevant data from source objects - i.e. source_feed_obj and source_publisher_obj"""
+        self.status_calculated_final_props = False
+        self.source_feed_url_str = self.source_feed_obj.url
+        self.source_feed_url_parsed = urllib.parse.urlparse(self.source_feed_url_str)
+        self.source_feed_categories = (
+            ""
+            if self.source_feed_obj.source_categories is None
+            else ";".join(
+                [
+                    i
+                    for i in self.source_feed_obj.source_categories.split(";")
+                    if i != ""
+                ]
+            )
+        )
+        self.source_publisher_name = self.source_publisher_obj.name
+        self.source_publisher_pk = self.source_publisher_obj.pk
+        self.source_publisher_url_str = self.source_publisher_obj.link
+        self.source_publisher_url_parsed = urllib.parse.urlparse(
+            self.source_publisher_url_str
+        )
+        self.source_publisher_paywall = self.source_publisher_obj.paywall
+        self.source_publisher_language = self.source_publisher_obj.language
+
+    def __use_feed_data__(self):
+        """Extract relevant data from feed scraper object - i.e. feed_article_obj"""
+        self.status_calculated_final_props = False
+
+        # copy normal atributes that don't require a special logic
+        for target_attr, obj_attr in {
+            "feed_article_title": "title",
+            "feed_article_url_str": "link",
+            "feed_article_guid": "id",
+            "feed_article_guid_is_url": "guidislink",
+            "feed_article_pub_date": "published_parsed",
+            "feed_article_updated_date": "updated_parsed",
+            "feed_article_author": "author",
         }.items():
+            if hasattr(self.feed_article_obj, obj_attr):
+                setattr(self, target_attr, getattr(self.feed_article_obj, obj_attr))
+
+        # if article has url parse it
+        if hasattr(self, "feed_article_url_str"):
+            self.feed_article_url_parsed = urllib.parse.urlparse(
+                self.feed_article_url_str
+            )
+
+        # special logic for "image"/"media" attribute
+        if hasattr(self.feed_article_obj, "media_content"):
+            tmp = [
+                i["url"]
+                for i in self.feed_article_obj.media_content
+                if "image" in i["type"]
+            ]
+            if len(tmp) > 0:
+                self.feed_article_image_url = tmp[0]
+
+        # special logic for "tags"/"categories" attribute
+        if hasattr(self.feed_article_obj, "tags"):
+            self.feed_article_categories = ";".join(
+                [i["term"] for i in self.feed_article_obj.tags]
+            )
+
+        # special logic for "summary" attribute
+        if hasattr(self.feed_article_obj, "summary"):
+            # check if summary is in html or plain text
             if (
-                hasattr(scraped_article, kwarg_Y)
-                and scraped_article[kwarg_Y] is not None
-                and scraped_article[kwarg_Y] != ""
+                hasattr(self.feed_article_obj, "summary_detail")
+                and hasattr(self.feed_article_obj.summary_detail, "type")
+                and "html" in str(self.feed_article_obj.summary_detail.type).lower()
             ):
+                # is html
+                self.feed_article_summary_html = self.feed_article_obj.summary
+                self.feed_article_summary_text = BeautifulSoup(
+                    self.feed_article_summary_html, features="lxml"
+                ).get_text()
+            else:
+                # is plain text
+                self.feed_article_summary_text = BeautifulSoup(
+                    self.feed_article_obj.summary, features="lxml"
+                ).get_text()
+                self.feed_article_summary_html = (
+                    f"<p>{self.feed_article_obj.summary}</p>"
+                )
+
+        # special logic for "source" attribute
+        if hasattr(self.feed_article_obj, "source"):
+            self.feed_publisher_name = self.feed_article_obj.source["title"]
+            self.feed_publisher_url_str = self.feed_article_obj.source["href"]
+            self.feed_publisher_obj = {
+                "name": self.feed_publisher_name,
+                "link": self.feed_publisher_url_str,
+            }
+            self.feed_publisher_url_parsed = urllib.parse.urlparse(
+                self.feed_publisher_url_str
+            )
+            source_main_domain = (
+                str(self.source_feed_url_parsed.netloc).split(".")[-2].lower()
+            )
+            feed_main_domain = (
+                str(self.feed_publisher_url_parsed.netloc).split(".")[-2].lower()
+            )
+            if (
+                source_main_domain in feed_main_domain
+                or feed_main_domain in source_main_domain
+            ):
+                self.publisher_equal_source = True
+            else:
+                self.publisher_equal_source = False
+                # if google news decrypt url
+                if "google" in source_main_domain:
+                    self.true_article_url_str = decode_google_news_url(
+                        self.feed_article_url_str
+                    )
+                    self.true_article_url_parsed = urllib.parse.urlparse(
+                        self.true_article_url_str
+                    )
+
+        # special logic for "content"/"body" attribute
+        if hasattr(self.feed_article_obj, "content"):
+            self.feed_article_body_html = "\n\n".join(
+                [
+                    i.value if "html" in str(i.type).lower() else f"<p>{i.value}</p>"
+                    for i in self.feed_article_obj.content
+                ]
+            )
+            self.feed_article_body_text = "\n\n".join(
+                [
+                    (
+                        BeautifulSoup(i.value, features="lxml").get_text()
+                        if "html" in str(i.type).lower()
+                        else i.value
+                    )
+                    for i in self.feed_article_obj.content
+                ]
+            )
+            self.feed_article_body_cnt = len(
+                re.findall(r"\S+", self.feed_article_body_text)
+            )
+
+        # special logic for language attribute extraction
+        if (
+            hasattr(self.feed_article_obj, "summary_detail")
+            and hasattr(self.feed_article_obj.summary_detail, "language")
+            and self.feed_article_obj.summary_detail.language is not None
+        ):
+            self.feed_article_language = self.feed_article_obj.summary_detail.language
+        elif (
+            hasattr(self.feed_article_obj, "title_detail")
+            and hasattr(self.feed_article_obj.title_detail, "language")
+            and self.feed_article_obj.title_detail.language is not None
+        ):
+            self.feed_article_language = self.feed_article_obj.title_detail.language
+
+    def scrape_source(self):
+        """Use full-text scraper to get additional data beyond the RSS feed"""
+        check_limit_full_text()  # url request limit of 3 calls every 5 seconds to not get blocked
+        article_url = (
+            self.true_article_url_str
+            if hasattr(self, "true_article_url_str")
+            else self.feed_article_url_str
+        )
+        request_url = (
+            f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(article_url, safe="")}'
+        )
+        response = requests.get(request_url)
+        if response.status_code == 200:
+            self.status_fetched_full_text = True
+            self.status_calculated_final_props = False
+            full_text_data = response.json()
+
+            for attr in ["title", "og_title", "twitter_title"]:
                 if (
-                    kwarg_X in ["title", "summary"]
-                    and scraped_article[kwarg_Y] is not None
+                    attr in full_text_data
+                    and full_text_data[attr] is not None
+                    and full_text_data[attr] != ""
                 ):
-                    bs_html = BeautifulSoup(scraped_article[kwarg_Y], "html.parser")
-                    if bool(bs_html.find()):
-                        article_kwargs[kwarg_X] = html.unescape(bs_html.get_text())
-                    else:
-                        article_kwargs[kwarg_X] = html.unescape(
-                            scraped_article[kwarg_Y]
-                        )
-                elif (
-                    kwarg_X in ["categories"]
-                    and scraped_article[kwarg_Y] is not None
-                    and len(scraped_article[kwarg_Y]) > 0
+                    self.scrape_article_title = full_text_data[attr]
+                    break
+
+            for attr in ["og_image", "twitter_image"]:
+                if (
+                    attr in full_text_data
+                    and full_text_data[attr] is not None
+                    and full_text_data[attr] != ""
                 ):
-                    article_kwargs[kwarg_X] += (
-                        ";".join(
-                            [str(i["term"]).upper() for i in scraped_article[kwarg_Y]]
-                        )
-                        + ";"
+                    self.scrape_article_image_url = full_text_data[attr]
+                    break
+
+            for attr in ["og_description", "twitter_description", "excerpt"]:
+                if (
+                    attr in full_text_data
+                    and full_text_data[attr] is not None
+                    and full_text_data[attr] != ""
+                ):
+                    self.scrape_article_summary_text = full_text_data[attr]
+                    self.scrape_article_summary_html = (
+                        f"<p>{self.scrape_article_summary_text}</p>"
                     )
-                else:
-                    article_kwargs[kwarg_X] = scraped_article[kwarg_Y]
+                    break
 
-        if (
-            hasattr(scraped_article, "content")
-            and len(scraped_article.content) > 0
-            and hasattr(scraped_article.content[0], "value")
-        ):
-            article_kwargs["full_text"] = scraped_article.content[0].value
+            for target_attr, src_attr in [
+                ("article_language", "language"),
+                ("article_author", "author"),
+                ("article_body_cnt", "word_count"),
+            ]:
+                if (
+                    src_attr in full_text_data
+                    and full_text_data[src_attr] is not None
+                    and full_text_data[src_attr] != ""
+                ):
+                    setattr(self, f"scrape_{target_attr}", full_text_data[src_attr])
 
-        # add unique id/hash
-        if feed.publisher.unique_article_id == "guid" and "guid" in article_kwargs:
-            article_kwargs["hash"] = f'{feed.publisher.pk}_{article_kwargs["guid"]}'
-        elif feed.publisher.unique_article_id == "title":
-            hash_obj.update(str(article_kwargs["title"]).encode())
-            hash_str = hash_obj.hexdigest()
-            article_kwargs["hash"] = f"{feed.publisher.pk}_{hash_str}"
-        else:
-            hash_obj.update(str(article_kwargs["link"]).encode())
-            hash_str = hash_obj.hexdigest()
-            article_kwargs["hash"] = f"{feed.publisher.pk}_{hash_str}"
-
-        # make sure pub_date exists and is in the right format
-        if (
-            "pub_date" in article_kwargs
-            and type(article_kwargs["pub_date"]) is time.struct_time
-        ):
-            article_kwargs["pub_date"] = datetime.datetime.fromtimestamp(
-                time.mktime(article_kwargs["pub_date"])
-            )
-        elif "pub_date" not in article_kwargs and hasattr(
-            fetched_feed, "published_parsed"
-        ):
-            article_kwargs["pub_date"] = datetime.datetime.fromtimestamp(
-                fetched_feed["published_parsed"]
-            )
-        else:
-            article_kwargs["pub_date"] = datetime.datetime.now()
-        article_kwargs["pub_date"] = settings.TIME_ZONE_OBJ.localize(
-            article_kwargs["pub_date"]
-        )
-
-        # check if artcile already exists
-        search_article = Article.objects.filter(hash=article_kwargs["hash"])
-        prev_article = None
-
-        # if article exists but changed
-        if (
-            len(search_article) > 0
-            and search_article[0].title is not None
-            and "title" in article_kwargs
-            and search_article[0].title != article_kwargs["title"]
-        ):
-            old_artcile = search_article[0]
-            new_article = True
-            hash_obj.update(str(old_artcile.title).encode())
-            hash_str = hash_obj.hexdigest()
-            setattr(old_artcile, "hash", f"{feed.publisher.pk}_{hash_str}")
-            old_artcile.save()
-            prev_article = old_artcile.pk
-
-        # if article exists
-        elif len(search_article) > 0:
-            article_obj = search_article[0]
-            new_article = False
-
-        # article does not exist
-        else:
-            new_article = True
-
-        # article does not exist yet
-        if new_article:
-            # get full text if settings say yes
-            if feed.full_text_fetch == "Y":
-                request_url = (
-                    f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(article_kwargs["link"], safe="")}'
-                )
-                response = requests.get(request_url)
-                if response.status_code == 200:
-                    full_text_data = response.json()
-                    if (
-                        "news.google.com" in article_kwargs["link"]
-                        and "effective_url" in full_text_data
-                        and full_text_data["effective_url"] is not None
-                    ):
-                        request_url = (
-                            f"{settings.FULL_TEXT_URL}extract.php?"
-                            f"url={urllib.parse.quote(full_text_data['effective_url'], safe='')}"
-                        )
-                        response = requests.get(request_url)
-                        if response.status_code == 200:
-                            full_text_data = {**full_text_data, **response.json()}
-                    for kwarg_X, kwarg_Y in {
-                        "summary": "excerpt",
-                        "author": "author",
-                        "image_url": "og_image",
-                        "full_text": "content",
-                        "language": "language",
-                    }.items():
-                        if (
-                            kwarg_Y in full_text_data
-                            and full_text_data[kwarg_Y] is not None
-                            and (
-                                kwarg_X not in article_kwargs
-                                or (
-                                    kwarg_X == "language"
-                                    and len(article_kwargs[kwarg_X]) < 2
-                                    and len(full_text_data[kwarg_Y]) <= 5
-                                )
-                                or (
-                                    kwarg_X == "author"
-                                    and len(article_kwargs[kwarg_X]) < 5
-                                    and len(full_text_data[kwarg_Y]) > 5
-                                )
-                                or (
-                                    kwarg_X == "summary"
-                                    and len(article_kwargs[kwarg_X]) < 70
-                                    and len(full_text_data[kwarg_Y]) > 100
-                                )
-                                or (
-                                    kwarg_X == "image_url"
-                                    and len(article_kwargs[kwarg_X]) < 35
-                                    and len(full_text_data[kwarg_Y]) > 35
-                                )
-                                or (
-                                    kwarg_X == "full_text"
-                                    and len(article_kwargs[kwarg_X]) * 1.75
-                                    < len(full_text_data[kwarg_Y])
-                                    and len(
-                                        BeautifulSoup(
-                                            article_kwargs[kwarg_X], "html5lib"
-                                        ).text
-                                    )
-                                    * 1.75
-                                    < len(
-                                        BeautifulSoup(
-                                            full_text_data[kwarg_Y], "html5lib"
-                                        ).text
-                                    )
-                                )
-                            )
-                        ):
-                            if kwarg_X in ["title", "summary", "author", "language"]:
-                                bs_html = BeautifulSoup(
-                                    full_text_data[kwarg_Y], "html.parser"
-                                )
-                                if bool(bs_html.find()):
-                                    article_kwargs[kwarg_X] = html.unescape(
-                                        bs_html.get_text()
-                                    )
-                                else:
-                                    article_kwargs[kwarg_X] = html.unescape(
-                                        full_text_data[kwarg_Y]
-                                    )
-                            else:
-                                article_kwargs[kwarg_X] = full_text_data[kwarg_Y]
-
-                    # if no image try scraping it differently
-                    if (
-                        "image_url" not in article_kwargs
-                        or article_kwargs["image_url"] is None
-                        or len(article_kwargs["image_url"]) < 10
-                    ):
-                        image_url = scarpe_img(url=article_kwargs["link"])
-                        if image_url is not None:
-                            article_kwargs["image_url"] = image_url
-                            print(
-                                "Successfully scrape image for article"
-                                f" {feed.publisher.name}: {article_kwargs['title']}"
-                            )
-                        else:
-                            print(
-                                "Couldn't scrape image for article"
-                                f" {feed.publisher.name}: {article_kwargs['title']}"
-                            )
-
-                else:
-                    print(f"Full-Text fetch error response {response.status_code}")
-
-            # clean up data
-            if "full_text" in article_kwargs:
-                soup = BeautifulSoup(article_kwargs["full_text"], "html.parser")
-                for img in soup.find_all("img"):
-                    img["style"] = (
-                        "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
-                    )
-                    if img["src"] == "src":
-                        if "data-url" in img:
-                            img["src"] = img["data-url"].replace("${formatId}", "906")
-                        elif "data-src" in img:
-                            img["src"] = img["data-src"]
-                    img["referrerpolicy"] = "no-referrer"
-                for a in soup.find_all("a"):
-                    a["target"] = "_blank"
-                    a["referrerpolicy"] = "no-referrer"
-                for link in soup.find_all("link"):
-                    if link is not None:
-                        link.decompose()
-                for meta in soup.find_all("meta"):
-                    if meta is not None:
-                        meta.decompose()
-                for noscript in soup.find_all("noscript"):
-                    if noscript is not None:
-                        noscript.name = "div"
-                for div_type, id in [
-                    ("div", "barrierContent"),
-                    ("div", "nousermsg"),
-                    ("div", "trial_print_message"),
-                    ("div", "print_blocked_message"),
-                    ("div", "copy_blocked_message"),
-                    ("button", "toolbar-item-parent-share-2909"),
-                    ("ul", "toolbar-item-dropdown-share-2909"),
-                ]:
-                    div = soup.find(div_type, id=id)
-                    if div is not None:
-                        div.decompose()
-                article_kwargs["full_text"] = soup.prettify()
-
-                if prev_article is not None:
-                    article_kwargs["full_text"] = (
-                        '<a class="btn btn-outline-secondary my-2 ms-2" style="float:'
-                        f' right;" href="/?article={prev_article}">Go to previous'
-                        " article version</a>\n"
-                        + article_kwargs["full_text"]
-                    )
-
-            # add additional properties
             if (
-                "full_text" not in article_kwargs
-                or len(article_kwargs["full_text"]) < 750
-                or len(BeautifulSoup(article_kwargs["full_text"], "html5lib").text)
-                < 750
-                or (
-                    "During your trial you will have complete digital access to FT.com"
-                    " with everything in both of our Standard Digital and Premium"
-                    " Digital packages."
-                )
-                in article_kwargs["full_text"]
+                "date" in full_text_data
+                and full_text_data["date"] is not None
+                and full_text_data["date"] != ""
             ):
-                article_kwargs["has_full_text"] = False
-            else:
-                article_kwargs["has_full_text"] = True
+                self.scrape_article_pub_date = time.strptime(
+                    full_text_data["date"], "%Y-%m-%dT%H:%M:%S%z"
+                )
 
-            print(scraped_article.link)
-            print(article_kwargs["link"])
-            if "image_url" not in article_kwargs or article_kwargs["image_url"] is None:
-                meta_data = scarpe_meta(url=article_kwargs["link"])
-                if meta_data is not None:
-                    for kwarg_X, kwarg_Y in {
-                        "title": "title",
-                        "summary": "description",
-                        "image_url": "cust_image",
-                    }.items():
-                        if (
-                            hasattr(meta_data, kwarg_Y)
-                            and getattr(meta_data, kwarg_Y) is not None
-                        ):
-                            if (
-                                kwarg_X not in article_kwargs
-                                or article_kwargs[kwarg_X] is None
-                                or article_kwargs[kwarg_X] == ""
-                            ):
-                                article_kwargs[kwarg_X] = getattr(meta_data, kwarg_Y)
-
-            # check if breaking news
             if (
-                "title" in article_kwargs
-                and (
-                    "liveblog" in article_kwargs["title"].lower()
-                    or "breaking news" in article_kwargs["title"].lower()
-                    or "live news" in article_kwargs["title"].lower()
-                )
-            ) or (
-                "full_text" in article_kwargs
-                and article_kwargs["full_text"] is not None
-                and (
-                    "livestream" in article_kwargs["full_text"].lower()
-                    or "developing story" in article_kwargs["full_text"].lower()
-                )
+                "content" in full_text_data
+                and full_text_data["content"] is not None
+                and full_text_data["content"] != ""
             ):
-                article_kwargs["type"] = "breaking"
-            else:
-                article_kwargs["type"] = "normal"
+                self.scrape_article_body_html = full_text_data["content"]
+                self.scrape_article_body_text = BeautifulSoup(
+                    self.scrape_article_body_html, features="lxml"
+                ).get_text()
 
-            # check article language
-            if "title" in article_kwargs and "summary" in article_kwargs:
-                lang = langid.classify(
-                    f'{article_kwargs["title"]}\n{article_kwargs["summary"]}'
+        else:
+            print(
+                f"Error scraping full-text from for {self.source_publisher_name}:"
+                f' "{self.feed_article_title}" from "{article_url}"'
+            )
+
+    def __html_body_clean_up__(self):
+        """Clean up the html body/full text"""
+        if (
+            hasattr(self, "final_full_text")
+            and self.final_full_text is not None
+            and len(self.final_full_text) > 20
+        ):
+            soup = BeautifulSoup(self.final_full_text, "html.parser")
+            for img in soup.find_all("img"):
+                img["style"] = (
+                    "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
                 )
-                article_kwargs["language"] = lang[0]
+                if img["src"] == "src":
+                    if hasattr(img, "data-url"):
+                        img["src"] = str(getattr(img, "data-url")).replace(
+                            "${formatId}", "906"
+                        )
+                    elif hasattr(img, "data-src"):
+                        img["src"] = getattr(img, "data-src")
+                if hasattr(img, "srcset"):
+                    img["srcset"] = ""
+                img["referrerpolicy"] = "no-referrer"
+            for figure in soup.find_all("figure"):
+                figure["class"] = "figure"
+            for figcaption in soup.find_all("figcaption"):
+                figcaption["class"] = "figure-caption"
+            for span in soup.find_all("span"):
+                if hasattr(span, "data-caps"):
+                    span["class"] = "h3"
+            for a in soup.find_all("a"):
+                a["target"] = "_blank"
+                a["referrerpolicy"] = "no-referrer"
+            for link in soup.find_all("link"):
+                if link is not None:
+                    link.decompose()
+            for form in soup.find_all("form"):
+                if form is not None:
+                    form.decompose()
+            for input in soup.find_all("input"):
+                if input is not None:
+                    input.decompose()
+            for button in soup.find_all("button"):
+                if button is not None:
+                    button.decompose()
+            for meta in soup.find_all("meta"):
+                if meta is not None:
+                    meta.decompose()
+            for noscript in soup.find_all("noscript"):
+                if noscript is not None:
+                    noscript.name = "div"
+            for div_type, id in [
+                ("div", "barrierContent"),
+                ("div", "nousermsg"),
+                ("div", "trial_print_message"),
+                ("div", "print_blocked_message"),
+                ("div", "copy_blocked_message"),
+                ("button", "toolbar-item-parent-share-2909"),
+                ("button", "CreateFreeAccountButton-buttonContainer"),
+                ("ul", "toolbar-item-dropdown-share-2909"),
+            ]:
+                div = soup.find(div_type, id=id)
+                if div is not None:
+                    div.decompose()
+            self.final_full_text = soup.prettify()
 
-            # add article
-            article_obj = Article(**article_kwargs)
-            article_obj.save()
-            added_articles += 1
+    def calculate_guid(self):
+        """Function which calculates the Unique GUID"""
+        if self.prop_unique_guid_method.lower() == "guid" and hasattr(
+            self, "feed_article_guid"
+        ):
+            return f"{self.source_publisher_pk}_{self.feed_article_guid}"
+        elif self.prop_unique_guid_method.lower() == "title":
+            self.__calculate_final_value__(
+                final_attr_name="final_title",
+                feed_attr_name="feed_article_title",
+                scrape_attr_name="scrape_article_title",
+            )
+            return f"{self.source_publisher_pk}_{hashlib.sha256(self.final_title.encode('utf-8')).hexdigest()}"
+        else:  # self.prop_unique_guid_method.lower() == "url":
+            self.__calculate_final_value__(
+                final_attr_name="final_link",
+                feed_attr_name="feed_article_url_str",
+                scrape_attr_name="true_article_url_str",
+            )
+            return (
+                f"{self.source_publisher_pk}_"
+                f"{hashlib.sha256(self.final_link.split('?')[0].encode('utf-8')).hexdigest()}"
+            )
 
-            if prev_article is not None:
-                full_text = (
-                    "" if old_artcile.full_text is None else old_artcile.full_text
-                )
-                setattr(
-                    old_artcile,
-                    "full_text",
-                    '<a class="btn btn-outline-danger cust-text-danger my-2 ms-2"'
-                    f' style="float: right;" href="/?article={article_obj.pk}">Go to'
-                    " updated article version</a>\n"
-                    + full_text,
-                )
-                old_artcile.save()
+    def __calculate_final_value__(
+        self, final_attr_name, feed_attr_name, scrape_attr_name
+    ):
+        """Creates the final output attributes by seleting the best data available"""
+        if (
+            self.publisher_equal_source is False
+            and hasattr(self, scrape_attr_name)
+            and getattr(self, scrape_attr_name) is not None
+            and getattr(self, scrape_attr_name) != ""
+        ):
+            setattr(self, final_attr_name, getattr(self, scrape_attr_name))
+        elif (
+            hasattr(self, feed_attr_name)
+            and getattr(self, feed_attr_name) is not None
+            and getattr(self, feed_attr_name) != ""
+        ):
+            setattr(self, final_attr_name, getattr(self, feed_attr_name))
+        elif (
+            hasattr(self, scrape_attr_name)
+            and getattr(self, scrape_attr_name) is not None
+            and getattr(self, scrape_attr_name) != ""
+        ):
+            setattr(self, final_attr_name, getattr(self, scrape_attr_name))
 
-        # Update article metrics
-        (
-            article_kwargs["max_importance"],
-            article_kwargs["min_article_relevance"],
-        ) = calcualte_relevance(
-            publisher=feed.publisher,
-            feed=feed,
-            feed_position=article__feed_position,
-            hash=article_kwargs["hash"],
-            pub_date=article_kwargs["pub_date"],
+    def calculate_final_values(self):
+        """Creates/updates the final article props that are outputted named 'final_'."""
+        # Already updated
+        if self.status_calculated_final_props:
+            return None
+
+        # Publisher
+        self.__calculate_final_value__(
+            final_attr_name="final_publisher",
+            feed_attr_name="source_publisher_obj",
+            scrape_attr_name="feed_publisher_obj",
         )
-        for k, v in article_kwargs.items():
-            value = getattr(article_obj, k)
-            if value is None and v is not None:
-                setattr(article_obj, k, v)
-            elif "min" in k and v < value:
-                setattr(article_obj, k, v)
-            elif "max" in k and v > value:
-                setattr(article_obj, k, v)
-            elif (
-                k == "categories"
-                and article_kwargs["categories"] is not None
-                and len(article_kwargs["categories"]) > 0
-            ):
-                for category in article_kwargs["categories"].split(";"):
-                    if category.upper() not in v:
-                        v += category.upper() + ";"
-                setattr(article_obj, k, v)
-        article_obj.save()
 
-        # Add feed position linking
-        feed_position = FeedPosition(
-            feed=feed,
-            position=article__feed_position,
-            importance=article_kwargs["max_importance"],
-            relevance=article_kwargs["min_article_relevance"],
+        # Title
+        self.__calculate_final_value__(
+            final_attr_name="final_title",
+            feed_attr_name="feed_article_title",
+            scrape_attr_name="scrape_article_title",
         )
-        feed_position.save()
+        # Remove Publisher Name from Title if included
+        if hasattr(self, "feed_publisher_name"):
+            potential_inluded_name = f" - {self.feed_publisher_name}"
+            if potential_inluded_name in self.final_title:
+                self.final_title = self.final_title.replace(potential_inluded_name, "")
 
-        article_obj.feed_position.add(feed_position)
+        # Summary
+        self.__calculate_final_value__(
+            final_attr_name="final_summary",
+            feed_attr_name="feed_article_summary_text",
+            scrape_attr_name="scrape_article_summary_text",
+        )
 
-    print(
-        f"Refreshed {feed} with {added_articles} new articles out of"
-        f" {len(fetched_feed.entries)}"
-    )
-    return added_articles
+        # Full text / Body
+
+        scrape_article_body_cnt = (
+            self.scrape_article_body_cnt
+            if hasattr(self, "scrape_article_body_cnt")
+            else 0
+        )
+        feed_article_body_cnt = (
+            self.feed_article_body_cnt if hasattr(self, "feed_article_body_cnt") else 0
+        )
+
+        if feed_article_body_cnt == 0 and scrape_article_body_cnt == 0:
+            body_cnt = 0
+            body_text = ""
+        elif scrape_article_body_cnt != 0 and (
+            feed_article_body_cnt == 0 or self.publisher_equal_source is False
+        ):
+            self.final_full_text = self.scrape_article_body_html
+            body_text = self.scrape_article_body_text
+            body_cnt = scrape_article_body_cnt
+        elif feed_article_body_cnt != 0 and scrape_article_body_cnt == 0:
+            self.final_full_text = self.feed_article_body_html
+            body_text = self.feed_article_body_text
+            body_cnt = feed_article_body_cnt
+        elif (feed_article_body_cnt * 1.5 < scrape_article_body_cnt) or (
+            feed_article_body_cnt * 100 < scrape_article_body_cnt
+        ):
+            self.final_full_text = self.scrape_article_body_html
+            body_text = self.scrape_article_body_text
+            body_cnt = scrape_article_body_cnt
+        else:
+            self.final_full_text = self.feed_article_body_html
+            body_text = self.feed_article_body_text
+            body_cnt = feed_article_body_cnt
+
+        if body_cnt > 80:
+            self.final_has_full_text = True
+        else:
+            self.final_has_full_text = False
+
+        # News type
+        BREAKING_NEWS_KEYWORDS = [
+            "breaking news",
+            "liveticker",
+            "liveblog",
+            "live blog",
+            "developing story",
+        ]
+        if (
+            (
+                hasattr(self, "final_title")
+                and any([i in self.final_title.lower() for i in BREAKING_NEWS_KEYWORDS])
+            )
+            or (
+                hasattr(self, "final_summary")
+                and any(
+                    [i in self.final_summary.lower() for i in BREAKING_NEWS_KEYWORDS]
+                )
+            )
+            or (any([i in body_text.lower() for i in BREAKING_NEWS_KEYWORDS]))
+        ):
+            self.final_content_type = "ticker"
+            self.final_type = "breaking"
+        else:
+            self.final_content_type = "article"
+            self.final_type = "normal"
+
+        # Language
+        if (
+            hasattr(self, "feed_article_language")
+            and len(self.feed_article_language) > 0
+            and len(self.feed_article_language) < 6
+        ):
+            self.final_language = self.feed_article_language
+        elif (
+            hasattr(self, "scrape_article_language")
+            and len(self.scrape_article_language) > 0
+            and len(self.scrape_article_language) < 6
+        ):
+            self.final_language = self.scrape_article_language
+        elif (
+            hasattr(self, "source_publisher_language")
+            and len(self.source_publisher_language) > 0
+            and len(self.source_publisher_language) < 6
+        ):
+            self.final_language = self.source_publisher_language
+        else:
+            lang = langid.classify(f"{self.final_title}\n{self.final_summary}")
+            self.final_language = lang[0]
+
+        # URL/Link
+        self.__calculate_final_value__(
+            final_attr_name="final_link",
+            feed_attr_name="feed_article_url_str",
+            scrape_attr_name="true_article_url_str",
+        )
+
+        # Author
+        self.__calculate_final_value__(
+            final_attr_name="final_author",
+            feed_attr_name="feed_article_author",
+            scrape_attr_name="scrape_article_author",
+        )
+
+        # Image URL
+        self.__calculate_final_value__(
+            final_attr_name="final_image_url",
+            feed_attr_name="feed_article_image_url",
+            scrape_attr_name="scrape_article_image_url",
+        )
+
+        # Pub Date
+        self.__calculate_final_value__(
+            final_attr_name="final_pub_date",
+            feed_attr_name="feed_article_pub_date",
+            scrape_attr_name="scrape_article_pub_date",
+        )
+        if not hasattr(self, "final_pub_date"):
+            self.final_pub_date = settings.TIME_ZONE_OBJ.localize(
+                datetime.datetime.now()
+            )
+            print(f"Warning no pub_date for {self.final_publisher}")
+
+        # Categories
+        feed_article_categories = (
+            ";".join([i for i in self.feed_article_categories.split(";") if i != ""])
+            if hasattr(self, "feed_article_categories")
+            else ""
+        )
+        source_feed_categories = (
+            ";".join([i for i in self.source_feed_categories.split(";") if i != ""])
+            if hasattr(self, "source_feed_categories")
+            else ""
+        )
+        self.final_categories = (
+            source_feed_categories
+            + (
+                ";"
+                if len(feed_article_categories) > 0 and len(source_feed_categories) > 0
+                else ""
+            )
+            + feed_article_categories
+        )
+
+        self.__html_body_clean_up__()
+        self.final_guid = self.calculate_guid()
+
+        self.status_calculated_final_props = True
+
+    def get_final_attributes(self):
+        """Output final attributes in dictionary to use with Django"""
+        self.calculate_final_values()
+        out_dict = {}
+        for k, v in self.__dict__.items():
+            if "final_" == k[:6]:
+                if type(v) is time.struct_time:
+                    v = datetime.datetime.fromtimestamp(time.mktime(v))
+                    v = settings.TIME_ZONE_OBJ.localize(v)
+                    setattr(self, k, v)
+                out_dict[k[6:]] = v
+        self.output_dict = out_dict
+        return self.output_dict
