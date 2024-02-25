@@ -10,12 +10,8 @@ IPONE_SCREENS = [
     dict(width=834, height=1112, scale=2),
     dict(width=810, height=1080, scale=2),
     dict(width=768, height=1024, scale=2),
-    dict(width=768, height=1004, scale=1),  # test
-    dict(width=748, height=1024, scale=1),  # test
-    dict(width=640, height=940, scale=1),  # test
     dict(width=430, height=932, scale=3),
     dict(width=428, height=926, scale=3),
-    dict(width=418, height=1024, scale=2),  # test
     dict(width=414, height=896, scale=3),
     dict(width=414, height=896, scale=2),
     dict(width=414, height=736, scale=3),
@@ -24,8 +20,6 @@ IPONE_SCREENS = [
     dict(width=375, height=812, scale=3),
     dict(width=375, height=667, scale=2),
     dict(width=320, height=568, scale=2),
-    dict(width=320, height=480, scale=1),  # test
-    dict(width=320, height=460, scale=1),  # test
 ]
 
 
