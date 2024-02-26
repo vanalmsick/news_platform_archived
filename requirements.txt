@@ -25,4 +25,5 @@ celery[redis]
 django-webpush
 django-pwa
 pillow
+py-vapid
 #Werkzeug

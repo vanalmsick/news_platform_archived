@@ -490,18 +490,20 @@ def fetch_feed_new(feed):
                 - article_obj.added_date
             ).total_seconds()
             / 60
-            < 15
+            < 15  # added less than 15min ago
+            and (
+                settings.TIME_ZONE_OBJ.localize(datetime.datetime.now())
+                - article_obj.pub_date
+            ).total_seconds()
+            / (60 * 60)
+            < 72  # published less than 72h/3d ago
         ):
             send_group_notification(
                 group_name="all",
                 payload={
                     "head": f"{article_obj.publisher.name}",
                     "body": f"{article_obj.title}",
-                    "url": (
-                        f"{settings.MAIN_HOST}/?article={article_obj.pk}"
-                        if article_obj.has_full_text
-                        else article_obj.link
-                    ),
+                    "url": f"{settings.MAIN_HOST}/?article={article_obj.pk}",
                 },
                 ttl=60 * 90,  # keep 90 minutes on server
             )
