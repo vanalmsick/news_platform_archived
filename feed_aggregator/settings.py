@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 
+import py_vapid
 import pytz
 from dotenv import load_dotenv
 
@@ -246,16 +247,24 @@ CACHES = {
     }
 }
 
+
+def __generate_vapid_keypair():
+    obj = py_vapid.Vapid01()
+    obj.generate_keys()
+
+    PUBLIC_KEY = "".join(obj.public_pem().decode("utf-8").split("\n")[1:-2])
+    PRIVATE_KEY = "".join(obj.private_pem().decode("utf-8").split("\n")[1:-2])
+
+    return (PUBLIC_KEY, PRIVATE_KEY)
+
+
+WEBPUSH_PRIVATE_KEY, WEBPUSH_PUBLIC_KEY = __generate_vapid_keypair()
+
 # Webpush
 WEBPUSH_SETTINGS = {
-    "VAPID_PUBLIC_KEY": os.environ.get(
-        "WEBPUSH_PUBLIC_KEY",
-        "BBo5KGjBBVbVmExjdzYybDz8fHn2U7H37Sy88cPt8vb92jWTtFQ8wVeMYweOgC5s4TMkH5XPXPG-WdMxtOXL5dQ",
-    ),
-    "VAPID_PRIVATE_KEY": os.environ.get(
-        "WEBPUSH_PRIVATE_KEY", "0anK-34GkEU-sgRJ5nlam-zH0QtHXYH2xJxzm3a9twg"
-    ),
-    "VAPID_ADMIN_EMAIL": "admin@example.com",
+    "VAPID_PUBLIC_KEY": os.environ.get("WEBPUSH_PUBLIC_KEY", WEBPUSH_PUBLIC_KEY),
+    "VAPID_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY", WEBPUSH_PRIVATE_KEY),
+    "VAPID_ADMIN_EMAIL": os.environ.get("WEBPUSH_ADMIN_EMAIL", "admin@example.com"),
 }
 
 # Custom Variables
