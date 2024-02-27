@@ -9,11 +9,14 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import base64
 import os
 from pathlib import Path
 from urllib.parse import urlparse
 
-import py_vapid
+import ecdsa
+
+# import py_vapid
 import pytz
 from dotenv import load_dotenv
 
@@ -249,16 +252,19 @@ CACHES = {
 
 
 def __generate_vapid_keypair():
-    obj = py_vapid.Vapid01()
-    obj.generate_keys()
+    """
+    Generate a new set of encoded key-pair for VAPID
+    """
+    pk = ecdsa.SigningKey.generate(curve=ecdsa.NIST256p)
+    vk = pk.get_verifying_key()
 
-    PUBLIC_KEY = "".join(obj.public_pem().decode("utf-8").split("\n")[1:-2])
-    PRIVATE_KEY = "".join(obj.private_pem().decode("utf-8").split("\n")[1:-2])
+    return (
+        base64.urlsafe_b64encode(pk.to_string()).decode("utf-8").strip("="),
+        base64.urlsafe_b64encode(b"\x04" + vk.to_string()).decode("utf-8").strip("="),
+    )
 
-    return (PUBLIC_KEY, PRIVATE_KEY)
 
-
-WEBPUSH_PRIVATE_KEY, WEBPUSH_PUBLIC_KEY = __generate_vapid_keypair()
+WEBPUSH_PUBLIC_KEY, WEBPUSH_PRIVATE_KEY = __generate_vapid_keypair()
 
 # Webpush
 WEBPUSH_SETTINGS = {
