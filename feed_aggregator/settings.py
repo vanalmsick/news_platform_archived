@@ -14,9 +14,6 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 
-import ecdsa
-
-# import py_vapid
 import pytz
 from dotenv import load_dotenv
 
@@ -251,26 +248,11 @@ CACHES = {
 }
 
 
-def __generate_vapid_keypair():
-    """
-    Generate a new set of encoded key-pair for VAPID
-    """
-    pk = ecdsa.SigningKey.generate(curve=ecdsa.NIST256p)
-    vk = pk.get_verifying_key()
-
-    return (
-        base64.urlsafe_b64encode(pk.to_string()).decode("utf-8").strip("="),
-        base64.urlsafe_b64encode(b"\x04" + vk.to_string()).decode("utf-8").strip("="),
-    )
-
-
-WEBPUSH_PUBLIC_KEY, WEBPUSH_PRIVATE_KEY = __generate_vapid_keypair()
-
 # Webpush
 WEBPUSH_SETTINGS = {
-    "VAPID_PUBLIC_KEY": os.environ.get("WEBPUSH_PUBLIC_KEY", WEBPUSH_PUBLIC_KEY),
-    "VAPID_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY", WEBPUSH_PRIVATE_KEY),
-    "VAPID_ADMIN_EMAIL": os.environ.get("WEBPUSH_ADMIN_EMAIL", "admin@example.com"),
+    "VAPID_PUBLIC_KEY": os.environ.get("WEBPUSH_PUBLIC_KEY", "BA85gAwHAU9o-4SjKIs5TUkMoHjnZETKWMYrPcMB8ZRpuRMXQn0RHiMvzmbHDylh2WJ-xs2PrJecRtuj1l7UiRw"),
+    "VAPID_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY", "b9-6DJOZb3MXRwckJ6C3R3hazJ-99Fh2aQ6zrNibP_0"),
+    "VAPID_ADMIN_EMAIL": os.environ.get("WEBPUSH_ADMIN_EMAIL", "news-platform@example.com"),
 }
 
 # Custom Variables
