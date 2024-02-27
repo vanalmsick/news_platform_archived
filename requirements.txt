@@ -25,6 +25,4 @@ celery[redis]
 django-webpush
 django-pwa
 pillow
-ecdsa
-#py-vapid
 #Werkzeug
