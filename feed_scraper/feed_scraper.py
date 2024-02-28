@@ -481,7 +481,7 @@ def fetch_feed_new(feed):
                 )
                 or (
                     article_obj.max_importance > 3
-                    and article_obj.min_feed_position <= 5
+                    and article_obj.min_feed_position <= 3
                     and article_obj.publisher.renowned >= 2
                 )
             )
