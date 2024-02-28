@@ -503,7 +503,7 @@ def fetch_feed_new(feed):
                 payload={
                     "head": f"{article_obj.publisher.name}",
                     "body": f"{article_obj.title}",
-                    "url": f"{settings.MAIN_HOST}/?article={article_obj.pk}",
+                    "url": f"article/{article_obj.pk}/",
                 },
                 ttl=60 * 90,  # keep 90 minutes on server
             )
