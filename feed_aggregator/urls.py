@@ -26,6 +26,7 @@ urlpatterns = [
     path("login-url/<str:password>/", LoginURLView, name="login-url"),
     path("article/<int:pk>/", RestArticleView.as_view(), name="article"),
     path("read-later/<str:action>/<int:pk>/", ReadLaterView, name="read-later"),
+    path("view/<int:article>/", homeView, name="view_article"),
     path("", homeView, name="home"),
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
