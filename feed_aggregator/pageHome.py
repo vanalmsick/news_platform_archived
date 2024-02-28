@@ -192,7 +192,7 @@ def refresh_feeds():
 
 # @cache_page(60 * 1)
 # @vary_on_cookie
-def homeView(request):
+def homeView(request, article=None):
     """Return django view of home page"""
     debug = (
         True
@@ -200,8 +200,9 @@ def homeView(request):
         else False
     )
     # If fallback articcle view is needed
-    if "article" in request.GET:
-        article = get_article_data(int(request.GET["article"]), debug=debug)
+    if "article" in request.GET or article is not None:
+        article = int(request.GET["article"] if article is None else article)
+        article = get_article_data(article, debug=debug)
         if article["error"] is False:
             meta = f"""
             <title>{article['title']} - {article['publisher__name']}</title>
