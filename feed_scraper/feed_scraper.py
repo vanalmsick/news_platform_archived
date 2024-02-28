@@ -827,9 +827,8 @@ class ScrapedArticle:
                 figure["class"] = "figure"
             for figcaption in soup.find_all("figcaption"):
                 figcaption["class"] = "figure-caption"
-            for span in soup.find_all("span"):
-                if hasattr(span, "data-caps"):
-                    span["class"] = "h3"
+            for span in soup.find_all("span", attrs={"data-caps" : "initial"}):
+                span["class"] = "h3"
             for a in soup.find_all("a"):
                 a["target"] = "_blank"
                 a["referrerpolicy"] = "no-referrer"
