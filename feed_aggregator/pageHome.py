@@ -306,7 +306,7 @@ class RestHomeView(APIView):
                 type=i.type,
                 content_type=i.content_type,
                 external_link=i.link,
-                internal_link=f"{settings.MAIN_HOST}/view/{i.pk}"
+                internal_link=f"{settings.MAIN_HOST}/view/{i.pk}",
                 pub_date=i.pub_date,
                 added_date=i.added_date,
                 categories=i.categories,
