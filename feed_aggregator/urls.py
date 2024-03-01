@@ -17,17 +17,23 @@ from django.contrib import admin
 from django.urls import include, path
 
 from .pageAPI import ReadLaterView, RestArticleView
-from .pageHome import homeView
+from .pageHome import homeView, RestHomeView
 from .pageLogin import LoginURLView, LoginView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("login/", LoginView, name="login"),
     path("login-url/<str:password>/", LoginURLView, name="login-url"),
+
     path("article/<int:pk>/", RestArticleView.as_view(), name="article"),
+    path("api/article/<int:pk>/", RestArticleView.as_view(), name="article_api"),
+    path("api/page/", RestHomeView.as_view(), name="page_api"),
+
     path("read-later/<str:action>/<int:pk>/", ReadLaterView, name="read-later"),
+
     path("view/<int:article>/", homeView, name="view_article"),
     path("", homeView, name="home"),
+
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
     path("webpush/", include("webpush.urls")),
