@@ -295,4 +295,24 @@ class RestHomeView(APIView):
             else get_articles(**request.GET)
         )
 
+        articles = [
+            dict(
+                id=i.pk,
+                title=i.title,
+                publisher=i.publisher.name,
+                summary=i.summary,
+                image_url=i.image_url,
+                has_full_text=i.has_full_text,
+                type=i.type,
+                content_type=i.content_type,
+                external_link=i.link,
+                internal_link=f"{settings.MAIN_HOST}/view/{i.pk}"
+                pub_date=i.pub_date,
+                added_date=i.added_date,
+                categories=i.categories,
+                language=i.language,
+                )
+            for i in articles
+            ]
+
         return Response(articles)
