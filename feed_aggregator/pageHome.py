@@ -6,6 +6,8 @@ from django.core.cache import cache
 from django.db.models import Count
 from django.shortcuts import render
 from django.template.defaulttags import register
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from articles.models import Article
 from feed_scraper.feed_scraper import update_feeds
@@ -276,3 +278,21 @@ def homeView(request, article=None):
             ),
         },
     )
+
+
+
+class RestHomeView(APIView):
+    """View for url request to home view"""
+
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        """get method for Django"""
+        _, articles, _ = (
+            get_articles(categories="frontpage")
+            if len(request.GET) == 0
+            else get_articles(**request.GET)
+        )
+
+        return Response(articles)
