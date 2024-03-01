@@ -302,7 +302,7 @@ class RestHomeView(APIView):
                 publisher=i.publisher.name,
                 summary=i.summary,
                 image_url=i.image_url,
-                has_full_text=i.has_full_text,
+                has_full_text=i.has_full_text=='Y',
                 has_paywall=i.publisher.paywall,
                 is_breaking_news=i.type=='breaking',
                 content_type=i.content_type,
