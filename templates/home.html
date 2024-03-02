@@ -244,7 +244,14 @@
         </div>
 
         <div id="topSpaceExtended" class="container mb-3"  style="overflow-x: scroll; white-space: nowrap; display: none; visibility: hidden; height: 0; width: 0;">
-            <div class="btn btn-sm rounded-circle btn-close bg-body border border-2 border-dark p-2 shadow" onclick="hideDiv(&quot;topSpaceExtended&quot;);showDiv(&quot;topSpaceSummary&quot;);"></div>
+            
+            <a class="nav-button btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle text-muted" onclick="hideDiv(&quot;topSpaceExtended&quot;);showDiv(&quot;topSpaceSummary&quot;);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16" style="margin: 0px 0px 3px 0px;">
+                  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                </svg>
+                Minimize
+            </a>
+        
             {% for group, entry_lst in marketData.items %}
                 <div class="row">
                     <div class="col-md-12">
