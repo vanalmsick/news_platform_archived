@@ -330,7 +330,7 @@
                     <div class="row mb-2 flex-fill">
                         {% for article in articles %}
                         {% if article is not None and article.publisher is not None %}
-                            <div id="{{ article.pk }}" class="col-12 col-sm-6 col-md-4 col-xl-3 my-2"
+                            <div id="{{ article.pk }}" class="context-card col-12 col-sm-6 col-md-4 col-xl-3 my-2"
                                  tabindex="{{ forloop.counter|add:"8" }}"
                                     {% if article.has_full_text == True %}
                                  onclick="openModal({{ article.pk }})"
@@ -411,8 +411,8 @@
         <div class="list-group">
             {% for side_article in sidebar %}
                 {% if side_article is not None and side_article.publisher is not None %}
-                    <a class="list-group-item list-group-item-action link-dark {% if 'financial times' in side_article.publisher.name|lower or 'bloomberg' in side_article.publisher.name|lower or 'hedgeweek' in side_article.publisher.name|lower or 'reuters' in side_article.publisher.name|lower or 'the wall street journal' in side_article.publisher.name|lower %} breaking{% endif %}" aria-current="true"
-                        onmouseover=showDiv("side_{{ side_article.pk }}") onmouseout=hideDiv("side_{{ side_article.pk }}")
+                    <a id="side_{{ side_article.pk }}" class="context-card list-group-item list-group-item-action link-dark {% if 'financial times' in side_article.publisher.name|lower or 'bloomberg' in side_article.publisher.name|lower or 'hedgeweek' in side_article.publisher.name|lower or 'reuters' in side_article.publisher.name|lower or 'the wall street journal' in side_article.publisher.name|lower %} breaking{% endif %}" aria-current="true"
+                        onmouseover=showDiv("extract_{{ side_article.pk }}") onmouseout=hideDiv("extract_{{ side_article.pk }}")
                             {% if side_article.has_full_text == False %}
                        href="{{ side_article.link }}" target="_blank" referrerpolicy="no-referrer"
                             {% else %}
@@ -443,7 +443,7 @@
                                 <script>document.write(createDateStr("{{ side_article.pub_date|date:"c" }}", "{{ side_article.added_date|date:"c" }}", "short"));</script>
                             </div>
                         </div>
-                        <small id="side_{{ side_article.pk }}" class="d-flex w-100 justify-content-between text-secondary" style="display: none; visibility: hidden; height: 0; width:0;">
+                        <small id="extract_{{ side_article.pk }}" class="d-flex w-100 justify-content-between text-secondary" style="display: none; visibility: hidden; height: 0; width:0;">
                             <p class="card-text mb-auto" style="font-family: Georgia, serif;">{{ side_article.summary|truncatechars:255|safe }}</p>
                         </small>
                     </a>

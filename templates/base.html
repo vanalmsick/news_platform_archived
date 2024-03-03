@@ -121,10 +121,10 @@
         document.oncontextmenu = function (e) {
             //alert(e.target.id)
             var elmnt = e.target
-            var card = elmnt.closest('.card');
+            var card = elmnt.closest('.context-card');
             if (card && card.contains(elmnt)) {
                 e.preventDefault();
-                let article = card.parentNode.id;
+                const article = card.id.replace("side_", "");
                 var base_url = window.location.origin;
 
                 let lst_1 = '<li class="list-group-item" onclick="openModal(' + article + ');">Open Article</li>';
@@ -132,7 +132,7 @@
                 let lst_3 = '<li class="list-group-item" onclick="window.open(&quot;/redirect/' + article + '/&quot;);">Open Source Article</li>';
                 let lst_4 = '<li class="list-group-item" onclick="copyToClipboard(&quot;' + base_url + '/view/' + article + '/&quot;);">Copy Link</li>';
                 let lst_5 = '<li class="list-group-item" onclick="httpRequest(&quot;/read-later/add/' + article + '/&quot;);">Add to Reading List</li>';
-                console.log(lst_5)
+                console.log(article)
 
                 let menu = document.createElement("div")
                 menu.id = "ctxmenu"
@@ -391,7 +391,7 @@
         #ctxmenu {
             position: fixed;
             cursor: pointer;
-            z-index: 1100;
+            z-index: 2;
         }
 
 
