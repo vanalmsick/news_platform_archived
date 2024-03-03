@@ -126,13 +126,15 @@
                 e.preventDefault();
                 const article = card.id.replace("side_", "");
                 var base_url = window.location.origin;
+                let read_later_source = card.getAttribute("data-read-later") === "True";
+                let read_later_session = sessionStorage.getItem("read_later_" + article);
+                let read_later_final = read_later_session == undefined ? read_later_source : read_later_session === "true";
 
                 let lst_1 = '<li class="list-group-item" onclick="openModal(' + article + ');">Open Article</li>';
                 let lst_2 = '<li class="list-group-item" onclick="window.open(&quot;/view/' + article + '/&quot;);">Open in New Tab</li>';
                 let lst_3 = '<li class="list-group-item" onclick="window.open(&quot;/redirect/' + article + '/&quot;);">Open Source Article</li>';
                 let lst_4 = '<li class="list-group-item" onclick="copyToClipboard(&quot;' + base_url + '/view/' + article + '/&quot;);">Copy Link</li>';
-                let lst_5 = '<li class="list-group-item" onclick="httpRequest(&quot;/read-later/add/' + article + '/&quot;);">Add to Reading List</li>';
-                console.log(article)
+                let lst_5 = '<li class="list-group-item" onclick="readLaterRequest(&quot;' + article + '&quot;,' + (read_later_final ? '&quot;remove&quot;' : '&quot;add&quot;') + ');">' + (read_later_final ? 'Remove from' : 'Add to') + ' Reading List</li>';
 
                 let menu = document.createElement("div")
                 menu.id = "ctxmenu"
@@ -156,13 +158,14 @@
             });
         }
 
-        function httpRequest(url) {
-            const response = fetch(url);
+        function readLaterRequest(article, action) {
+            const response = fetch('/read-later/' + action + '/' + article);
             console.log(response);
             let ctxmenu = document.getElementById("ctxmenu");
             if (ctxmenu) {
                 ctxmenu.outerHTML = ''
             }
+            sessionStorage.setItem("read_later_" + article, (action == "add"));
         }
 
 

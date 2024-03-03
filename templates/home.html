@@ -335,7 +335,7 @@
                                     {% if article.has_full_text == True %}
                                  onclick="openModal({{ article.pk }})"
                                     {% endif %}
-                                 style="cursor: pointer;">
+                                 style="cursor: pointer;" data-read-later="{{ article.read_later }}">
                             <div class="card mb-4 box-shadow h-100{% if article.type == 'breaking' or 'big read' in article.categories|lower or 'news in depth' in article.categories|lower %} breaking{% endif %}">
                             {% if article.image_url != Null %}
                                 <img class="card-img-top" alt="Thumbnail" style="width: 100%;" referrerpolicy="no-referrer"
@@ -418,7 +418,7 @@
                             {% else %}
                        onclick="openModal({{ side_article.pk }})"
                             {% endif %}
-                       style="font-family: Georgia, serif;cursor: pointer;">
+                       style="font-family: Georgia, serif;cursor: pointer;" data-read-later="{{ side_article.read_later }}">
                         <div class="d-flex w-100 justify-content-between" style="margin: 2px 0px 0px 0px;">
                             <h6 style="margin: 0px 0px 2px 0px;">{{ side_article.title }}</h6>
                             <div class="align-top">
