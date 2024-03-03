@@ -809,7 +809,7 @@ class ScrapedArticle:
             and len(self.final_full_text) > 20
         ):
             soup = BeautifulSoup(self.final_full_text, "html.parser")
-            for img in soup.find_all("img"):
+            for i, img in enumerate(soup.find_all("img")):
                 img["style"] = (
                     "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
                 )
@@ -823,6 +823,8 @@ class ScrapedArticle:
                 if hasattr(img, "srcset"):
                     img["srcset"] = ""
                 img["referrerpolicy"] = "no-referrer"
+                if i == 0 and self.final_image_url.lower() in img["src"].lower():
+                    img.decompose()
             for figure in soup.find_all("figure"):
                 figure["class"] = "figure"
             for figcaption in soup.find_all("figcaption"):
