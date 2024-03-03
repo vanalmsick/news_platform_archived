@@ -823,7 +823,7 @@ class ScrapedArticle:
                 if hasattr(img, "srcset"):
                     img["srcset"] = ""
                 img["referrerpolicy"] = "no-referrer"
-                if i == 0 and self.final_image_url.lower() in img["src"].lower():
+                if i == 0 and hasattr(self, 'final_image_url') and self.final_image_url.lower() in img["src"].lower():
                     img.decompose()
             for figure in soup.find_all("figure"):
                 figure["class"] = "figure"
