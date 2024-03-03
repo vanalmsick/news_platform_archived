@@ -6,6 +6,7 @@ from django.core.cache import cache
 from django.db.models import Count
 from django.shortcuts import render
 from django.template.defaulttags import register
+from django.http import HttpResponseRedirect
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -317,3 +318,10 @@ class RestHomeView(APIView):
             ]
 
         return Response(articles)
+
+def RedirectView(request, article):
+    try:
+        requested_article = Article.objects.get(pk=int(article))
+        return HttpResponseRedirect(requested_article.link)
+    except:
+        return HttpResponseRedirect('/')

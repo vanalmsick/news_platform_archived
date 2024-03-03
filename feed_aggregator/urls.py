@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from .pageAPI import ReadLaterView, RestArticleView
-from .pageHome import homeView, RestHomeView
+from .pageHome import homeView, RestHomeView, RedirectView
 from .pageLogin import LoginURLView, LoginView
 
 urlpatterns = [
@@ -32,6 +32,7 @@ urlpatterns = [
     path("read-later/<str:action>/<int:pk>/", ReadLaterView, name="read-later"),
 
     path("view/<int:article>/", homeView, name="view_article"),
+    path("redirect/<int:article>/", RedirectView, name="redirect_article"),
     path("", homeView, name="home"),
 
     path("auth/", include("djoser.urls")),
