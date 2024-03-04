@@ -610,10 +610,10 @@
                     aiAccordion.style.display = "block";
                 }
                 var categories_lst = myJson.categories.split(';');
-                categories.innerHTML += '<a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle" href="/?publisher__name=' + myJson.publisher__name.toLowerCase() + '">@' + myJson.publisher__name.toUpperCase() + '</a>'
+                categories.innerHTML += '<a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle" href="/?publisher__name=' + myJson.publisher__name.toLowerCase() + '&content_type=' + myJson.content_type + '">@' + myJson.publisher__name.toUpperCase() + '</a>'
                 for (var i = 0; i < categories_lst.length; i++) {
                     if (categories_lst[i].length > 1) {
-                        categories.innerHTML += '<a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle" href="/?categories=' + categories_lst[i].toLowerCase() + '">#' + categories_lst[i].toUpperCase() + '</a>'
+                        categories.innerHTML += '<a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm bg-dark-subtle" href="/?categories=' + categories_lst[i].toLowerCase() + '&content_type=' + myJson.content_type + '">#' + categories_lst[i].toUpperCase() + '</a>'
                     }
                 }
                 // update url to show article
