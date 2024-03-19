@@ -471,6 +471,10 @@ def fetch_feed_new(feed):
         if (
             article_obj.pk not in notifications_sent
             and (
+                    article_obj.categories is None
+                    or "no push" not in str(article_obj.categories).lower()
+            )
+            and (
                 (
                     "sidebar" in str(article_obj.categories).lower()
                     and article_obj.publisher.renowned >= 2
