@@ -42,8 +42,9 @@ class Publisher(models.Model):
 class Feed(models.Model):
     """Model for individual rss/youtube news feeds."""
 
-    name = models.CharField(max_length=40)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
+
+    name = models.CharField(max_length=40)
     url = models.URLField(max_length=600)
     active = models.BooleanField(default=True)
     last_fetched = models.DateTimeField(null=True, blank=True)

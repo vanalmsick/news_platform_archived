@@ -35,6 +35,9 @@ def update_videos():
     all_videos.update(min_article_relevance=None)
 
     feeds = Feed.objects.filter(active=True).exclude(feed_type="rss")
+    if settings.TESTING:
+        # when testing is turned on only fetch 10% of feeds to not having to wait too long
+        feeds = [feeds[i] for i in range(0, len(feeds), len(feeds) // (len(feeds) // 10))]
 
     added_videos = 0
     for feed in feeds:
@@ -82,34 +85,23 @@ def fetch_feed(feed, max_per_feed=200):
         article_kwargs["min_feed_position"] = article__feed_position
         article_kwargs["publisher"] = feed.publisher
         article_kwargs["content_type"] = "video"
-        article_kwargs["categories"] = ";".join(
-            [
-                str(i).upper()
-                for i in ["VIDEO"]
-                + (
-                    []
-                    if feed.source_categories is None
-                    else feed.source_categories.split(";")
-                )
-                + [""]
-            ]
-        )
+        article_kwargs["categories"] = ";".join([str(i) for i in ["Video"] + ([] if feed.source_categories is None else feed.source_categories.split(";")) + [""]])
         article_kwargs["title"] = (
             video["title"]["runs"][0]["text"] if "title" in video else None
         )
-        article_kwargs["summary"] = (
+        article_kwargs["extract"] = (
             video["descriptionSnippet"]["runs"][0]["text"]
             if "descriptionSnippet" in video
             else ""
         )
         if "lengthText" in video and "viewCountText" in video:
-            article_kwargs["summary"] = (
+            article_kwargs["extract"] = (
                 video["lengthText"]["simpleText"]
                 + (" h" if len(video["lengthText"]["simpleText"]) > 5 else " min")
                 + "  |  "
                 + video["viewCountText"]["simpleText"]
                 + "<br>\n"
-                + article_kwargs["summary"]
+                + article_kwargs["extract"]
             )
         article_kwargs["image_url"] = (
             video["thumbnail"]["thumbnails"][-1]["url"]
@@ -157,12 +149,12 @@ def fetch_feed(feed, max_per_feed=200):
         article_kwargs["hash"] = f"youtube_{video['videoId']}"
         article_kwargs["language"] = feed.publisher.language
         article_kwargs["link"] = f"https://www.youtube.com/watch?v={video['videoId']}"
-        article_kwargs["full_text"] = f"""
+        article_kwargs["full_text_html"] = f"""
         <iframe style="width: 100%; height: auto; min-height: 30vw; max-height:400px; aspect-ratio: 16 / 9;"
         referrerpolicy="no-referrer"
         src="https://www.youtube-nocookie.com/embed/{video['videoId']}?rel=0&autoplay=1"
         frameborder="0" allow="autoplay; encrypted-media" tabindex="0" allowfullscreen></iframe><br>\n
-        <div>{article_kwargs["summary"]}</div>
+        <div>{article_kwargs["extract"]}</div>
         """
         article_kwargs["has_full_text"] = True
 
@@ -178,10 +170,7 @@ def fetch_feed(feed, max_per_feed=200):
             article_obj = search_article[0]
             no_new_video += 1
 
-        (
-            article_kwargs["max_importance"],
-            article_kwargs["min_article_relevance"],
-        ) = calcualte_relevance(
+        (max_importance, min_article_relevance) = calcualte_relevance(
             publisher=feed.publisher,
             feed=feed,
             feed_position=article__feed_position,
@@ -192,27 +181,22 @@ def fetch_feed(feed, max_per_feed=200):
             value = getattr(article_obj, k)
             if value is None and v is not None:
                 setattr(article_obj, k, v)
-            elif "min" in k and v < value:
-                setattr(article_obj, k, v)
-            elif "max" in k and v > value:
-                setattr(article_obj, k, v)
             elif k == "categories" and article_kwargs["categories"] is not None:
                 for category in article_kwargs["categories"].split(";"):
-                    if category.upper() not in v:
-                        v += category.upper() + ";"
+                    if category.upper() not in v.upper():
+                        v += category + ";"
                 setattr(article_obj, k, v)
         article_obj.save()
 
         # Add feed position linking
         feed_position = FeedPosition(
             feed=feed,
+            article=article_obj,
             position=article__feed_position,
-            importance=article_kwargs["max_importance"],
-            relevance=article_kwargs["min_article_relevance"],
+            importance=max_importance,
+            relevance=min_article_relevance,
         )
         feed_position.save()
-
-        article_obj.feed_position.add(feed_position)
 
     total_articles = (
         article__feed_position

@@ -1,4 +1,4 @@
-"""feed_aggregator URL Configuration
+"""news_platform URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -15,24 +15,27 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.contrib.auth.views import LogoutView
 
-from .pageAPI import ReadLaterView, RestArticleView
-from .pageHome import homeView, RestHomeView, RedirectView
-from .pageLogin import LoginURLView, LoginView
+from news_platform.pages.pageAPI import ReadLaterView, ArchiveView, RestArticleAPIView, RestPublisherAPIView, RestLastRefeshAPIView
+from news_platform.pages.pageArticle import articleView
+from news_platform.pages.pageHome import homeView, RestHomeView
+from news_platform.pages.pageLogin import LoginView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("login/", LoginView, name="login"),
-    path("login-url/<str:password>/", LoginURLView, name="login-url"),
+    path('logout/', LogoutView.as_view(), name='logout'),
 
-    path("article/<int:pk>/", RestArticleView.as_view(), name="article"),
-    path("api/article/<int:pk>/", RestArticleView.as_view(), name="article_api"),
+    path("api/article/<int:pk>/", RestArticleAPIView.as_view(), name="article_api"),
+    path("api/publisher/<int:pk>/", RestPublisherAPIView.as_view(), name="publisher_api"),
     path("api/page/", RestHomeView.as_view(), name="page_api"),
+    path("api/refresh/", RestLastRefeshAPIView.as_view(), name="refesh_api"),
 
     path("read-later/<str:action>/<int:pk>/", ReadLaterView, name="read-later"),
+    path("archive/<str:action>/<int:pk>/", ArchiveView, name="read-later"),
 
-    path("view/<int:article>/", homeView, name="view_article"),
-    path("redirect/<int:article>/", RedirectView, name="redirect_article"),
+    path("view/<int:article>/", articleView, name="view_article"),
     path("", homeView, name="home"),
 
     path("auth/", include("djoser.urls")),

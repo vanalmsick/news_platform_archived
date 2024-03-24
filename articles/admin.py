@@ -2,10 +2,20 @@
 
 from django.contrib import admin
 
-from .models import Article
+from .models import Article, FeedPosition
 
 
 # Register your models here.
+class FeedPositionInline(admin.TabularInline):
+    """Table of feeds to be shown in single-Publisher view"""
+
+    model = FeedPosition
+    fk_name = "article"
+    extra = 0
+    exclude = []
+
+
+
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
     """Main Admin Article View"""
@@ -21,7 +31,15 @@ class ArticleAdmin(admin.ModelAdmin):
         "language",
     ]
     readonly_fields = (
+        "publisher_article_position",
+        "max_importance",
+        "min_feed_position",
+        "min_article_relevance",
         "added_date",
         "last_updated_date",
+        "mailto_link",
     )
     ordering = ("-added_date",)
+    inlines = [
+        FeedPositionInline,
+        ]

@@ -5,7 +5,7 @@ import os
 import sys
 import warnings
 
-from feed_aggregator.pwa_splash_screen_generator import create
+from news_platform.pwa_splash_screen_generator import create
 
 
 def __ensure_db_migration_folders_exist():
@@ -29,7 +29,7 @@ def __ensure_db_migration_folders_exist():
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "feed_aggregator.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "news_platform.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
