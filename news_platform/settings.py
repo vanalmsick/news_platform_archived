@@ -34,7 +34,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
 DEBUG = True
-TESTING = os.environ.get("TESTING", "true").lower() == "true"
+TESTING = os.environ.get("TESTING", "false").lower() == "true"
 print(f'Debug modus is turned {"on" if DEBUG else "off"}')
 
 MAIN_HOST = os.environ.get("MAIN_HOST", "http://localhost")
