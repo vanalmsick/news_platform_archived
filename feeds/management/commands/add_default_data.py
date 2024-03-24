@@ -633,7 +633,7 @@ class Command(BaseCommand):
                 "name": "Wirtschaft",
                 "publisher": Publisher.objects.get(name="n-tv.de"),
                 "url": "https://www.n-tv.de/wirtschaft/rss",
-                "active": False,
+                "active": True,
                 "feed_ordering": "r",
                 "full_text_fetch": "Y",
                 "source_categories": "wirtschaft",

@@ -633,7 +633,7 @@
             restRequest('/api/refresh/')
                 .then(response => response.lastRefreshed)
                 .then(function (lastRefreshed) {
-                    if (false === (((lastRefresh === null) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed))) {
+                    if (false === (((!lastRefresh) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed))) {
                         console.log('new articles avaiable');
                         clearInterval(interval);
                         let element = document.getElementById("refreshNotification");
@@ -645,15 +645,15 @@
                         console.log('no new articles avaiable');
                         console.log(
                             lastRefresh, 
-                            (lastRefresh === null),
+                            (!lastRefresh),
                             '{{ lastRefreshed }}',
                             ('{{ lastRefreshed }}' === 'None'),
-                            ((typeof lastRefresh === 'undefined') && ('{{ lastRefreshed }}' === 'None')),
+                            ((!lastRefresh) && ('{{ lastRefreshed }}' === 'None')),
                             '{{ lastRefreshed|date:"c" }}',
                             lastRefreshed,
                             ('{{ lastRefreshed|date:"c" }}' === lastRefreshed),
-                            (((lastRefresh === null) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)),
-                            (false === (((lastRefresh === null) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)))
+                            (((!lastRefresh) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)),
+                            (false === (((!lastRefresh) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)))
                         );
                     }
                 });
