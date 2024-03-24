@@ -20,17 +20,17 @@ app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
     "daytime": {
-        "task": "news_platform.pageHome.refresh_feeds",
+        "task": "news_platform.pages.pageHome.refresh_feeds",
         "schedule": crontab(minute="*/15", hour="5-18"),
         "args": (),
     },
     "nighttime": {
-        "task": "news_platform.pageHome.refresh_feeds",
+        "task": "news_platform.pages.pageHome.refresh_feeds",
         "schedule": crontab(minute="*/30", hour="18-23"),
         "args": (),
     },
     "afterstartup": {
-        "task": "news_platform.pageHome.refresh_feeds",
+        "task": "news_platform.pages.pageHome.refresh_feeds",
         "schedule": crontab(
             minute=datetime.datetime.now().minute + 2 if datetime.datetime.now().minute + 2 < 59 else datetime.datetime.now().minute + 2 - 60,
             hour=datetime.datetime.now().hour if datetime.datetime.now().minute + 2 < 59 else datetime.datetime.now().hour + 1,
