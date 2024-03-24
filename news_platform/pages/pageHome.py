@@ -38,7 +38,7 @@ def refresh_all_pages():
             cached_views_dict[k] = v
 
     for view_hash, view_kwargs in cached_views_dict.items():
-        _, _, _ = get_articles(**view_kwargs)
+        _, _, _ = get_articles(**view_kwargs, force_recache=True)
 
 
 

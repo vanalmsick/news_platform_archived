@@ -641,7 +641,7 @@
                         setInterval(refreshPageRefreshNotification, 1000 * 1);
                     } else {
                         let element = document.getElementById("lastNewsFetchNote");
-                        element.innerHTML = '(Last news fetch: ' + dateConvert("{{ lastRefreshed|date:"c" }}", "medium");
+                        element.innerHTML = '(Last news fetch: ' + dateConvert("{{ lastRefreshed|date:"c" }}", "medium") + ')';
                         console.log('no new articles avaiable');
                     }
                 });
