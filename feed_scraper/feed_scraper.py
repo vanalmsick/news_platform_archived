@@ -941,7 +941,7 @@ class ScrapedArticle:
             feed_attr_name="feed_article_extract_text",
             scrape_attr_name="scrape_article_extract_text",
         )
-        self.final_has_extract = self.final_extract is None or self.final_extract == '' or self.final_extract == 'None'
+        self.final_has_extract = (self.final_extract is None or self.final_extract == '' or self.final_extract == 'None') if hasattr(self, "final_extract") else False
 
         # Full text / Body
 

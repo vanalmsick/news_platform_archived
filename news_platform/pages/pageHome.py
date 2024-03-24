@@ -71,6 +71,7 @@ def get_stats():
                 i["count"],
                 60 * 60 * 24,
             )
+            print(f'There are currently {i["count"]} active {content_type}s from feed__publisher__pk {i["feedposition__feed__publisher__pk"]}')
 
 
 # @postpone
