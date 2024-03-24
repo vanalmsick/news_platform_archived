@@ -157,6 +157,7 @@ def fetch_feed(feed, max_per_feed=200):
         <div>{article_kwargs["extract"]}</div>
         """
         article_kwargs["has_full_text"] = True
+        article_kwargs["has_extract"] = False
 
         search_article = Article.objects.filter(hash=article_kwargs["hash"])
 

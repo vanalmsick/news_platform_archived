@@ -431,6 +431,8 @@ def fetch_feed_new(feed):
             for c in new_categories.split(";"):
                 if c.lower() not in final_categories.lower():
                     final_categories += ";" + new_categories
+            if final_categories[-1] != ";":
+                final_categories += ";"
             setattr(article_obj, "categories", final_categories)
         article_obj.save()
 
@@ -939,6 +941,7 @@ class ScrapedArticle:
             feed_attr_name="feed_article_extract_text",
             scrape_attr_name="scrape_article_extract_text",
         )
+        self.final_has_extract = self.final_extract is None or self.final_extract == '' or self.final_extract == 'None'
 
         # Full text / Body
 
