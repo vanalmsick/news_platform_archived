@@ -635,6 +635,14 @@
                 .then(function (lastRefreshed) {
                     if (false === (((typeof lastRefresh === 'undefined') && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed))) {
                         console.log('new articles avaiable');
+                        clearInterval(interval);
+                        let element = document.getElementById("refreshNotification");
+                        element.classList.add("show");
+                        setInterval(refreshPageRefreshNotification, 1000 * 1);
+                    } else {
+                        let element = document.getElementById("lastNewsFetchNote");
+                        element.innerHTML = '(Last news fetch: ' + dateConvert("{{ lastRefreshed|date:"c" }}", "medium") + ')';
+                        console.log('no new articles avaiable');
                         console.log(
                             typeof lastRefresh, 
                             (typeof lastRefresh === 'undefined'),
@@ -647,14 +655,6 @@
                             (((typeof lastRefresh === 'undefined') && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)),
                             (false === (((typeof lastRefresh === 'undefined') && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)))
                         );
-                        clearInterval(interval);
-                        let element = document.getElementById("refreshNotification");
-                        element.classList.add("show");
-                        setInterval(refreshPageRefreshNotification, 1000 * 1);
-                    } else {
-                        let element = document.getElementById("lastNewsFetchNote");
-                        element.innerHTML = '(Last news fetch: ' + dateConvert("{{ lastRefreshed|date:"c" }}", "medium") + ')';
-                        console.log('no new articles avaiable');
                     }
                 });
         }
