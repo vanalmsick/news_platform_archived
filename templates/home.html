@@ -635,6 +635,18 @@
                 .then(function (lastRefreshed) {
                     if (false === (((typeof lastRefresh === 'undefined') && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed))) {
                         console.log('new articles avaiable');
+                        console.log(
+                            typeof lastRefresh, 
+                            (typeof lastRefresh === 'undefined'),
+                            '{{ lastRefreshed }}',
+                            ('{{ lastRefreshed }}' === 'None'),
+                            ((typeof lastRefresh === 'undefined') && ('{{ lastRefreshed }}' === 'None')),
+                            '{{ lastRefreshed|date:"c" }}',
+                            lastRefreshed,
+                            ('{{ lastRefreshed|date:"c" }}' === lastRefreshed),
+                            (((typeof lastRefresh === 'undefined') && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)),
+                            (false === (((typeof lastRefresh === 'undefined') && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)))
+                        );
                         clearInterval(interval);
                         let element = document.getElementById("refreshNotification");
                         element.classList.add("show");
