@@ -633,7 +633,8 @@
             restRequest('/api/refresh/')
                 .then(response => response.lastRefreshed)
                 .then(function (lastRefreshed) {
-                    if (false === (((!lastRefresh) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed))) {
+                    // console.log(((lastRefreshed === null) && ('{{ lastRefreshed }}' === 'None')), ('{{ lastRefreshed|date:"c" }}' === lastRefreshed));
+                    if (false === (((lastRefreshed === null) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed))) {
                         console.log('new articles avaiable');
                         clearInterval(interval);
                         let element = document.getElementById("refreshNotification");
@@ -643,18 +644,6 @@
                         let element = document.getElementById("lastNewsFetchNote");
                         element.innerHTML = '(Last news fetch: ' + dateConvert("{{ lastRefreshed|date:"c" }}", "medium") + ')';
                         console.log('no new articles avaiable');
-                        console.log(
-                            lastRefresh, 
-                            (!lastRefresh),
-                            '{{ lastRefreshed }}',
-                            ('{{ lastRefreshed }}' === 'None'),
-                            ((!lastRefresh) && ('{{ lastRefreshed }}' === 'None')),
-                            '{{ lastRefreshed|date:"c" }}',
-                            lastRefreshed,
-                            ('{{ lastRefreshed|date:"c" }}' === lastRefreshed),
-                            (((!lastRefresh) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)),
-                            (false === (((!lastRefresh) && ('{{ lastRefreshed }}' === 'None')) || ('{{ lastRefreshed|date:"c" }}' === lastRefreshed)))
-                        );
                     }
                 });
         }

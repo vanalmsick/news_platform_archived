@@ -32,8 +32,8 @@ app.conf.beat_schedule = {
     "afterstartup": {
         "task": "news_platform.pages.pageHome.refresh_feeds",
         "schedule": crontab(
-            minute=datetime.datetime.now().minute + 2 if datetime.datetime.now().minute + 2 < 59 else datetime.datetime.now().minute + 2 - 60,
-            hour=datetime.datetime.now().hour if datetime.datetime.now().minute + 2 < 59 else datetime.datetime.now().hour + 1,
+            minute=datetime.datetime.now().minute + 2 if datetime.datetime.now().minute + 2 < 60 else datetime.datetime.now().minute + 2 - 60,
+            hour=datetime.datetime.now().hour if datetime.datetime.now().minute + 2 < 60 else datetime.datetime.now().hour + 1,
             day_of_month=datetime.datetime.now().day,
             month_of_year=datetime.datetime.now().month
             ),
