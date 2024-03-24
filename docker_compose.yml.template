@@ -14,7 +14,7 @@ services:
     depends_on:
       - news-platform-letsencrypt
     volumes:
-      - /mnt/ssd/news_platform:/feed_aggregator/data
+      - /mnt/ssd/news_platform:/news_platform/data
     environment:
       HOSTS: 'http://localhost,http://127.0.0.1,http://0.0.0.0,http://docker-container-name,http://news.yourwebsite.com,https://news.yourwebsite.com'
       CUSTOM_PLATFORM_NAME: 'Personal News Platform'

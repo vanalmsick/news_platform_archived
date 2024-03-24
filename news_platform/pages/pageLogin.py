@@ -26,7 +26,7 @@ def LoginView(request, meta=f"<title>{settings.CUSTOM_PLATFORM_NAME}</title>"):
                 login(request, user)
                 if "article" in request.GET:
                     return redirect(
-                        f"/?article={request.GET['article']}&previous=login"
+                        f"/view/{request.GET['article']}/?previous=login"
                     )
                 else:
                     return redirect("/")
@@ -44,15 +44,3 @@ def LoginView(request, meta=f"<title>{settings.CUSTOM_PLATFORM_NAME}</title>"):
     )
 
 
-def LoginURLView(request, password):
-    user = authenticate(
-        username="user",
-        password=password,
-    )
-    if user is not None:
-        # login successful
-        login(request, user)
-        return redirect("/")
-    else:
-        # Login failed!
-        return HttpResponse("Incorrect password provided!", content_type="text/plain")

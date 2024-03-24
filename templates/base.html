@@ -44,6 +44,71 @@
 
     <script>
 
+        // re-usuable RestAPI request function
+        const restRequest = async (url) => {
+          const response = await fetch(url);
+          if (response.ok) {
+              console.log('RestAPI Request to "' + url + '" status ' + response.status);
+              const myJson = await response.json();
+              return myJson
+          } else {
+              throw new Error('RestAPI Request to "' + url + '" error ' + response.status + ' ' + response.statusText);
+          }
+        }
+
+
+
+        // show a html element using its id
+        function showElement(id) {
+            let div = document.getElementById(id);
+            div.style.display = "block";
+            div.style.visibility = "visible";
+            div.style.height = "auto";
+            div.style.width = "auto";
+        }
+
+        // hide a html element using its id
+        function hideElement(id) {
+            let div = document.getElementById(id);
+            div.style.display = "none";
+            div.style.visibility = "hidden";
+            div.style.height = 0;
+            div.style.width = 0;
+        }
+
+
+        // finds all elements containing a class and replaces that class with another class
+        function replaceClass(oldClass, newClass) {
+            var links = document.getElementsByClassName(oldClass);
+            while (links.length > 0) {
+                links[0].classList.add(newClass);
+                links[0].classList.remove(oldClass);
+            }
+        }
+
+
+        // apply user's light or dark mode
+        function applyUserLightDarkTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // dark mode
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+                replaceClass('link-dark', 'link-light');
+                replaceClass('text-dark', 'text-light');
+                console.log('html changed to dark mode');
+                } else {
+                // light mode
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+                replaceClass('link-light', 'link-dark');
+                replaceClass('text-light', 'text-dark');
+                console.log('html changed to light mode');
+            }
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+          console.log(`browser changed to ${e.matches ? "dark" : "light"} mode`);
+          applyUserLightDarkTheme();
+        });
+
+
         Date.prototype.addHours = function (h) {
             this.setHours(this.getHours() + h);
             return this;
@@ -222,6 +287,14 @@
         }
 
         .cust-text-danger:hover {
+            color: #FFFFFF !important;
+        }
+        
+        .cust-text-secondary {
+            color: #6c757d !important;
+        }
+
+        .cust-text-secondary:hover {
             color: #FFFFFF !important;
         }
 

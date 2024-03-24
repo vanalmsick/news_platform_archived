@@ -15,19 +15,19 @@ RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyri
     && apt-get update \
     && apt-get install -y redis
 
-COPY requirements.txt /feed_aggregator/requirements.txt
-RUN pip3 install --no-cache-dir -r /feed_aggregator/requirements.txt \
+COPY requirements.txt /news_platform/requirements.txt
+RUN pip3 install --no-cache-dir -r /news_platform/requirements.txt \
     && useradd -U app_user \
-    && install -d -m 0755 -o app_user -g app_user /feed_aggregator
+    && install -d -m 0755 -o app_user -g app_user /news_platform
 
 USER app_user:app_user
 
-COPY --chown=app_user:app_user / /feed_aggregator/
+COPY --chown=app_user:app_user / /news_platform/
 
-WORKDIR /feed_aggregator
+WORKDIR /news_platform
 
-RUN chown -R app_user:app_user /feed_aggregator
-RUN chmod 755 /feed_aggregator
+RUN chown -R app_user:app_user /news_platform
+RUN chmod 755 /news_platform
 
 LABEL org.opencontainers.image.title="News Plattform"
 LABEL org.opencontainers.image.description="News Aggregator - Aggregates news articles from several RSS feeds, fetches full-text if possible, sorts them by relevance (based on user settings), and display on distraction-free homepage."
@@ -44,7 +44,7 @@ EXPOSE 5555
 # Supervisord - for dev
 EXPOSE 9001
 # Permanent storage for databse and config files
-VOLUME /feed_aggregator/data
+VOLUME /news_platform/data
 
 HEALTHCHECK --interval=20m --timeout=60s --retries=3 \
     CMD echo Successful Docker Container Healthcheck && curl --max-time 30 --connect-timeout 30 --silent --output /dev/null --show-error --fail http://localhost:80/ || exit 1

@@ -14,4 +14,8 @@ class PageAdmin(admin.ModelAdmin):
         "position_index",
         "url_parameters",
     ]
+    readonly_fields = (
+        "url_hash",
+        "url_parameters_json",
+    )
     ordering = ("position_index",)

@@ -63,7 +63,7 @@ repos:
   #    hooks:
   #      - id: pylint
   #        exclude: "[a-zA-Z]*/(migrations)/(.)*"
-  #        args: [ "--load-plugins=pylint_django", "--django-settings-module=feed_aggregator.settings", "--errors-only" ]
+  #        args: [ "--load-plugins=pylint_django", "--django-settings-module=news_platform.settings", "--errors-only" ]
   #        additional_dependencies: [ pylint_django, ]
   #  # Catch security concerns in the code
   #  - repo: https://github.com/pycqa/bandit
