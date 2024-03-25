@@ -661,16 +661,13 @@
 
 
         function refreshPageRefreshNotification() {
-            reloadSeconds -= 1;
             console.log(reloadSeconds + ' seconds till page refresh');
             let element = document.getElementById("refreshNotificationMessage");
-            if (reloadSeconds <= 0) {
+            if (reloadSeconds === 0) {
                 element.innerHTML = 'refreshing now...'
                 window.location.reload();
-                wait(1000 * 10);
-                console.log('execute fallback reload');
-                window.location.href = "/";
             } else {
+                reloadSeconds -= 1;
                 element.innerHTML = 'in ' + reloadSeconds + ' seconds';
             }
 
