@@ -184,7 +184,7 @@
                             {% for position in article.feedposition_set.all %}
                                 <tr>
                                     <td scope="row"><a
-                                            href="/?feed_position__feed__pk={{ position.feed.pk }}">{{ position.feed.name }}</a>
+                                            href="/?feedposition__feed__pk={{ position.feed.pk }}">{{ position.feed.name }}</a>
                                     </td>
                                     <td>{{ position.feed.importance }}</td>
                                     <td>{{ position.feed.feed_ordering }}</td>
