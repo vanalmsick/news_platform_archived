@@ -649,6 +649,15 @@
         }
 
         const interval = setInterval(checkNewNews, 1000 * 60);
+        
+        
+        function wait(ms){
+           var start = new Date().getTime();
+           var end = start;
+           while(end < start + ms) {
+             end = new Date().getTime();
+          }
+        }
 
 
         function refreshPageRefreshNotification() {
@@ -658,7 +667,8 @@
             if (reloadSeconds <= 0) {
                 element.innerHTML = 'refreshing now...'
                 window.location.reload();
-                sleep(1000 * 10);
+                wait(1000 * 10);
+                console.log('execute fallback reload');
                 window.location.href = "/";
             } else {
                 element.innerHTML = 'in ' + reloadSeconds + ' seconds';
