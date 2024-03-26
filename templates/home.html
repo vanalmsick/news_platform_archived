@@ -646,9 +646,22 @@
                         console.log('no new articles avaiable');
                     }
                 });
+            sessionStorage.setItem('lastPageRefreshCheck', Math.floor(Date.now() / 1000))
         }
 
-        const interval = setInterval(checkNewNews, 1000 * 60);
+        // every minute check
+        const interval = setInterval(checkNewNews, 1000 * 60);  
+        // if no check was done for 5 min and app became visible reload page instanly
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                let time_now = Math.floor(Date.now() / 1000);
+                let time_last_check = sessionStorage.getItem("lastPageRefreshCheck");
+                if ((time_now - time_last_check) > (5 * 60)) {
+                    console.log('refreshing as for > 5 min not checked');
+                    window.location.reload();
+                }
+            }
+        });
         
         
         function wait(ms){
@@ -670,7 +683,6 @@
                 reloadSeconds -= 1;
                 element.innerHTML = 'in ' + reloadSeconds + ' seconds';
             }
-
         }
 
 
