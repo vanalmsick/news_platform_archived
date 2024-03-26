@@ -934,9 +934,6 @@ class ScrapedArticle:
             potential_inluded_name = f" - {self.feed_publisher_name}"
             if potential_inluded_name in self.final_title:
                 self.final_title = self.final_title.replace(potential_inluded_name, "")
-        if hasattr(self, "final_title") is False or getattr(self, "final_title") in ["", " "] or getattr(self, "final_title") is None:
-            self.final_title = "[MISSING TITLE]"
-            print(f'Warning article {self.feed_article_obj} from the publisher {self.source_publisher_obj} and feed {self.source_feed_obj} has no title')
 
             # Summary / Extract
         self.__calculate_final_value__(

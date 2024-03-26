@@ -96,6 +96,9 @@ class Article(models.Model):
 
     def __init__(self, *args, **kwargs):
         args = [None if i in ['', ' '] else i for i in args]  # ensure blanks '' or ' ' are replaced with None/Null
+        if args[2] is None: # check if title is NULL and set if null
+            args[2] = "[MIISSING]"
+            print(f'Warning article from {args[0]} has not title. Url is: {args[4]}')
         super(Article, self).__init__(*args, **kwargs)
         #self.__original = self._dict
 
