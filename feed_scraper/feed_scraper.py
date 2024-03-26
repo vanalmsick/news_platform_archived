@@ -74,10 +74,10 @@ def update_feeds():
             .exclude(min_feed_position__isnull=True)
             .exclude(min_article_relevance__isnull=True)
             .order_by(
-                "-min_feed_position",
                 "pub_date__date",
-                "pub_date__hour",
                 "max_importance",
+                "pub_date__hour",
+                "-min_feed_position",
             )
         )
         len_articles = len(articles)
