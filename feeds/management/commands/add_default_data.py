@@ -416,7 +416,7 @@ class Command(BaseCommand):
                 "active": True,
                 "feed_ordering": "r",
                 "full_text_fetch": "Y",
-                "source_categories": "frontpage",
+                "source_categories": "frontpage;no push",
                 "importance": 1,
             },
             {
@@ -426,7 +426,7 @@ class Command(BaseCommand):
                 "active": True,
                 "feed_ordering": "r",
                 "full_text_fetch": "Y",
-                "source_categories": "frontpage;markets",
+                "source_categories": "frontpage;markets;no push",
                 "importance": 1,
             },
             {
