@@ -94,7 +94,7 @@ def fetch_feed(feed, max_per_feed=200):
             if "descriptionSnippet" in video
             else ""
         )
-        if "lengthText" in video and "viewCountText" in video:
+        if "lengthText" in video and "viewCountText" in video and "simpleText" in video["viewCountText"]:
             article_kwargs["extract"] = (
                 video["lengthText"]["simpleText"]
                 + (" h" if len(video["lengthText"]["simpleText"]) > 5 else " min")
