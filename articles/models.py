@@ -132,10 +132,10 @@ class FeedPosition(models.Model):
                 if getattr(self.article, article_key) is None:
                     setattr(self.article, article_key, getattr(self, position_key))
                     was_updated = True
-                elif 'max' in article_key and getattr(self.article, article_key) > getattr(self, position_key):
+                elif 'max' in article_key and getattr(self.article, article_key) < getattr(self, position_key):
                     setattr(self.article, article_key, getattr(self, position_key))
                     was_updated = True
-                elif 'min' in article_key and getattr(self.article, article_key) < getattr(self, position_key):
+                elif 'min' in article_key and getattr(self.article, article_key) > getattr(self, position_key):
                     setattr(self.article, article_key, getattr(self, position_key))
                     was_updated = True
             if was_updated:

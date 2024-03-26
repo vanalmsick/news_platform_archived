@@ -406,8 +406,8 @@
                                                 {% if debug %}
                                                     <table class="table table-sm small">
                                                         <tr class="d-flex">
-                                                            <th class="col-6">type</th>
-                                                            <td class="col-6">{{ article.type }}</td>
+                                                            <th class="col-6">importance_type</th>
+                                                            <td class="col-6">{{ article.importance_type }}</td>
                                                         </tr>
                                                         <tr class="d-flex">
                                                             <th class="col-6">content_type</th>
@@ -646,22 +646,9 @@
                         console.log('no new articles avaiable');
                     }
                 });
-            sessionStorage.setItem('lastPageRefreshCheck', Math.floor(Date.now() / 1000))
         }
-
-        // every minute check
-        const interval = setInterval(checkNewNews, 1000 * 60);  
-        // if no check was done for 5 min and app became visible reload page instanly
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible') {
-                let time_now = Math.floor(Date.now() / 1000);
-                let time_last_check = sessionStorage.getItem("lastPageRefreshCheck");
-                if ((time_now - time_last_check) > (5 * 60)) {
-                    console.log('refreshing as for > 5 min not checked');
-                    window.location.reload();
-                }
-            }
-        });
+        
+        const interval = setInterval(checkNewNews, 1000 * 60);
         
         
         function wait(ms){
@@ -680,9 +667,9 @@
                 element.innerHTML = 'refreshing now...'
                 window.location.reload();
             } else {
-                reloadSeconds -= 1;
                 element.innerHTML = 'in ' + reloadSeconds + ' seconds';
             }
+            reloadSeconds -= 1;
         }
 
 
