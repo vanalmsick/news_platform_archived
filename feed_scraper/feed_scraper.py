@@ -17,7 +17,7 @@ import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Max, Q
+from django.db.models import Max, Q, Count
 from openai import OpenAI
 from webpush import send_group_notification
 
@@ -73,11 +73,13 @@ def update_feeds():
             Article.objects.filter(feedposition__feed__publisher__pk=publisher.pk)
             .exclude(min_feed_position__isnull=True)
             .exclude(min_article_relevance__isnull=True)
+            .annotate(feed_count=Count('feedposition'))
             .order_by(
                 "pub_date__date",
                 "max_importance",
-                "pub_date__hour",
                 "-min_feed_position",
+                "feed_count",
+                "pub_date__hour",
             )
         )
         len_articles = len(articles)
