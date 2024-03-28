@@ -508,7 +508,9 @@
                                                     </div>
 
                                                     <p class="card-text mb-auto"
-                                                       style="font-family: Georgia, serif;">{% if article.extract != None %}{{ article.extract|truncatechars:255|safe }}{% endif %}</p>
+                                                       style="font-family: Georgia, serif;">
+                                                        {% if article.extract != None %}
+                                                            {{ article.extract|truncatechars:255|safe }}{% endif %}</p>
 
                                                 {% endif %}
                                                 <a class="stretched-link"
@@ -604,7 +606,8 @@
                                    class="d-flex w-100 justify-content-between text-secondary"
                                    style="display: none; visibility: hidden; height: 0; width:0;">
                                 <p class="card-text mb-auto"
-                                   style="font-family: Georgia, serif;">{% if side_article.extract != None %}{{ side_article.extract|truncatechars:255|safe }}{% endif %}</p>
+                                   style="font-family: Georgia, serif;">{% if side_article.extract != None %}
+                                    {{ side_article.extract|truncatechars:255|safe }}{% endif %}</p>
                             </small>
                         </a>
                     {% endif %}
@@ -628,6 +631,107 @@
         var reloadSeconds = 10;
         applyUserLightDarkTheme();
 
+
+        // Below for detection of closing of web app
+
+        var browserPrefixes = ['moz', 'ms', 'o', 'webkit'],
+            isVisible = true,
+            lastRefresh = Math.floor(Date.now() / 1000);
+
+        // get the correct attribute name
+        function getHiddenPropertyName(prefix) {
+            return (prefix ? prefix + 'Hidden' : 'hidden');
+        }
+
+        // get the correct event name
+        function getVisibilityEvent(prefix) {
+            return (prefix ? prefix : '') + 'visibilitychange';
+        }
+
+        // get current browser vendor prefix
+        function getBrowserPrefix() {
+            for (var i = 0; i < browserPrefixes.length; i++) {
+                if (getHiddenPropertyName(browserPrefixes[i]) in document) {
+                    // return vendor prefix
+                    return browserPrefixes[i];
+                }
+            }
+
+            // no vendor prefix needed
+            return null;
+        }
+
+        // bind and handle events
+        var browserPrefix = getBrowserPrefix(),
+            hiddenPropertyName = getHiddenPropertyName(browserPrefix),
+            visibilityEventName = getVisibilityEvent(browserPrefix);
+
+        function onVisible() {
+            // prevent double execution
+            if (isVisible) {
+                return;
+            }
+
+            // change flag value
+            isVisible = true;
+            console.log('web app visible');
+
+            // check when last checked
+            if (Math.floor(Date.now() / 1000) - lastRefresh > 20) {
+                console.log('reload via visibilitychange');
+                window.location.reload();
+            }
+        }
+
+        function onHidden() {
+            // prevent double execution
+            if (!isVisible) {
+                return;
+            }
+
+            // change flag value
+            isVisible = false;
+            console.log('web app hidden');
+        }
+
+        function handleVisibilityChange(forcedFlag) {
+            // forcedFlag is a boolean when this event handler is triggered by a
+            // focus or blur eventotherwise it's an Event object
+            if (typeof forcedFlag === "boolean") {
+                if (forcedFlag) {
+                    return onVisible();
+                }
+
+                return onHidden();
+            }
+
+            if (document[hiddenPropertyName]) {
+                return onHidden();
+            }
+
+            return onVisible();
+        }
+
+        document.addEventListener(visibilityEventName, handleVisibilityChange, false);
+
+        // extra event listeners for better behaviour
+        document.addEventListener('focus', function () {
+            handleVisibilityChange(true);
+        }, false);
+
+        document.addEventListener('blur', function () {
+            handleVisibilityChange(false);
+        }, false);
+
+        window.addEventListener('focus', function () {
+            handleVisibilityChange(true);
+        }, false);
+
+        window.addEventListener('blur', function () {
+            handleVisibilityChange(false);
+        }, false);
+
+
         // check every X seconds if new articles avaialbe
         function checkNewNews() {
             restRequest('/api/refresh/')
@@ -645,18 +749,20 @@
                         element.innerHTML = '(Last news fetch: ' + dateConvert("{{ lastRefreshed|date:"c" }}", "medium") + ')';
                         console.log('no new articles avaiable');
                     }
+                    ;
                 });
+            lastRefresh = Math.floor(Date.now() / 1000);
         }
-        
+
         const interval = setInterval(checkNewNews, 1000 * 60);
-        
-        
-        function wait(ms){
-           var start = new Date().getTime();
-           var end = start;
-           while(end < start + ms) {
-             end = new Date().getTime();
-          }
+
+
+        function wait(ms) {
+            var start = new Date().getTime();
+            var end = start;
+            while (end < start + ms) {
+                end = new Date().getTime();
+            }
         }
 
 

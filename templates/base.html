@@ -46,16 +46,15 @@
 
         // re-usuable RestAPI request function
         const restRequest = async (url) => {
-          const response = await fetch(url);
-          if (response.ok) {
-              console.log('RestAPI Request to "' + url + '" status ' + response.status);
-              const myJson = await response.json();
-              return myJson
-          } else {
-              throw new Error('RestAPI Request to "' + url + '" error ' + response.status + ' ' + response.statusText);
-          }
+            const response = await fetch(url);
+            if (response.ok) {
+                console.log('RestAPI Request to "' + url + '" status ' + response.status);
+                const myJson = await response.json();
+                return myJson
+            } else {
+                throw new Error('RestAPI Request to "' + url + '" error ' + response.status + ' ' + response.statusText);
+            }
         }
-
 
 
         // show a html element using its id
@@ -95,7 +94,7 @@
                 replaceClass('link-dark', 'link-light');
                 replaceClass('text-dark', 'text-light');
                 console.log('html changed to dark mode');
-                } else {
+            } else {
                 // light mode
                 document.documentElement.setAttribute('data-bs-theme', 'light');
                 replaceClass('link-light', 'link-dark');
@@ -103,9 +102,10 @@
                 console.log('html changed to light mode');
             }
         }
+
         window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
-          console.log(`browser changed to ${e.matches ? "dark" : "light"} mode`);
-          applyUserLightDarkTheme();
+            console.log(`browser changed to ${e.matches ? "dark" : "light"} mode`);
+            applyUserLightDarkTheme();
         });
 
 
@@ -232,17 +232,17 @@
             }
             sessionStorage.setItem("read_later_" + article, (action == "add"));
         }
-        
+
         function resetReadLater() {
             for (const [key, value] of Object.entries(sessionStorage)) {
                 if (key.indexOf("read_later_") !== -1) {
                     console.log("Deleting local key " + key);
                     sessionStorage.removeItem(key);
                 }
-                
+
             };
         }
-
+        
 
     </script>
 
@@ -299,7 +299,7 @@
         .cust-text-danger:hover {
             color: #FFFFFF !important;
         }
-        
+
         .cust-text-secondary {
             color: #6c757d !important;
         }
