@@ -679,9 +679,9 @@
             // check when last checked
             if (Math.floor(Date.now() / 1000) - lastRefresh > 120) {
                 console.log('reload via visibilitychange');
-                applyUserLightDarkTheme();
                 window.location.reload();
             }
+            applyUserLightDarkTheme();
         }
 
         function onHidden() {
