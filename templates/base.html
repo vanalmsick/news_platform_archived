@@ -232,6 +232,16 @@
             }
             sessionStorage.setItem("read_later_" + article, (action == "add"));
         }
+        
+        function resetReadLater() {
+            for (const [key, value] of Object.entries(sessionStorage)) {
+                if (key.indexOf("read_later_") !== -1) {
+                    console.log("Deleting local key " + key);
+                    sessionStorage.removeItem(key);
+                }
+                
+            };
+        }
 
 
     </script>
