@@ -677,8 +677,9 @@
             console.log('web app visible');
 
             // check when last checked
-            if (Math.floor(Date.now() / 1000) - lastRefresh > 20) {
+            if (Math.floor(Date.now() / 1000) - lastRefresh > 120) {
                 console.log('reload via visibilitychange');
+                applyUserLightDarkTheme();
                 window.location.reload();
             }
         }
