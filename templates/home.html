@@ -638,7 +638,9 @@
 
             console.log('web app visible');
             let element = document.getElementById("lastNewsFetchNote");
-            element.innerHTML = 'vis change: ' + Date().toISOString();
+            var now = new Date();
+            var isoString = now.toISOString();
+            element.innerHTML = 'vis change: ' + isoString;
 
             // check when last checked
             if (Math.floor(Date.now() / 1000) - lastRefresh > 120) {
