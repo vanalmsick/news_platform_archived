@@ -508,7 +508,7 @@
                                                     </div>
 
                                                     <p class="card-text mb-auto"
-                                                       style="font-family: Georgia, serif;">{% if article.extract == None %}{{ article.extract|truncatechars:255|safe }}{% endif %}</p>
+                                                       style="font-family: Georgia, serif;">{% if article.extract != None %}{{ article.extract|truncatechars:255|safe }}{% endif %}</p>
 
                                                 {% endif %}
                                                 <a class="stretched-link"
@@ -604,7 +604,7 @@
                                    class="d-flex w-100 justify-content-between text-secondary"
                                    style="display: none; visibility: hidden; height: 0; width:0;">
                                 <p class="card-text mb-auto"
-                                   style="font-family: Georgia, serif;">{% if side_article.extract == None %}{{ side_article.extract|truncatechars:255|safe }}{% endif %}</p>
+                                   style="font-family: Georgia, serif;">{% if side_article.extract != None %}{{ side_article.extract|truncatechars:255|safe }}{% endif %}</p>
                             </small>
                         </a>
                     {% endif %}
