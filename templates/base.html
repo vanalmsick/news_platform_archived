@@ -65,6 +65,7 @@
             div.style.height = "auto";
             div.style.width = "auto";
         }
+        
 
         // hide a html element using its id
         function hideElement(id) {
@@ -102,7 +103,6 @@
                 console.log('html changed to light mode');
             }
         }
-
         window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
             console.log(`browser changed to ${e.matches ? "dark" : "light"} mode`);
             applyUserLightDarkTheme();
@@ -113,6 +113,7 @@
             this.setHours(this.getHours() + h);
             return this;
         }
+        
 
         function dateConvert(date_str, length = "medium") {
             //console.log(date_str);
@@ -192,48 +193,45 @@
                 createContextMenu(e, card);
             }
         }
+        
 
         /**
          touch event handling
          */
-        function onTouchEnd(e) {
-
-            // touch click with context menu being open
-            let ctxmenu = document.getElementById("ctxmenu");
-            if (ctxmenu) {
-
-                const touch = e.touches[0] || e.changedTouches[0];
-                var scrollTop = window.pageYOffset ; //|| document.documentElement.scrollTop || document.body.scrollTop
-                var scrollLeft = window.pageXOffset;  // || document.documentElement.scrollLeft || document.body.scrollLeft
-                const openContextMenu = `${touch.pageY-scrollTop-10}px` == ctxmenu.style.top && `${touch.pageX-scrollLeft-10}px` == ctxmenu.style.left;
-                const clickOnContextMenu = ctxmenu.contains(e.target);
-
-                e.preventDefault();
-
-                // exclude touch click that opens the context menu itself
-                if (!openContextMenu) {
-                    console.log('touch with open cntex menu');
-                    if (clickOnContextMenu) {
-                        // click within the context menu
-                        e.target.click();
-                    }
-                    ctxmenu.outerHTML = '';
-                }
-
-            }
-            
-        }
+        //function onTouchEnd(e) {
+        // 
+        //    // touch click with context menu being open
+        //    let ctxmenu = document.getElementById("ctxmenu");
+        //    if (ctxmenu) {
+        //
+        //        const touch = e.touches[0] || e.changedTouches[0];
+        //        var scrollTop = window.pageYOffset ; //|| document.documentElement.scrollTop || document.body.scrollTop
+        //        var scrollLeft = window.pageXOffset;  // || document.documentElement.scrollLeft || document.body.scrollLeft
+        //        const openContextMenu = `${touch.pageY-scrollTop-10}px` == ctxmenu.style.top && `${touch.pageX-scrollLeft-10}px` == ctxmenu.style.left;
+        //        const clickOnContextMenu = ctxmenu.contains(e.target);
+        //
+        //        e.preventDefault();
+        //
+        //        // exclude touch click that opens the context menu itself
+        //        if (!openContextMenu) {
+        //            console.log('touch with open cntex menu');
+        //            if (clickOnContextMenu) {
+        //                // click within the context menu
+        //                e.target.click();
+        //            }
+        //            ctxmenu.outerHTML = '';
+        //        }
+        //
+        //    }
+        //    
+        //}
         //window.addEventListener('touchend', onTouchEnd, false);
 
-
-
+        
         function createContextMenu(e, card) {
 
             // remove existing context menu if one already exists
-            let ctxmenu = document.getElementById("ctxmenu");
-            if (ctxmenu) {
-                ctxmenu.outerHTML = '';
-            }
+            deleteContextMenu();
 
             const article = card.id.replace("side_", "");
             var base_url = window.location.origin;
@@ -250,33 +248,37 @@
             let menu = document.createElement("div")
             menu.id = "ctxmenu"
             menu.style = `top:${e.clientY - 10}px;left:${e.clientX - 10}px`
-            menu.onmouseleave = () => document.getElementById("ctxmenu").outerHTML = ''
+            menu.onmouseleave = () => deleteContextMenu()
             menu.innerHTML = '<ul class="list-group shadow-lg small">' + lst_1 + lst_2 + lst_3 + lst_4 + lst_5 + '</ul>'
             document.body.appendChild(menu)
+        }
+        
+        
+        function deleteContextMenu() {
+            let ctxmenu = document.getElementById("ctxmenu");
+            if (ctxmenu) {
+                ctxmenu.outerHTML = ''
+            }
         }
 
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(function () {
                 console.log('Async: Copying to clipboard was successful!');
-                let ctxmenu = document.getElementById("ctxmenu");
-                if (ctxmenu) {
-                    ctxmenu.outerHTML = ''
-                }
+                deleteContextMenu();
             }, function (err) {
                 console.error('Async: Could not copy text: ', err);
             });
         }
+        
 
         function readLaterRequest(article, action) {
             const response = fetch('/read-later/' + action + '/' + article);
             console.log(response);
-            let ctxmenu = document.getElementById("ctxmenu");
-            if (ctxmenu) {
-                ctxmenu.outerHTML = ''
-            }
+            deleteContextMenu();
             sessionStorage.setItem("read_later_" + article, (action == "add"));
         }
+        
 
         function resetReadLater() {
             for (const [key, value] of Object.entries(sessionStorage)) {
