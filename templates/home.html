@@ -631,8 +631,8 @@
         var reloadSeconds = 10;
         const lastRefresh = Math.floor(Date.now() / 1000)
         applyUserLightDarkTheme();
-
-
+        
+        
         // Below for detection of closing of web app
         function onVisible() {
 
@@ -642,8 +642,7 @@
             // check when last checked
             if (Math.floor(Date.now() / 1000) - lastRefresh > 120) {
                 console.log('reload via visibilitychange');
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
+                scrollToPageTop();
                 window.location.reload();
             }
             
@@ -651,8 +650,7 @@
         document.addEventListener('visibilitychange', onVisible);
         //document.addEventListener('focus', onVisible);
 
-
-
+        
         // check every X seconds if new articles avaialbe
         function checkNewNews() {
             restRequest('/api/refresh/')
@@ -693,6 +691,7 @@
             if (reloadSeconds === 0) {
                 element.innerHTML = 'refreshing now...';
                 resetReadLater();
+                scrollToPageTop();
                 window.location.reload();
             } else {
                 element.innerHTML = 'in ' + reloadSeconds + ' seconds';
