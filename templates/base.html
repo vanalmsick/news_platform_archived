@@ -189,25 +189,71 @@
             var card = elmnt.closest('.context-card');
             if (card && card.contains(elmnt)) {
                 e.preventDefault();
-                const article = card.id.replace("side_", "");
-                var base_url = window.location.origin;
-                let read_later_source = card.getAttribute("data-read-later") === "True";
-                let read_later_session = sessionStorage.getItem("read_later_" + article);
-                let read_later_final = read_later_session == undefined ? read_later_source : read_later_session === "true";
-
-                let lst_1 = '<li class="list-group-item" onclick="openModal(' + article + ');">Open Article</li>';
-                let lst_2 = '<li class="list-group-item" onclick="window.open(&quot;/view/' + article + '/&quot;);">Open in New Tab</li>';
-                let lst_3 = '<li class="list-group-item" onclick="window.open(&quot;/redirect/' + article + '/&quot;);">Open Source Article</li>';
-                let lst_4 = '<li class="list-group-item" onclick="copyToClipboard(&quot;' + base_url + '/view/' + article + '/&quot;);">Copy Link</li>';
-                let lst_5 = '<li class="list-group-item" onclick="readLaterRequest(&quot;' + article + '&quot;,' + (read_later_final ? '&quot;remove&quot;' : '&quot;add&quot;') + ');">' + (read_later_final ? 'Remove from' : 'Add to') + ' Reading List</li>';
-
-                let menu = document.createElement("div")
-                menu.id = "ctxmenu"
-                menu.style = `top:${e.clientY - 10}px;left:${e.clientX - 10}px`
-                menu.onmouseleave = () => ctxmenu.outerHTML = ''
-                menu.innerHTML = '<ul class="list-group shadow-lg small">' + lst_1 + lst_2 + lst_3 + lst_4 + lst_5 + '</ul>'
-                document.body.appendChild(menu)
+                createContextMenu(e, card);
             }
+        }
+
+        /**
+         touch event handling
+         */
+        function onTouchStart(e) {
+            
+            // touch click with context menu being open
+            let ctxmenu = document.getElementById("ctxmenu");
+            if (ctxmenu) {
+
+                const touch = e.touches[0] || e.changedTouches[0];
+                var scrollTop = window.pageYOffset ; //|| document.documentElement.scrollTop || document.body.scrollTop
+                var scrollLeft = window.pageXOffset;  // || document.documentElement.scrollLeft || document.body.scrollLeft
+                const openContextMenu = `${touch.pageY-scrollTop-10}px` == ctxmenu.style.top && `${touch.pageX-scrollLeft-10}px` == ctxmenu.style.left;
+                const clickOnContextMenu = ctxmenu.contains(e.target);
+
+                e.preventDefault();
+
+                // exclude touch click that opens the context menu itself
+                if (!openContextMenu) {
+                    console.log('touch with open cntex menu');
+                    if (clickOnContextMenu) {
+                        // click within the context menu
+                        e.target.click();
+                    }
+                    ctxmenu.outerHTML = '';
+                }
+
+            }
+
+
+        }
+        window.addEventListener('touchend', onTouchStart,false);
+
+
+
+        function createContextMenu(e, card) {
+            
+            // remove existing context menu if one already exists
+            let ctxmenu = document.getElementById("ctxmenu");
+            if (ctxmenu) {
+                ctxmenu.outerHTML = '';
+            }
+            
+            const article = card.id.replace("side_", "");
+            var base_url = window.location.origin;
+            let read_later_source = card.getAttribute("data-read-later") === "True";
+            let read_later_session = sessionStorage.getItem("read_later_" + article);
+            let read_later_final = read_later_session == undefined ? read_later_source : read_later_session === "true";
+
+            let lst_1 = '<li class="list-group-item" onclick="window.location = &quot;/view/' + article + '/&quot;;">Open Article</li>';
+            let lst_2 = '<li class="list-group-item" onclick="window.open(&quot;/view/' + article + '/&quot;);">Open in New Tab</li>';
+            let lst_3 = '<li class="list-group-item" onclick="window.open(&quot;/redirect/' + article + '/&quot;);">Open Source Article</li>';
+            let lst_4 = '<li class="list-group-item" onclick="copyToClipboard(&quot;' + base_url + '/view/' + article + '/&quot;);">Copy Link</li>';
+            let lst_5 = '<li class="list-group-item" onclick="readLaterRequest(&quot;' + article + '&quot;,' + (read_later_final ? '&quot;remove&quot;' : '&quot;add&quot;') + ');">' + (read_later_final ? 'Remove from' : 'Add to') + ' Reading List</li>';
+
+            let menu = document.createElement("div")
+            menu.id = "ctxmenu"
+            menu.style = `top:${e.clientY - 10}px;left:${e.clientX - 10}px`
+            menu.onmouseleave = () => document.getElementById("ctxmenu").outerHTML = ''
+            menu.innerHTML = '<ul class="list-group shadow-lg small">' + lst_1 + lst_2 + lst_3 + lst_4 + lst_5 + '</ul>'
+            document.body.appendChild(menu)
         }
 
 
@@ -247,6 +293,8 @@
     </script>
 
     <style>
+
+        -webkit-touch-callout: default;
 
         @media (prefers-color-scheme: light) {
             a:link {

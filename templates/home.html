@@ -629,18 +629,18 @@
     <script>
 
         var reloadSeconds = 10;
-        const lastRefresh = Math.floor(Date.now() / 1000)
+        var lastPageRefresh = Math.floor(Date.now() / 1000)
         applyUserLightDarkTheme();
         
         
         // Below for detection of closing of web app
         function onVisible() {
 
-            console.log('web app visible');
+            console.log('web app visible (last news check ' + (Math.floor(Date.now() / 1000) - lastPageRefresh) + 's ago)');
             applyUserLightDarkTheme();
 
             // check when last checked
-            if (Math.floor(Date.now() / 1000) - lastRefresh > 120) {
+            if (Math.floor(Date.now() / 1000) - lastPageRefresh > 120) {
                 console.log('reload via visibilitychange');
                 scrollToPageTop();
                 window.location.reload();
@@ -670,7 +670,7 @@
                     }
                     ;
                 });
-            lastRefresh = Math.floor(Date.now() / 1000);
+            lastPageRefresh = Math.floor(Date.now() / 1000);
         }
 
         const interval = setInterval(checkNewNews, 1000 * 60);
