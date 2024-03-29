@@ -629,7 +629,7 @@
     <script>
 
         var reloadSeconds = 10;
-        var lastRefresh = Math.floor(Date.now() / 1000)
+        const lastRefresh = Math.floor(Date.now() / 1000)
         applyUserLightDarkTheme();
 
 
@@ -641,13 +641,18 @@
             var now = new Date();
             var isoString = now.toISOString();
             element.innerHTML = 'vis change: ' + isoString;
+            console.log(Math.floor(Date.now() / 1000), lastRefresh);
+            
+            applyUserLightDarkTheme();
 
             // check when last checked
-            if (Math.floor(Date.now() / 1000) - lastRefresh > 120) {
+            if (Math.floor(Date.now() / 1000) - lastRefresh > 30) {
                 console.log('reload via visibilitychange');
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
                 window.location.reload();
             }
-            applyUserLightDarkTheme();
+            
         }
         
 
