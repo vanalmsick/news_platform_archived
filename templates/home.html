@@ -637,16 +637,10 @@
         function onVisible() {
 
             console.log('web app visible');
-            let element = document.getElementById("lastNewsFetchNote");
-            var now = new Date();
-            var isoString = now.toISOString();
-            element.innerHTML = 'vis change: ' + isoString;
-            console.log(Math.floor(Date.now() / 1000), lastRefresh);
-            
             applyUserLightDarkTheme();
 
             // check when last checked
-            if (Math.floor(Date.now() / 1000) - lastRefresh > 30) {
+            if (Math.floor(Date.now() / 1000) - lastRefresh > 120) {
                 console.log('reload via visibilitychange');
                 document.body.scrollTop = 0;
                 document.documentElement.scrollTop = 0;
@@ -654,10 +648,8 @@
             }
             
         }
-        
-
         document.addEventListener('visibilitychange', onVisible);
-        document.addEventListener('focus', onVisible);
+        //document.addEventListener('focus', onVisible);
 
 
 
