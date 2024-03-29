@@ -196,7 +196,7 @@
         /**
          touch event handling
          */
-        function onTouchStart(e) {
+        function onTouchEnd(e) {
 
             // touch click with context menu being open
             let ctxmenu = document.getElementById("ctxmenu");
@@ -221,10 +221,9 @@
                 }
 
             }
-
-
+            
         }
-        window.addEventListener('touchend', onTouchStart,false);
+        //window.addEventListener('touchend', onTouchEnd, false);
 
 
 
