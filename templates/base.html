@@ -197,7 +197,7 @@
          touch event handling
          */
         function onTouchStart(e) {
-            
+
             // touch click with context menu being open
             let ctxmenu = document.getElementById("ctxmenu");
             if (ctxmenu) {
@@ -229,13 +229,13 @@
 
 
         function createContextMenu(e, card) {
-            
+
             // remove existing context menu if one already exists
             let ctxmenu = document.getElementById("ctxmenu");
             if (ctxmenu) {
                 ctxmenu.outerHTML = '';
             }
-            
+
             const article = card.id.replace("side_", "");
             var base_url = window.location.origin;
             let read_later_source = card.getAttribute("data-read-later") === "True";
@@ -293,7 +293,7 @@
     </script>
 
     <style>
-        
+
 
         @media (prefers-color-scheme: light) {
             a:link {
@@ -383,6 +383,7 @@
                 width: inherit;
                 padding: 20px;
                 margin: 10px;
+                -webkit-touch-callout: none;
             }
 
             ul {
@@ -400,6 +401,7 @@
                 overflow: hidden;
                 width: 0px;
                 height: 0px;
+                -webkit-touch-callout: none;
             }
 
             #rightSpace {
@@ -408,6 +410,7 @@
                 overflow: hidden;
                 width: 0px;
                 height: 0px;
+                -webkit-touch-callout: none;
             }
 
 
@@ -420,12 +423,14 @@
                 max-width: 800px;
                 width: 80%;
                 padding: 48px;
+                -webkit-touch-callout: none;
             }
 
             #mainSpace {
                 display: inline-block;
                 vertical-align: top;
                 width: 100%;
+                -webkit-touch-callout: none;
             }
 
             #leftSpace {
@@ -434,6 +439,7 @@
                 overflow: hidden;
                 width: 0px;
                 height: 0px;
+                -webkit-touch-callout: none;
             }
 
             #rightSpace {
@@ -442,6 +448,7 @@
                 overflow: hidden;
                 width: 0px;
                 height: 0px;
+                -webkit-touch-callout: none;
             }
 
 
