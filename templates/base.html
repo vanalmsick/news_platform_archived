@@ -198,34 +198,34 @@
         /**
          touch event handling
          */
-        //function onTouchEnd(e) {
-        // 
-        //    // touch click with context menu being open
-        //    let ctxmenu = document.getElementById("ctxmenu");
-        //    if (ctxmenu) {
-        //
-        //        const touch = e.touches[0] || e.changedTouches[0];
-        //        var scrollTop = window.pageYOffset ; //|| document.documentElement.scrollTop || document.body.scrollTop
-        //        var scrollLeft = window.pageXOffset;  // || document.documentElement.scrollLeft || document.body.scrollLeft
-        //        const openContextMenu = `${touch.pageY-scrollTop-10}px` == ctxmenu.style.top && `${touch.pageX-scrollLeft-10}px` == ctxmenu.style.left;
-        //        const clickOnContextMenu = ctxmenu.contains(e.target);
-        //
-        //        e.preventDefault();
-        //
-        //        // exclude touch click that opens the context menu itself
-        //        if (!openContextMenu) {
-        //            console.log('touch with open cntex menu');
-        //            if (clickOnContextMenu) {
-        //                // click within the context menu
-        //                e.target.click();
-        //            }
-        //            ctxmenu.outerHTML = '';
-        //        }
-        //
-        //    }
-        //    
-        //}
-        //window.addEventListener('touchend', onTouchEnd, false);
+        function onTouchEnd(e) {
+         
+            // touch click with context menu being open
+            let ctxmenu = document.getElementById("ctxmenu");
+            if (ctxmenu) {
+        
+                const touch = e.touches[0] || e.changedTouches[0];
+                var scrollTop = window.pageYOffset ; //|| document.documentElement.scrollTop || document.body.scrollTop
+                var scrollLeft = window.pageXOffset;  // || document.documentElement.scrollLeft || document.body.scrollLeft
+                const openContextMenu = `${touch.pageY-scrollTop-10}px` == ctxmenu.style.top && `${touch.pageX-scrollLeft-10}px` == ctxmenu.style.left;
+                const clickOnContextMenu = ctxmenu.contains(e.target);
+        
+                e.preventDefault();
+        
+                // exclude touch click that opens the context menu itself
+                if (!openContextMenu) {
+                    console.log('touch with open cntex menu');
+                    if (clickOnContextMenu) {
+                        // click within the context menu
+                        e.target.click();
+                    }
+                    ctxmenu.outerHTML = '';
+                }
+        
+            }
+            
+        }
+        window.addEventListener('touchend', onTouchEnd, false);
 
         
         function createContextMenu(e, card) {
