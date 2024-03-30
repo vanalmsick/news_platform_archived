@@ -227,14 +227,19 @@
             var scrollLeft = document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft;
             const ctxmenuTop = ctxmenu && Math.abs(touch.pageY - scrollTop - parseInt(ctxmenu.style.top.substring(0, ctxmenu.style.top.length-2)) - 10);
             const ctxmenuLeft = ctxmenu && Math.abs(touch.pageX - scrollLeft - parseInt(ctxmenu.style.left.substring(0, ctxmenu.style.left.length-2)) - 10);
-            const openContextMenu = ctxmenu && ctxmenuTop < 20 && ctxmenuLeft < 20;
+            const openContextMenu = ctxmenu && ctxmenuTop < 100 && ctxmenuLeft < 100;
+            
+            console.log(timeout, !!timeout);
+            let topSpaceSummary = document.getElementById("topSpaceSummary");
             
             if (!!ctxmenu && !openContextMenu && !!timeout) {
                 const clickOnContextMenu = ctxmenu.contains(e.target);
                 if (ctxmenu.contains(e.target)) {
+                    topSpaceSummary.innerHTML = 'ctxmenu open & click inside';
                     console.log('ctxmenu open & click inside');
                     e.target.click();
                 } else {
+                    topSpaceSummary.innerHTML = 'ctxmenu open & click outside';
                     console.log('ctxmenu open & click outside');
                 }
                 deleteContextMenu();
@@ -243,13 +248,16 @@
                 var elmnt = e.target
                 var card = elmnt.closest('.context-card');
                 if (card && card.contains(elmnt)) {
+                    topSpaceSummary.innerHTML = 'long press on card';
                     console.log('long press on card');
                     createContextMenu(e, card);
                 } else {
+                    topSpaceSummary.innerHTML = 'long press somwhere else';
                     console.log('long press somwhere else');
                 }
                 e.preventDefault();
             } else {
+                topSpaceSummary.innerHTML = 'short press';
                 console.log('short press');
             }
             timeout = clearTimeout(timeout);
@@ -557,6 +565,14 @@
             font-size: 10px;
             text-align: center;
             box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .35) !important;
+        }
+        
+        
+        .msg {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            z-index: 99;
         }
 
 
