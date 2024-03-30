@@ -201,12 +201,21 @@
         var touchStartTimeStamp = 0;
         var touchEndTimeStamp   = 0;
         var timeout;
+        var touchStartX = touchEndX = 0;
+        var touchStartY = touchEndY = 0;
 
         window.addEventListener('touchstart', onTouchStart, false);
+        window.addEventListener('touchmove', onTouchMove, false);
         window.addEventListener('touchend', onTouchEnd, false);
 
         function onTouchStart(e) {
             touchStartTimeStamp = e.timeStamp;
+
+            const touch = e.touches[0] || e.changedTouches[0];
+            touchStartX = touch.pageX;
+            touchStartY = touch.pageY;
+
+            console.log(touchStartY);
 
             // long press open context while still pushing after 0.5s
             var elmnt = e.target
@@ -218,49 +227,74 @@
             }
         }
 
+
+        function onTouchMove(e) {
+
+            const touch = e.touches[0] || e.changedTouches[0];
+            touchEndX = touch.pageX;
+            touchEndY = touch.pageY;
+
+            if (Math.abs(touchEndX - touchStartX) < 5 && Math.abs(touchEndY - touchStartY) < 5) {
+                console.log('no big movement - keep timeout');
+            } else {
+                console.log('big movement - clear timeout');
+                timeout = clearTimeout(timeout);
+            }
+
+
+        }
+
+        
         function onTouchEnd(e) {
             touchEndTimeStamp = e.timeStamp;
 
             let ctxmenu = document.getElementById("ctxmenu");
             const touch = e.touches[0] || e.changedTouches[0];
+            touchEndX = touch.pageX;
+            touchEndY = touch.pageY;
             var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
             var scrollLeft = document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft;
-            const ctxmenuTop = ctxmenu && Math.abs(touch.pageY - scrollTop - parseInt(ctxmenu.style.top.substring(0, ctxmenu.style.top.length-2)) - 10);
-            const ctxmenuLeft = ctxmenu && Math.abs(touch.pageX - scrollLeft - parseInt(ctxmenu.style.left.substring(0, ctxmenu.style.left.length-2)) - 10);
-            const openContextMenu = ctxmenu && ctxmenuTop < 100 && ctxmenuLeft < 100;
-            
-            console.log(timeout, !!timeout);
+            const offset = (e.clientY) ? -10 : 10;
+            const ctxmenuTop = ctxmenu && Math.abs(touchEndY - scrollTop - parseInt(ctxmenu.style.top.substring(0, ctxmenu.style.top.length-2)) + offset);
+            const ctxmenuLeft = ctxmenu && Math.abs(touchEndX - scrollLeft - parseInt(ctxmenu.style.left.substring(0, ctxmenu.style.left.length-2)) + offset);
+            const openContextMenu = ctxmenu && ctxmenuTop < 20 && ctxmenuLeft < 20;
+
+            console.log(touchEndY, touchStartY);
             let topSpaceSummary = document.getElementById("topSpaceSummary");
-            
-            if (!!ctxmenu && !openContextMenu && !!timeout) {
-                const clickOnContextMenu = ctxmenu.contains(e.target);
-                if (ctxmenu.contains(e.target)) {
-                    topSpaceSummary.innerHTML = 'ctxmenu open & click inside';
-                    console.log('ctxmenu open & click inside');
-                    e.target.click();
+
+            if (Math.abs(touchEndX - touchStartX) < 5 && Math.abs(touchEndY - touchStartY) < 5) {
+
+                if (!!ctxmenu && !openContextMenu && !!timeout) {
+                    const clickOnContextMenu = ctxmenu.contains(e.target);
+                    if (ctxmenu.contains(e.target)) {
+                        topSpaceSummary.innerHTML = 'ctxmenu open & click inside';
+                        console.log('ctxmenu open & click inside');
+                        e.target.click();
+                    } else {
+                        topSpaceSummary.innerHTML = 'ctxmenu open & click outside';
+                        console.log('ctxmenu open & click outside');
+                    }
+                    deleteContextMenu();
+                    e.preventDefault();
+                } else if ((touchEndTimeStamp - touchStartTimeStamp) > 500) {
+                    var elmnt = e.target
+                    var card = elmnt.closest('.context-card');
+                    if (card && card.contains(elmnt)) {
+                        topSpaceSummary.innerHTML = 'long press on card';
+                        console.log('long press on card');
+                        createContextMenu(e, card);
+                    } else {
+                        topSpaceSummary.innerHTML = 'long press somwhere else';
+                        console.log('long press somwhere else');
+                    }
+                    e.preventDefault();
                 } else {
-                    topSpaceSummary.innerHTML = 'ctxmenu open & click outside';
-                    console.log('ctxmenu open & click outside');
+                    topSpaceSummary.innerHTML = 'short press';
+                    console.log('short press');
                 }
-                deleteContextMenu();
-                e.preventDefault();
-            } else if ((touchEndTimeStamp - touchStartTimeStamp) > 500) {
-                var elmnt = e.target
-                var card = elmnt.closest('.context-card');
-                if (card && card.contains(elmnt)) {
-                    topSpaceSummary.innerHTML = 'long press on card';
-                    console.log('long press on card');
-                    createContextMenu(e, card);
-                } else {
-                    topSpaceSummary.innerHTML = 'long press somwhere else';
-                    console.log('long press somwhere else');
-                }
-                e.preventDefault();
-            } else {
-                topSpaceSummary.innerHTML = 'short press';
-                console.log('short press');
             }
             timeout = clearTimeout(timeout);
+            console.log(e.touches, e.changedTouches);
         }
 
 
@@ -292,7 +326,7 @@
                 const touch = e.touches[0] || e.changedTouches[0];
                 var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
                 var scrollLeft = document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft;
-                menu.style = `top:${touch.pageY-scrollTop-10}px;left:${touch.pageX-scrollLeft-10}px`
+                menu.style = `top:${touch.pageY-scrollTop+10}px;left:${touch.pageX-scrollLeft+10}px`
             }
             menu.onmouseleave = () => deleteContextMenu()
             menu.innerHTML = '<ul class="list-group shadow-lg small" style="cursor: pointer;-webkit-user-select: none;-webkit-touch-callout: none;-webkit-user-drag: none;">' + lst_1 + lst_2 + lst_3 + lst_4 + lst_5 + '</ul>'
@@ -424,6 +458,14 @@
         }
 
 
+        .msg {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            z-index: 99;
+        }
+
+
         /* small  Modal */
         @media screen and (max-width: 600px) {
             #modaltext {
@@ -455,6 +497,14 @@
                 overflow: hidden;
                 width: 0px;
                 height: 0px;
+            }
+
+            .msg {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translate(-50%, 0);
+                z-index: 99;
             }
 
 
@@ -565,14 +615,6 @@
             font-size: 10px;
             text-align: center;
             box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .35) !important;
-        }
-        
-        
-        .msg {
-            position: fixed;
-            top: 20px;
-            right: 30px;
-            z-index: 99;
         }
 
 
