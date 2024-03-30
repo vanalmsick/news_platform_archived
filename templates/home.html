@@ -632,8 +632,8 @@
         var reloadSeconds = 10;
         var lastPageRefresh = Math.floor(Date.now() / 1000)
         applyUserLightDarkTheme();
-        
-        
+
+
         // Below for detection of closing of web app
         function onVisible() {
 
@@ -646,12 +646,13 @@
                 scrollToPageTop();
                 window.location.reload();
             }
-            
+
         }
+
         document.addEventListener('visibilitychange', onVisible);
         //document.addEventListener('focus', onVisible);
 
-        
+
         // check every X seconds if new articles avaialbe
         function checkNewNews() {
             restRequest('/api/refresh/')
