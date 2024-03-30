@@ -226,7 +226,7 @@
             var scrollLeft = document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft;
             const ctxmenuTop = ctxmenu && Math.abs(touch.pageY - scrollTop - parseInt(ctxmenu.style.top.substring(0, ctxmenu.style.top.length-2)) - 10);
             const ctxmenuLeft = ctxmenu && Math.abs(touch.pageX - scrollLeft - parseInt(ctxmenu.style.left.substring(0, ctxmenu.style.left.length-2)) - 10);
-            const openContextMenu = ctxmenu && ctxmenuTop < 10 && ctxmenuLeft < 10;
+            const openContextMenu = ctxmenu && ctxmenuTop < 20 && ctxmenuLeft < 20;
 
             if (ctxmenu && !openContextMenu) {
                 const clickOnContextMenu = ctxmenu.contains(e.target);
@@ -284,7 +284,7 @@
                 menu.style = `top:${touch.pageY-scrollTop-10}px;left:${touch.pageX-scrollLeft-10}px`
             }
             menu.onmouseleave = () => deleteContextMenu()
-            menu.innerHTML = '<ul class="list-group shadow-lg small">' + lst_1 + lst_2 + lst_3 + lst_4 + lst_5 + '</ul>'
+            menu.innerHTML = '<ul class="list-group shadow-lg small" style="cursor: pointer;-webkit-user-select: none;-webkit-touch-callout: none;-webkit-user-drag: none;">' + lst_1 + lst_2 + lst_3 + lst_4 + lst_5 + '</ul>'
             document.body.appendChild(menu)
         }
 
