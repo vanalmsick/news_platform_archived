@@ -64,8 +64,8 @@
 
 
     <!-- Notification -->
-    <div aria-live="polite" aria-atomic="true" class="bg-dark position-relative bd-example-toasts">
-        <div class="toast-container position-absolute top-0 end-0 p-3" id="toastPlacement">
+    <div aria-live="polite" aria-atomic="true" class="bg-dark bd-example-toasts">
+        <div class="toast-container msg p-3" id="toastPlacement">
             <div id="refreshNotification" class="toast fade">
                 <div class="toast-header">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
@@ -388,7 +388,8 @@
                                     <div id="{{ article.pk }}"
                                          class="context-card col-12 col-sm-6 col-md-4 col-xl-3 my-2"
                                          tabindex="{{ forloop.counter|add:"8" }}"
-                                         style="cursor: pointer;" data-read-later="{{ article.read_later }}">
+                                         style="cursor: pointer;-webkit-user-select: none;-webkit-touch-callout: none;-webkit-user-drag: none;"
+                                         data-read-later="{{ article.read_later }}">
                                         <div class="card mb-4 box-shadow h-100{% if article.type == 'breaking' or 'big read' in article.categories|lower or 'news in depth' in article.categories|lower %} breaking{% endif %}">
                                             {% if article.image_url != Null %}
                                                 <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
@@ -629,28 +630,29 @@
     <script>
 
         var reloadSeconds = 10;
-        const lastRefresh = Math.floor(Date.now() / 1000)
+        var lastPageRefresh = Math.floor(Date.now() / 1000)
         applyUserLightDarkTheme();
-        
-        
+
+
         // Below for detection of closing of web app
         function onVisible() {
 
-            console.log('web app visible');
+            console.log('web app visible (last news check ' + (Math.floor(Date.now() / 1000) - lastPageRefresh) + 's ago)');
             applyUserLightDarkTheme();
 
             // check when last checked
-            if (Math.floor(Date.now() / 1000) - lastRefresh > 120) {
+            if (Math.floor(Date.now() / 1000) - lastPageRefresh > 120) {
                 console.log('reload via visibilitychange');
                 scrollToPageTop();
                 window.location.reload();
             }
-            
+
         }
+
         document.addEventListener('visibilitychange', onVisible);
         //document.addEventListener('focus', onVisible);
 
-        
+
         // check every X seconds if new articles avaialbe
         function checkNewNews() {
             restRequest('/api/refresh/')
@@ -670,7 +672,7 @@
                     }
                     ;
                 });
-            lastRefresh = Math.floor(Date.now() / 1000);
+            lastPageRefresh = Math.floor(Date.now() / 1000);
         }
 
         const interval = setInterval(checkNewNews, 1000 * 60);

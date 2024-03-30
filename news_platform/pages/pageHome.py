@@ -212,3 +212,11 @@ class RestHomeView(APIView):
             ]
 
         return Response(articles)
+
+
+def RedirectView(request, article):
+    try:
+        requested_article = Article.objects.get(pk=int(article))
+        return HttpResponseRedirect(requested_article.link)
+    except:
+        return HttpResponseRedirect('/')

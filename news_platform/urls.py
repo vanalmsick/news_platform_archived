@@ -19,7 +19,7 @@ from django.contrib.auth.views import LogoutView
 
 from news_platform.pages.pageAPI import ReadLaterView, ArchiveView, RestArticleAPIView, RestPublisherAPIView, RestLastRefeshAPIView
 from news_platform.pages.pageArticle import articleView
-from news_platform.pages.pageHome import homeView, RestHomeView
+from news_platform.pages.pageHome import homeView, RestHomeView, RedirectView
 from news_platform.pages.pageLogin import LoginView
 
 urlpatterns = [
@@ -36,6 +36,7 @@ urlpatterns = [
     path("archive/<str:action>/<int:pk>/", ArchiveView, name="read-later"),
 
     path("view/<int:article>/", articleView, name="view_article"),
+    path("redirect/<int:article>/", RedirectView, name="redirect_article"),
     path("", homeView, name="home"),
 
     path("auth/", include("djoser.urls")),
