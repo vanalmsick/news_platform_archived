@@ -213,6 +213,8 @@
             var card = elmnt.closest('.context-card');
             if (card && card.contains(elmnt)) {
                 timeout = setTimeout(createContextMenu.bind(this, e, card), 500);
+            } else {
+                timeout = -1;
             }
         }
 
@@ -227,7 +229,7 @@
             const ctxmenuLeft = ctxmenu && Math.abs(touch.pageX - scrollLeft - parseInt(ctxmenu.style.left.substring(0, ctxmenu.style.left.length-2)) - 10);
             const openContextMenu = ctxmenu && ctxmenuTop < 20 && ctxmenuLeft < 20;
             
-            if (ctxmenu && !openContextMenu && !timeout) {
+            if (!!ctxmenu && !openContextMenu && !!timeout) {
                 const clickOnContextMenu = ctxmenu.contains(e.target);
                 if (ctxmenu.contains(e.target)) {
                     console.log('ctxmenu open & click inside');
@@ -255,6 +257,7 @@
 
 
         function createContextMenu(e, card) {
+            timeout = null;
 
             // remove existing context menu if one already exists
             deleteContextMenu();
