@@ -245,10 +245,10 @@
                 if (card && card.contains(elmnt)) {
                     console.log('long press on card');
                     createContextMenu(e, card);
-                    e.preventDefault();
                 } else {
                     console.log('long press somwhere else');
                 }
+                e.preventDefault();
             } else {
                 console.log('short press');
             }
