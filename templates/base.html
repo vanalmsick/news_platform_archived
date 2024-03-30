@@ -226,7 +226,7 @@
             var scrollLeft = document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft;
             const ctxmenuTop = ctxmenu && Math.abs(touch.pageY - scrollTop - parseInt(ctxmenu.style.top.substring(0, ctxmenu.style.top.length-2)) - 10);
             const ctxmenuLeft = ctxmenu && Math.abs(touch.pageX - scrollLeft - parseInt(ctxmenu.style.left.substring(0, ctxmenu.style.left.length-2)) - 10);
-            const openContextMenu = ctxmenu && ctxmenuTop < 20 && ctxmenuLeft < 20;
+            const openContextMenu = ctxmenu && ctxmenuTop < 50 && ctxmenuLeft < 50;
 
             if (ctxmenu && !openContextMenu) {
                 const clickOnContextMenu = ctxmenu.contains(e.target);
