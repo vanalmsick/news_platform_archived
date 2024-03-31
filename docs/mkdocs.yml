@@ -35,12 +35,12 @@ nav:
   - Home: "index.md"
   - Getting Started: "getting_started.md"
   - Usage & Setting: "usage.md"
-  - Article Ranking (ToDo): "index.md"
+  - Article Ranking (ToDo): "todo.md"
 
   - Developer Guide:
-      - Dev Setup (ToDo): "index.md"
-      - API Reference (ToDo): "index.md"
-      - Contribution Guide (ToDo): "index.md"
+      - Dev Setup (ToDo): "todo.md"
+      - API Reference (ToDo): "todo.md"
+      - Contribution Guide (ToDo): "todo.md"
 
 
 markdown_extensions:
