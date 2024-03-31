@@ -1,7 +1,7 @@
 # Navigate to this directory and then run "mkdocs serve" to see a live-view of the documentation
 # More settings: https://squidfunk.github.io/mkdocs-material/setup/
 
-site_name: News Platform
+site_name: Personal News Platform
 site_description: News Aggregator - Aggregates news articles from several RSS feeds, fetches full-text if possible, sorts them by relevance (based on user settings), and display on distraction-free homepage.
 site_url: https://vanalmsi.github.io/news_platform/
 theme:
