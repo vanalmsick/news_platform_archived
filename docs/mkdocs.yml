@@ -25,6 +25,11 @@ theme:
         name: Switch to light mode
   features:
     - search.suggest
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - toc.integrate
+    - navigation.top
+    - navigation.footer
 
 nav:
   - Home: "index.md"
