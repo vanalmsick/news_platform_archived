@@ -5,9 +5,9 @@
 News Aggregator - Aggregates news articles from several RSS feeds, fetches full-text if possible, sorts them by relevance (based on user settings), and display on distraction-free homepage.
 
 ### PC Home Page:
-<img src="docs/imgs/home_pc.png" alt="PC Home Page" style="max-width:90%;"/><br>  
+<img src="docs/imgs/home_pc.png" alt="PC Home Page" style="width:90%;"/><br>  
 ### Article Reading View:
-<img src="docs/imgs/article.png" alt="Article Reading View" style="max-width:65%;"/><br>  
+<img src="docs/imgs/article.png" alt="Article Reading View" style="width:65%;"/><br>  
 ### Phone Home Page:
 <img src="docs/imgs/home_phone.jpeg" alt="Phone Home Page" style="height:700px;"/><br>  
 
@@ -24,7 +24,7 @@ docker run \
     vanalmsick/news_platform
 ```
 
-**All out [docker_compose.yml](https://vanalmsick.github.io/news_platform/docker_compose.yml.template) setup:**  
+**All out [docker_compose.yml](/docker_compose.yml.template) setup:**  
 *docker_compose.yml:*
 ```
 version: "3.9"
