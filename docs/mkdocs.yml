@@ -36,11 +36,11 @@ nav:
   - Getting Started: "getting_started.md"
   - Usage & Setting: "usage.md"
   - Article Ranking (ToDo): "todo.md"
-
   - Developer Guide:
       - Dev Setup (ToDo): "todo.md"
       - API Reference (ToDo): "todo.md"
       - Contribution Guide (ToDo): "todo.md"
+  - Suggest an idea: "https://github.com/vanalmsick/news_platform/discussions/categories/ideas"
 
 
 markdown_extensions:
