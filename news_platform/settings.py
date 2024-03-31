@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django settings for news_platform project.
 
@@ -9,12 +10,11 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-import base64
 import os
 from pathlib import Path
 from urllib.parse import urlparse
 
-import pytz
+import pytz  # type: ignore
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -209,7 +209,7 @@ PWA_APP_SPLASH_SCREEN = (
 PWA_APP_DIR = "ltr"
 
 
-PWA_APP_LANG = LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "en-uk")
+PWA_APP_LANG = LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "en-UK")
 ALLOWED_LANGUAGES = os.getenv("ALLOWED_LANGUAGES", "*")
 LOGOUT_REDIRECT_URL = "/"
 SIDEBAR_TITLE = os.getenv("SIDEBAR_TITLE", "Latest News")
@@ -252,13 +252,22 @@ CACHES = {
 
 # Webpush
 WEBPUSH_SETTINGS = {
-    "VAPID_PUBLIC_KEY": os.environ.get("WEBPUSH_PUBLIC_KEY", "BA85gAwHAU9o-4SjKIs5TUkMoHjnZETKWMYrPcMB8ZRpuRMXQn0RHiMvzmbHDylh2WJ-xs2PrJecRtuj1l7UiRw"),
-    "VAPID_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY", "b9-6DJOZb3MXRwckJ6C3R3hazJ-99Fh2aQ6zrNibP_0"),
-    "VAPID_ADMIN_EMAIL": os.environ.get("WEBPUSH_ADMIN_EMAIL", "news-platform@example.com"),
+    "VAPID_PUBLIC_KEY": os.environ.get(
+        "WEBPUSH_PUBLIC_KEY",
+        "BA85gAwHAU9o-4SjKIs5TUkMoHjnZETKWMYrPcMB8ZRpuRMXQn0RHiMvzmbHDylh2WJ-xs2PrJecRtuj1l7UiRw",
+    ),
+    "VAPID_PRIVATE_KEY": os.environ.get(
+        "WEBPUSH_PRIVATE_KEY", "b9-6DJOZb3MXRwckJ6C3R3hazJ-99Fh2aQ6zrNibP_0"
+    ),
+    "VAPID_ADMIN_EMAIL": os.environ.get(
+        "WEBPUSH_ADMIN_EMAIL", "news-platform@example.com"
+    ),
 }
 
 # Custom Variables
-FULL_TEXT_URL = os.environ.get("FULL_TEXT_URL")
+FULL_TEXT_URL = os.environ.get("FULL_TEXT_URL", "http://ftr.fivefilters.org/")
 FEED_CREATOR_URL = os.environ.get("FEED_CREATOR_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-PWA_APP_DESCRIPTION = PWA_APP_NAME = CUSTOM_PLATFORM_NAME = os.getenv("CUSTOM_PLATFORM_NAME", "Personal News Platform")
+PWA_APP_DESCRIPTION = PWA_APP_NAME = CUSTOM_PLATFORM_NAME = os.getenv(
+    "CUSTOM_PLATFORM_NAME", "Personal News Platform"
+)
