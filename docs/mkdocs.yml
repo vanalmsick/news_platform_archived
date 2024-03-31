@@ -2,6 +2,8 @@
 # More settings: https://squidfunk.github.io/mkdocs-material/setup/
 
 site_name: News Platform
+site_description: News Aggregator - Aggregates news articles from several RSS feeds, fetches full-text if possible, sorts them by relevance (based on user settings), and display on distraction-free homepage.
+site_url: https://vanalmsi.github.io/news_platform/
 theme:
   name: material
   palette:
@@ -26,19 +28,14 @@ theme:
 
 nav:
   - Home: "index.md"
-  - Getting Started:
-      - Introduction: "index.md"
-      - Features: "index.md"
-      - Quick Install: "index.md"
-      - Advanced Install: "index.md"
-      - FAQ: "index.md"
+  - Getting Started: "getting_started.md"
+  - Usage & Setting: "usage.md"
+  - Article Ranking (ToDo): "index.md"
 
   - Developer Guide:
-      - Setup: "index.md"
-      - Contribution Guide: "index.md"
-
-  - Versions / Change Log:
-      - v1.0.0: "index.md"
+      - Dev Setup (ToDo): "index.md"
+      - API Reference (ToDo): "index.md"
+      - Contribution Guide (ToDo): "index.md"
 
 
 markdown_extensions:
@@ -52,4 +49,3 @@ plugins:
 
 repo_url: https://github.com/vanalmsick/news_platform
 repo_name: vanalmsick/news_platform
-edit_uri: edit/main/docs/
