@@ -21,5 +21,5 @@
 These environmental variables can be  
 
 -  included in the docker_compose.yml file in section "environment:" as arguments *(as above in the docker_compose.yml example)*,
--  saved as an .env file [*(example)*](https://github.com/vanalmsick/news_platform/template.env) and passed to the docker_compose.yml file as argument "env_file: /your/local/dir/.env", or
--  saved as an .env file [*(example)*](https://github.com/vanalmsick/news_platform/template.env) in the news plattform container's data directory e.g. "/your/local/data/dir/news_platform/.env"
+-  saved as an .env file [*(example)*](https://github.com/vanalmsick/news_platform/blob/main//template.env) and passed to the docker_compose.yml file as argument "env_file: /your/local/dir/.env", or
+-  saved as an .env file [*(example)*](https://github.com/vanalmsick/news_platform/blob/main//template.env) in the news plattform container's data directory e.g. "/your/local/data/dir/news_platform/.env"

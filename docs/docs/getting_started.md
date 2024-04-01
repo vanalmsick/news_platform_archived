@@ -10,7 +10,7 @@ docker run \
     vanalmsick/news_platform
 ```
 
-**All out [docker_compose.yml](https://github.com/vanalmsick/news_platform/docker_compose.yml.template) setup:**  
+**All out [docker_compose.yml](https://github.com/vanalmsick/news_platform/blob/main//docker_compose.yml.template) setup:**  
 *docker_compose.yml:*
 ```
 version: "3.9"
