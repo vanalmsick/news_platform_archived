@@ -1,24 +1,23 @@
+# -*- coding: utf-8 -*-
 """Get artcile data for all views"""
 
 import datetime
 import functools
 import operator
-import urllib
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import F, Q
-from django.http import HttpResponse
 from django.forms.models import model_to_dict
+from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.utils.safestring import mark_safe
+from rest_framework import status
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
 
-from articles.models import Article, FeedPosition
+from articles.models import Article
 from feeds.models import Publisher
 from preferences.models import url_parm_encode
 
@@ -143,37 +142,42 @@ class RestArticleAPIView(APIView):
         try:
             return Response(model_to_dict(Article.objects.get(pk=pk)))
         except Exception as e:
-            return Response(data=dict(error=e.__str__()),status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                data=dict(error=e.__str__()), status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class RestPublisherAPIView(APIView):
     """RestAPI view to get publisher data via /api/publisher/<int:pk>/"""
 
-    authentication_classes = []
-    permission_classes = []
+    authentication_classes = []  # type: ignore
+    permission_classes = []  # type: ignore
 
     def get(self, request, pk, format=None):
         """get method for Django"""
         try:
             return Response(model_to_dict(Publisher.objects.get(pk=pk)))
         except Exception as e:
-            return Response(data=dict(error=e.__str__()),status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(
+                data=dict(error=e.__str__()), status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class RestLastRefeshAPIView(APIView):
     """RestAPI view to check when articles were last refeshed"""
 
-    authentication_classes = []
-    permission_classes = []
+    authentication_classes = []  # type: ignore
+    permission_classes = []  # type: ignore
 
     def get(self, request, format=None):
         """get method for Django"""
-        return Response(dict(
-            lastRefreshed=cache.get("lastRefreshed"),
-            currentlyRefreshing = cache.get("currentlyRefreshing"),
-            videoRefreshCycleCount = cache.get("videoRefreshCycleCount"),
-            ))
+        return Response(
+            dict(
+                lastRefreshed=cache.get("lastRefreshed"),
+                currentlyRefreshing=cache.get("currentlyRefreshing"),
+                videoRefreshCycleCount=cache.get("videoRefreshCycleCount"),
+            )
+        )
 
 
 def ReadLaterView(request, action, pk):
@@ -220,4 +224,3 @@ def ArchiveView(request, action, pk):
             "Error! Maybe the article was not found or other unknonw error.",
             content_type="text/plain",
         )
-
