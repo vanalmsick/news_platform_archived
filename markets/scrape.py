@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 """Data scraping for Market Data i.e. Stock/FX/Comm prices"""
 import datetime
 from io import StringIO
 
 import numpy as np
 import pandas as pd
-import requests
+import requests  # type: ignore
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
@@ -159,7 +160,9 @@ def scrape_market_data():
                         f"{notification.source.group.name}: {notification.source.name} "
                         f" {'{0:+.2f}'.format(notification.change_today)}"
                         f"{'%' if notification.source.data_source == 'yfin' else 'bps'} "
-                        "up" if notification.change_today > 0 else "down"
+                        "up"
+                        if notification.change_today > 0
+                        else "down"
                     ),
                     "url": (
                         "https://finance.yahoo.com/quote/"

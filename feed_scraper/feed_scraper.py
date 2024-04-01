@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """This file is doing the article scraping"""
 
 import datetime
@@ -13,11 +14,11 @@ import urllib
 import feedparser
 import langid
 import ratelimit
-import requests
+import requests  # type: ignore
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Max, Q, Count
+from django.db.models import Count, F, Max, Q
 from openai import OpenAI
 from webpush import send_group_notification
 
@@ -59,7 +60,9 @@ def update_feeds():
     feeds = Feed.objects.filter(active=True, feed_type="rss")
     if settings.TESTING:
         # when testing is turned on only fetch 10% of feeds to not having to wait too long
-        feeds = [feeds[i] for i in range(0, len(feeds), len(feeds) // (len(feeds) // 10))]
+        feeds = [
+            feeds[i] for i in range(0, len(feeds), len(feeds) // (len(feeds) // 10))
+        ]
 
     added_articles = 0
     for feed in feeds:
@@ -73,13 +76,16 @@ def update_feeds():
             Article.objects.filter(feedposition__feed__publisher__pk=publisher.pk)
             .exclude(min_feed_position__isnull=True)
             .exclude(min_article_relevance__isnull=True)
-            .annotate(feed_count=Count('feedposition'))
+            .exclude(content_type="video")
+            .annotate(feed_count=Count("feedposition"))
+            .annotate(
+                calc_rel_feed_pos=F("min_feed_position")
+                * 1000
+                / (F("max_importance") + 4)
+            )
             .order_by(
-                "pub_date__date",
-                "max_importance",
-                "-min_feed_position",
+                "-calc_rel_feed_pos",
                 "feed_count",
-                "pub_date__hour",
             )
         )
         len_articles = len(articles)
@@ -106,7 +112,10 @@ def update_feeds():
 
     now = datetime.datetime.now()
     if now.hour >= 18 or now.hour < 6 or now.weekday() in [5, 6]:
-        print("No AI summaries are generated during non-business hours (i.e. between 18:00-6:00 and on Saturdays and Sundays)")
+        print(
+            "No AI summaries are generated during non-business "
+            "hours (i.e. between 18:00-6:00 and on Saturdays and Sundays)"
+        )
     else:
         min_article_relevance = (
             Article.objects.filter(
@@ -130,13 +139,17 @@ def update_feeds():
         )
         add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
-    old_articles = Article.objects.filter(
-        min_article_relevance__isnull=True,
-        feedposition=None,
-        added_date__lte=settings.TIME_ZONE_OBJ.localize(
-            datetime.datetime.now() - datetime.timedelta(days=21)
-        ),
-    ).exclude(read_later=True).exclude(archive=True)
+    old_articles = (
+        Article.objects.filter(
+            min_article_relevance__isnull=True,
+            feedposition=None,
+            added_date__lte=settings.TIME_ZONE_OBJ.localize(
+                datetime.datetime.now() - datetime.timedelta(days=21)
+            ),
+        )
+        .exclude(read_later=True)
+        .exclude(archive=True)
+    )
     if len(old_articles) > 0:
         print(f"Delete {len(old_articles)} old articles")
         old_articles.delete()
@@ -453,8 +466,8 @@ def fetch_feed_new(feed):
         if (
             article_obj.pk not in notifications_sent
             and (
-                    article_obj.categories is None
-                    or "no push" not in str(article_obj.categories).lower()
+                article_obj.categories is None
+                or "no push" not in str(article_obj.categories).lower()
             )
             and (
                 (
@@ -495,14 +508,19 @@ def fetch_feed_new(feed):
                     ttl=60 * 90,  # keep 90 minutes on server
                 )
                 cache.set(
-                    "notifications_sent", notifications_sent + [article_obj.pk], 3600 * 1000
+                    "notifications_sent",
+                    notifications_sent + [article_obj.pk],
+                    3600 * 1000,
                 )
                 print(
                     f"Web Push Notification sent for ({article_obj.pk})"
                     f" {article_obj.publisher.name} - {article_obj.title}"
                 )
             except Exception as e:
-                print(f"Error sending Web Push Notification for ({article_obj.pk}) {article_obj.publisher.name} - {article_obj.title}: {e}")
+                print(
+                    "Error sending Web Push Notification for "
+                    f"({article_obj.pk}) {article_obj.publisher.name} - {article_obj.title}: {e}"
+                )
 
     print(
         f"Refreshed {feed} with {added_articles} new articles out of"
@@ -714,9 +732,7 @@ class ScrapedArticle:
             if hasattr(self, "true_article_url_str")
             else self.feed_article_url_str
         )
-        request_url = (
-            f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(article_url, safe="")}'
-        )
+        request_url = f'{settings.FULL_TEXT_URL}extract.php?url={urllib.parse.quote(article_url, safe="")}'
         response = requests.get(request_url)
         if response.status_code == 200:
             self.status_fetched_full_text = True
@@ -785,11 +801,11 @@ class ScrapedArticle:
                         self.scrape_article_body_html, features="lxml"
                     ).get_text()
 
-            except Exception as e:
+            except Exception:
                 print(
                     f"Error scraping full-text from for {self.source_publisher_name}:"
                     f' "{self.feed_article_title}" from "{article_url}"'
-                    )
+                )
                 return
 
         else:
@@ -807,9 +823,9 @@ class ScrapedArticle:
         ):
             soup = BeautifulSoup(self.final_full_text_html, "html.parser")
             for i, img in enumerate(soup.find_all("img")):
-                img["style"] = (
-                    "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
-                )
+                img[
+                    "style"
+                ] = "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
                 if img["src"] == "src":
                     if hasattr(img, "data-url"):
                         img["src"] = str(getattr(img, "data-url")).replace(
@@ -820,13 +836,17 @@ class ScrapedArticle:
                 if hasattr(img, "srcset"):
                     img["srcset"] = ""
                 img["referrerpolicy"] = "no-referrer"
-                if i == 0 and hasattr(self, 'final_image_url') and self.final_image_url.lower() in img["src"].lower():
+                if (
+                    i == 0
+                    and hasattr(self, "final_image_url")
+                    and self.final_image_url.lower() in img["src"].lower()
+                ):
                     img.decompose()
             for figure in soup.find_all("figure"):
                 figure["class"] = "figure"
             for figcaption in soup.find_all("figcaption"):
                 figcaption["class"] = "figure-caption"
-            for span in soup.find_all("span", attrs={"data-caps" : "initial"}):
+            for span in soup.find_all("span", attrs={"data-caps": "initial"}):
                 span["class"] = "h3"
             for a in soup.find_all("a"):
                 a["target"] = "_blank"
@@ -943,7 +963,15 @@ class ScrapedArticle:
             feed_attr_name="feed_article_extract_text",
             scrape_attr_name="scrape_article_extract_text",
         )
-        self.final_has_extract = (self.final_extract is None or self.final_extract == '' or self.final_extract == 'None') if hasattr(self, "final_extract") else False
+        self.final_has_extract = (
+            (
+                self.final_extract is None
+                or self.final_extract == ""
+                or self.final_extract == "None"
+            )
+            if hasattr(self, "final_extract")
+            else False
+        )
 
         # Full text / Body
 

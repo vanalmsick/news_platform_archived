@@ -519,7 +519,7 @@
                                                    href="{{ article.link }}" target="_blank"
                                                    referrerpolicy="no-referrer"
                                                         {% else %}
-                                                   href="/view/{{ article.pk }}/" target="_self"
+                                                   href="/view/{{ article.pk }}/{% if debug %}?debug=true{% endif %}" target="_self"
                                                    referrerpolicy="no-referrer"
                                                         {% endif %}></a>
                                             </div>

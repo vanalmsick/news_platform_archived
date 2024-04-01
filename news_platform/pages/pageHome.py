@@ -1,27 +1,25 @@
+# -*- coding: utf-8 -*-
 """Responaible for home view at base url / """
 import datetime
+import urllib.parse
 
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Count
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaulttags import register
-from django.http import HttpResponseRedirect
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import urllib.parse
 
 from articles.models import Article
 from feed_scraper.feed_scraper import update_feeds
 from feed_scraper.video_scraper import update_videos
 from markets.scrape import scrape_market_data
-from preferences.models import Page, get_page_lst
-
 from news_platform.celery import app
+from preferences.models import Page, get_page_lst, url_parm_encode
+
 from .pageAPI import get_articles
-from .pageLogin import LoginView
-from preferences.models import Page
-from preferences.models import url_parm_encode
 
 
 @register.filter(name="split")
@@ -39,8 +37,6 @@ def refresh_all_pages():
 
     for view_hash, view_kwargs in cached_views_dict.items():
         _, _, _ = get_articles(**view_kwargs, force_recache=True)
-
-
 
 
 def get_stats():
@@ -62,8 +58,8 @@ def get_stats():
     for content_type, query in [("art", all_articles), ("vid", all_videos)]:
         summary = (
             query.exclude(feedposition=None)
-                .values("feedposition__feed__publisher__pk")
-                .annotate(count=Count("pk"))
+            .values("feedposition__feed__publisher__pk")
+            .annotate(count=Count("pk"))
         )
         for i in summary:
             cache.set(
@@ -71,11 +67,14 @@ def get_stats():
                 i["count"],
                 60 * 60 * 24,
             )
-            print(f'There are currently {i["count"]} active {content_type}s from feed__publisher__pk {i["feedposition__feed__publisher__pk"]}')
+            print(
+                f'There are currently {i["count"]} active {content_type}s from '
+                f'feed__publisher__pk {i["feedposition__feed__publisher__pk"]}'
+            )
 
 
 # @postpone
-@app.task(time_limit=60*60*2)  # 2 hour time limit
+@app.task(time_limit=60 * 60 * 2)  # 2 hour time limit
 def refresh_feeds():
     """Main function to refresh all articles and videos"""
     print("refreshing started")
@@ -100,7 +99,9 @@ def refresh_feeds():
             cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
         else:
             print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
-            cache.set("videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24)
+            cache.set(
+                "videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24
+            )
 
         refresh_all_pages()
 
@@ -121,7 +122,9 @@ def refresh_feeds():
 
 def homeView(request, article=None):
     """Return django view of home page"""
-    #refresh_feeds()
+    # refresh_feeds()
+    # update_feeds()
+    # refresh_all_pages()
 
     # Get Articles
     kwargs_hash, articles, page_num = (
@@ -137,13 +140,18 @@ def homeView(request, article=None):
     page_pagination = []
     for i in range(max(1, page_num - 1), max(1, page_num - 1) + 3):
         url_kwargs["page"] = [f"{i}"]
-        page_pagination.append(dict(
-            i = i,
-            css_class = "active" if i == page_num else ("disabled" if len(articles) < 72 and i > page_num else ""),
-            url = '/?' + urllib.parse.urlencode({k: ','.join(v) for k, v in url_kwargs.items()})
-            ))
-
-
+        page_pagination.append(
+            dict(
+                i=i,
+                css_class="active"
+                if i == page_num
+                else ("disabled" if len(articles) < 72 and i > page_num else ""),
+                url="/?"
+                + urllib.parse.urlencode(
+                    {k: ",".join(v) for k, v in url_kwargs.items()}
+                ),
+            )
+        )
 
     # Get additional infos
     lastRefreshed = cache.get("lastRefreshed")
@@ -159,7 +167,7 @@ def homeView(request, article=None):
             "debug": "debug" in request.GET and request.GET["debug"].lower() == "true",
             "authenticated": request.user.is_authenticated,
             "platform_name": settings.CUSTOM_PLATFORM_NAME,
-            "webpush": {"group": "all" },
+            "webpush": {"group": "all"},
             "page_pagination": page_pagination,
             "lastRefreshed": lastRefreshed,
             "navbar": Page.objects.all().order_by("position_index"),
@@ -175,12 +183,11 @@ def homeView(request, article=None):
     )
 
 
-
 class RestHomeView(APIView):
     """View for url request to home view"""
 
-    authentication_classes = []
-    permission_classes = []
+    authentication_classes = []  # type: ignore
+    permission_classes = []  # type: ignore
 
     def get(self, request, format=None):
         """get method for Django"""
@@ -198,18 +205,18 @@ class RestHomeView(APIView):
                 summary=i.extract,
                 image_url=i.image_url,
                 has_full_text=i.has_full_text,
-                has_paywall=i.publisher.paywall=='Y',
-                is_breaking_news=i.importance_type == 'breaking',
+                has_paywall=i.publisher.paywall == "Y",
+                is_breaking_news=i.importance_type == "breaking",
                 content_type=i.content_type,
                 external_link=i.link,
                 internal_link=f"{settings.MAIN_HOST}/view/{i.pk}/",
                 pub_date=i.pub_date,
                 added_date=i.added_date,
-                categories=str(i.categories).split(';'),
+                categories=str(i.categories).split(";"),
                 language=i.language,
-                )
+            )
             for i in articles
-            ]
+        ]
 
         return Response(articles)
 
@@ -218,5 +225,5 @@ def RedirectView(request, article):
     try:
         requested_article = Article.objects.get(pk=int(article))
         return HttpResponseRedirect(requested_article.link)
-    except:
-        return HttpResponseRedirect('/')
+    except Exception:
+        return HttpResponseRedirect("/")
