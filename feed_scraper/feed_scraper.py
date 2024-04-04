@@ -479,8 +479,8 @@ def fetch_feed_new(feed):
                     and article_obj.importance_type == "breaking"
                 )
                 or (
-                    article_obj.max_importance > 3
-                    and article_obj.min_feed_position <= 3
+                    feed.importance == 4
+                    and article_feed_position <= 3
                     and article_obj.publisher.renowned >= 2
                 )
             )
