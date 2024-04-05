@@ -462,6 +462,7 @@ def fetch_feed_new(feed):
         feed_position.save()
 
         # check if important news for push notification
+        now = datetime.datetime.now()
         notifications_sent = cache.get("notifications_sent", [])
         if (
             article_obj.pk not in notifications_sent
@@ -482,6 +483,8 @@ def fetch_feed_new(feed):
                     feed.importance == 4
                     and article_feed_position <= 3
                     and article_obj.publisher.renowned >= 2
+                    and now.hour >= 6
+                    and now.hour <= 19
                 )
             )
             and (
