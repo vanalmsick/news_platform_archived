@@ -484,7 +484,7 @@ def fetch_feed_new(feed):
                     and article_feed_position <= 3
                     and article_obj.publisher.renowned >= 2
                     and now.hour >= 6
-                    and now.hour <= 7
+                    and now.hour <= 19
                 )
             )
             and (
