@@ -1,11 +1,18 @@
+# -*- coding: utf-8 -*-
 """Celery task config"""
-import os, datetime
+import datetime
+import os
 
 from celery import Celery
 from celery.schedules import crontab
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "news_platform.settings")
+STARTUP_NEWS_FETCH_DT = (
+    datetime.datetime.now() + datetime.timedelta(minutes=2)
+    if datetime.datetime.now().hour > 5
+    else datetime.datetime.now() - datetime.timedelta(minutes=5)
+)
 
 app = Celery("news_platform")
 
@@ -32,11 +39,11 @@ app.conf.beat_schedule = {
     "afterstartup": {
         "task": "news_platform.pages.pageHome.refresh_feeds",
         "schedule": crontab(
-            minute=datetime.datetime.now().minute + 2 if datetime.datetime.now().minute + 2 < 60 else datetime.datetime.now().minute + 2 - 60,
-            hour=datetime.datetime.now().hour if datetime.datetime.now().minute + 2 < 60 else datetime.datetime.now().hour + 1,
-            day_of_month=datetime.datetime.now().day,
-            month_of_year=datetime.datetime.now().month
-            ),
+            minute=STARTUP_NEWS_FETCH_DT.minute,
+            hour=STARTUP_NEWS_FETCH_DT.hour,
+            day_of_month=STARTUP_NEWS_FETCH_DT.day,
+            month_of_year=STARTUP_NEWS_FETCH_DT.month,
+        ),
         "args": (),
     },
 }
