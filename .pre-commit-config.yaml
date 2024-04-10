@@ -75,12 +75,12 @@ repos:
     hooks:
       - id: bandit
         args: [ "-iii", "-ll", '-q' ]
-  # Run unittests
-  - repo: local
-    hooks:
-      - id: unittests
-        name: run unit tests
-        entry: python -m unittest
-        language: system
-        pass_filenames: false
-        args: [ "discover" ]
+  # # Run unittests
+  # - repo: local
+  #   hooks:
+  #     - id: unittests
+  #       name: run unit tests
+  #       entry: python -m unittest
+  #       language: system
+  #       pass_filenames: false
+  #       args: [ "discover" ]

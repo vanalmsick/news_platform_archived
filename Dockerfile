@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Section 1- Base Image
-FROM python:3.9-slim
+FROM python:3.11.9-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
