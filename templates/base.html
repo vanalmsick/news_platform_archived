@@ -92,14 +92,10 @@
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 // dark mode
                 document.documentElement.setAttribute('data-bs-theme', 'dark');
-                replaceClass('link-dark', 'link-light');
-                replaceClass('text-dark', 'text-light');
                 console.log('html changed to dark mode');
             } else {
                 // light mode
                 document.documentElement.setAttribute('data-bs-theme', 'light');
-                replaceClass('link-light', 'link-dark');
-                replaceClass('text-light', 'text-dark');
                 console.log('html changed to light mode');
             }
         }
@@ -364,11 +360,7 @@
 
     <style>
 
-
         @media (prefers-color-scheme: light) {
-            a:link {
-                color: #3A3B3C;
-            }
 
             #scrollTopBtn {
                 background-color: #ffffff;
@@ -381,12 +373,15 @@
             .breaking {
                 background-color: #fff1e5;
             }
+
+            /* visited link */
+            .link-trace {
+                color: #000000;
+            }
+
         }
 
         @media (prefers-color-scheme: dark) {
-            a:link {
-                color: #dee2e6;
-            }
 
             #scrollTopBtn {
                 background-color: #343a40;
@@ -399,59 +394,78 @@
             .breaking {
                 background-color: #322D29;
             }
-        }
 
-        .cust-text-info {
-            color: #0dcaf0 !important;
-        }
+            /* visited link */
+            .link-trace {
+                color: #ffffff;
+            }
 
-        .cust-text-info:hover {
-            color: #FFFFFF !important;
-        }
-
-        .cust-text-danger {
-            color: #dc3545 !important;
-        }
-
-        .cust-text-danger:hover {
-            color: #FFFFFF !important;
-        }
-
-        .cust-text-secondary {
-            color: #6c757d !important;
-        }
-
-        .cust-text-secondary:hover {
-            color: #FFFFFF !important;
         }
 
 
         /* visited link */
-        a:visited {
+        .link-trace:visited {
             color: #800080;
         }
 
         /* mouse over link */
-        a:hover {
+        .link-trace:hover {
             color: #0a58ca;
         }
 
         /* selected link */
-        a:active {
+        .link-trace:active {
             color: #800000;
         }
 
-        .my-div {
+
+        .market-data-div {
             width: 150px;
             display: inline-block;
         }
 
 
-        .msg {
+        .refresh-notification {
             position: fixed;
             top: 20px;
             right: 30px;
             z-index: 99;
+        }
+
+
+        #scrollTopBtn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            z-index: 99;
+            font-size: 25px;
+            border: none;
+            outline: none;
+            color: #0a58ca;
+            cursor: pointer;
+
+            width: 50px;
+            height: 50px;
+            padding: 7px 10px;
+            border-radius: 25px;
+            font-size: 10px;
+            text-align: center;
+            box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .35) !important;
+        }
+
+
+        #ctxmenu {
+            position: fixed;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+
+        #ctxmenu > ul > li:hover {
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
         }
 
 
@@ -471,7 +485,6 @@
                 padding-left: 2px;
             }
 
-
             #leftSpace {
                 visibility: collapse;
                 display: none;
@@ -488,14 +501,13 @@
                 height: 0px;
             }
 
-            .msg {
+            .refresh-notification {
                 position: fixed;
                 top: 20px;
                 left: 50%;
                 transform: translate(-50%, 0);
                 z-index: 99;
             }
-
 
         }
 
@@ -529,7 +541,6 @@
                 width: 0px;
                 height: 0px;
             }
-
 
         }
 
@@ -581,45 +592,7 @@
                 height: 0px;
             }
 
-
         }
-
-
-        #scrollTopBtn {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 30px;
-            z-index: 99;
-            font-size: 25px;
-            border: none;
-            outline: none;
-            color: #0a58ca;
-            cursor: pointer;
-
-            width: 50px;
-            height: 50px;
-            padding: 7px 10px;
-            border-radius: 25px;
-            font-size: 10px;
-            text-align: center;
-            box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .35) !important;
-        }
-
-
-        #ctxmenu {
-            position: fixed;
-            cursor: pointer;
-            z-index: 2;
-        }
-
-
-        #ctxmenu > ul > li:hover {
-            color: #fff;
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
 
     </style>
 

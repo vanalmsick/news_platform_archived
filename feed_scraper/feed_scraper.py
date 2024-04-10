@@ -854,6 +854,7 @@ class ScrapedArticle:
             for a in soup.find_all("a"):
                 a["target"] = "_blank"
                 a["referrerpolicy"] = "no-referrer"
+                a["class"] = "link-trace"
             for link in soup.find_all("link"):
                 if link is not None:
                     link.decompose()
