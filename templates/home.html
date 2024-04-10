@@ -11,10 +11,10 @@
                         data-bs-target="#navbar_robot_toggler">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <a href="/" class="navbar-brand link-dark">{{ platform_name }}</a>
+                <a href="/" class="navbar-brand ">{{ platform_name }}</a>
                 <div class="collapse navbar-collapse" id="navbar_robot_toggler">
                     <div class="navbar-nav ms-auto">
-                        <a class="nav-item nav-link link-dark" href="/" onclick="window.location.reload();">
+                        <a class="nav-item nav-link " href="/" onclick="window.location.reload();">
 
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
                                  class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
@@ -32,8 +32,8 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 {% load webpush_notifications %}
-                                {% webpush_button with_class="dropdown-item link-dark" %}
-                                <a class="dropdown-item link-dark" href="/?archive=true">
+                                {% webpush_button with_class="dropdown-item " %}
+                                <a class="dropdown-item " href="/?archive=true">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
                                          class="bi bi-archive" viewBox="0 0 16 16" style="margin: 0px 5px 2px 0px;">
                                         <path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5zm13-3H1v2h14zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/>
@@ -41,17 +41,17 @@
                                     Archive</a>
                                 <div class="dropdown-divider"></div>
                                 {% if authenticated %}
-                                    <a class="dropdown-item link-dark" href="/logout/">Logout</a>
+                                    <a class="dropdown-item " href="/logout/">Logout</a>
                                 {% else %}
-                                    <a class="dropdown-item link-dark" href="/login/">Login</a>
+                                    <a class="dropdown-item " href="/login/">Login</a>
                                 {% endif %}
-                                <a class="dropdown-item link-dark" href="/admin/">Admin</a>
+                                <a class="dropdown-item " href="/admin/">Admin</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item link-dark" href="https://vanalmsick.github.io/news_platform/"
+                                <a class="dropdown-item " href="https://vanalmsick.github.io/news_platform/"
                                    target="_blank">Documentation</a>
-                                <a class="dropdown-item link-dark" href="https://github.com/vanalmsick/news_platform"
+                                <a class="dropdown-item " href="https://github.com/vanalmsick/news_platform"
                                    target="_blank">GitHub</a>
-                                <a class="dropdown-item link-dark"
+                                <a class="dropdown-item "
                                    href="https://github.com/vanalmsick/news_platform/discussions/categories/ideas"
                                    target="_blank">Suggest an idea</a>
                             </div>
@@ -65,7 +65,7 @@
 
     <!-- Notification -->
     <div aria-live="polite" aria-atomic="true" class="bg-dark bd-example-toasts">
-        <div class="toast-container msg p-3" id="toastPlacement">
+        <div class="toast-container refresh-notification p-3" id="toastPlacement">
             <div id="refreshNotification" class="toast fade">
                 <div class="toast-header">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
@@ -116,7 +116,7 @@
                                         <span class="text-secondary"><i>(ChatGPT 3.5)</i></span>
                                     </h6>
                                 </div>
-                                <div id="modalAI" class="card-body text-dark" style="font-family: Georgia, serif;">
+                                <div id="modalAI" class="card-body " style="font-family: Georgia, serif;">
                                 </div>
 
                             </div>
@@ -125,7 +125,7 @@
                         <div id="modalFullText" style="font-family: Georgia, serif;"></div>
                     </div>
                     <div id="modalContainerTags"
-                         class="d-flex flex-wrap align-items-center justify-content-center mx-auto mb-2 text-dark">
+                         class="d-flex flex-wrap align-items-center justify-content-center mx-auto mb-2 ">
                     </div>
                 </div>
 
@@ -223,7 +223,7 @@
                 <div class="row">
                     <div class="col-md-12 text-center">
                         {% for group, entry_lst in marketData.items %}
-                            <div class="my-div bg-body shadow-sm p-2 text-muted" style="margin: 4px 1px;">
+                            <div class="market-data-div bg-body shadow-sm p-2 text-muted" style="margin: 4px 1px;">
                                 <div class="d-flex justify-content-between">
                                     <div class="d-inline-block">{{ entry_lst.0.source.name }}</div>
                                     {% if entry_lst.0.source.pinned %}
@@ -277,7 +277,7 @@
                                 </div>
                             </div>
                         {% endfor %}
-                        <div class="my-div shadow-sm p-2 btn btn-sm rounded-5 bg-dark-subtle text-dark align-top"
+                        <div class="market-data-div shadow-sm p-2 btn btn-sm rounded-5 bg-dark-subtle  align-top"
                              style="margin: 4px 1px;"
                              onclick="hideElement(&quot;topSpaceSummary&quot;);showElement(&quot;topSpaceExtended&quot;);">
                             <div class="d-flex justify-content-center">
@@ -306,11 +306,11 @@
                 {% for group, entry_lst in marketData.items %}
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="my-div bg-body shadow-sm p-2 fw-bold" style="margin: 4px 1px;">
+                            <div class="market-data-div bg-body shadow-sm p-2 fw-bold" style="margin: 4px 1px;">
                                 {{ group.name }}
                             </div>
                             {% for data in entry_lst %}
-                                <div class="my-div bg-body shadow-sm p-2 text-muted" style="margin: 4px 1px;">
+                                <div class="market-data-div bg-body shadow-sm p-2 text-muted" style="margin: 4px 1px;">
                                     <div class="d-flex justify-content-between">
                                         <div class="d-inline-block">{{ data.source.name }}</div>
                                         {% if data.source.pinned %}
@@ -372,7 +372,7 @@
             <div class="d-flex flex-wrap align-items-center justify-content-center mx-auto mb-2">
                 {% for page in navbar %}
                     <a id="nav_page__{{ page.url_hash }}"
-                       class="nav-button btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page.url_hash == selected_page %}btn-primary text-light{% else %}bg-dark-subtle text-dark{% endif %}"
+                       class="nav-button btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if page.url_hash == selected_page %}btn-primary {% else %}bg-dark-subtle {% endif %}"
                        href="/?{{ page.url_parameters }}">{{ page.html_icon|safe }}{{ page.name }}</a>
                 {% endfor %}
             </div>
@@ -399,7 +399,7 @@
                                             <div class="card-body d-flex flex-column align-items-start text-break">
                                                 <strong class="d-inline-block mb-2 text-primary"
                                                         style="font-family: Georgia, serif;">{{ article.genre }}</strong>
-                                                <h3 class="mb-0 text-dark fs-5"
+                                                <h3 class="mb-0  fs-5"
                                                     style="font-family: Georgia, serif; font-weight: bold;">
                                                     {{ article.title }}
                                                 </h3>
@@ -549,7 +549,7 @@
              style="text-align: left;">
             <div class="mb-2 py-1 border-bottom fs-5 d-flex justify-content-between">
                 <span><strong class="text-gray-dark ps-3">{{ sidebar_title }}</strong></span>
-                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if selected_page == 'articles___special_____sidebar___' %} btn-primary text-light {% else %} bg-dark-subtle text-dark {% endif %}"
+                <a class="btn btn-sm rounded-5 p-1 px-3 mx-1 mb-1 shadow-sm {% if selected_page == 'articles___special_____sidebar___' %} btn-primary  {% else %} bg-dark-subtle  {% endif %}"
                    tabindex="4" href="/?special=sidebar">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
@@ -564,7 +564,7 @@
                 {% for side_article in sidebar %}
                     {% if side_article is not None and side_article.publisher is not None %}
                         <a id="side_{{ side_article.pk }}"
-                           class="context-card list-group-item list-group-item-action link-dark {% if 'financial times' in side_article.publisher.name|lower or 'bloomberg' in side_article.publisher.name|lower or 'hedgeweek' in side_article.publisher.name|lower or 'reuters' in side_article.publisher.name|lower or 'the wall street journal' in side_article.publisher.name|lower %} breaking{% endif %}"
+                           class="context-card list-group-item list-group-item-action  {% if 'financial times' in side_article.publisher.name|lower or 'bloomberg' in side_article.publisher.name|lower or 'hedgeweek' in side_article.publisher.name|lower or 'reuters' in side_article.publisher.name|lower or 'the wall street journal' in side_article.publisher.name|lower %} breaking{% endif %}"
                            aria-current="true"
                            onmouseover=showElement("extract_{{ side_article.pk }}")
                            onmouseout=hideElement("extract_{{ side_article.pk }}")
