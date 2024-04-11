@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
 from django.conf import settings
-from django.shortcuts import render
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
+
 from articles.models import Article
+
 
 def articleView(request, article=None):
     """Return django view of home page"""
@@ -13,20 +16,20 @@ def articleView(request, article=None):
 
     # if user is not autheticated
     if request.user.is_authenticated is False:
-        return HttpResponseRedirect(f'/login/?article={article}')
+        return HttpResponseRedirect(f"/login/?article={article}")
 
     article = Article.objects.get(pk=article)
 
     meta = f"""
-    <title>{article.title} - {article.publisher.name}</title>
-    <meta name="description" content="{article.extract}">
-    <meta property="og:description" content="{article.extract}">
-    <meta property="og:image" content="{article.image_url}">
-    <meta property="og:site_name" content="{article.publisher.name}">
-    <meta property="og:title" content="{article.title}">
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="{article.link}">
-    """
+        <title>{article.title} - {article.publisher.name}</title>
+        <meta name="description" property="og:description" content="{article.extract}">
+        <meta name="image" property="og:image" content="{article.image_url}">
+        <meta name="site_name" property="og:site_name" content="{article.publisher.name}">
+        <meta name="author" property="og:author" content="{article.publisher.name}">
+        <meta name="title" property="og:title" content="{article.title} - {article.publisher.name}">
+        <meta name="type" property="og:type" content="article">
+        <meta name="url" property="og:url" content="{article.link}">
+        """
 
     return render(
         request,
@@ -38,4 +41,3 @@ def articleView(request, article=None):
             "platform_name": settings.CUSTOM_PLATFORM_NAME,
         },
     )
-
