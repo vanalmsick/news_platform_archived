@@ -504,7 +504,16 @@ def fetch_feed_new(feed):
                 send_group_notification(
                     group_name="all",
                     payload={
-                        "head": f"{article_obj.publisher.name}",
+                        "head": (
+                            f"{article_obj.publisher.name} "
+                            + (
+                                "#Breaking"
+                                if article_obj.importance_type == "breaking"
+                                else "#Ticker"
+                                if "sidebar" in str(article_obj.categories).lower()
+                                else "#Headline"
+                            )
+                        ),
                         "body": f"{article_obj.title}",
                         "url": f"/view/{article_obj.pk}/",
                     },
