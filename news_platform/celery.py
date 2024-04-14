@@ -9,7 +9,7 @@ from celery.schedules import crontab
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "news_platform.settings")
 STARTUP_NEWS_FETCH_DT = (
-    datetime.datetime.now() + datetime.timedelta(minutes=2)
+    datetime.datetime.now() + datetime.timedelta(minutes=5)
     if datetime.datetime.now().hour > 5
     else datetime.datetime.now() - datetime.timedelta(minutes=5)
 )
