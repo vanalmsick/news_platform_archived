@@ -9,7 +9,9 @@ import requests  # type: ignore
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import F, Q, SmallIntegerField
+from django.db.models.expressions import Window
+from django.db.models.functions import Cast, RowNumber
 from webpush import send_group_notification
 
 from .models import DataEntry, DataSource
@@ -132,8 +134,17 @@ def scrape_market_data():
         obj.save()
         latest_data.append(obj.pk)
 
-    latest_data = DataEntry.objects.filter(pk__in=latest_data).order_by(
-        "source__group__position", "-source__pinned", "change_today"
+    latest_data = (
+        DataEntry.objects.filter(pk__in=latest_data)
+        .annotate(change_today_int=Cast(F("change_today") * 1000, SmallIntegerField()))
+        .annotate(
+            worst_perf_idx=Window(
+                expression=RowNumber(),
+                partition_by="source__group",
+                order_by="change_today_int",
+            )
+        )
+        .order_by("source__group__position", "-source__pinned", "-change_today")
     )
 
     # Notify user of large daily changes
