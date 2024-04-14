@@ -30,6 +30,7 @@ def split(value, key):
 
 
 def refresh_all_pages():
+    """reshresh all cached pages with force_recache=True"""
     cached_views_dict = cache.get("cached_views_lst", {})
     for k, v in get_page_lst().items():
         if k not in cached_views_dict:
@@ -74,8 +75,8 @@ def get_stats():
 
 
 # @postpone
-@app.task(time_limit=60 * 60 * 2)  # 2 hour time limit
-def refresh_feeds():
+@app.task(bind=True, time_limit=60 * 60 * 2, max_retries=5)  # 2 hour time limit
+def refresh_feeds(self):
     """Main function to refresh all articles and videos"""
     print("refreshing started")
 
@@ -84,6 +85,7 @@ def refresh_feeds():
         print("Already other task that is refreshing articles")
         return "ALREADY RUNNING"
 
+    response = ""
     try:
         cache.set("currentlyRefreshing", True, 60 * 60 * 2 + 300)
         videoRefreshCycleCount = cache.get("videoRefreshCycleCount")
@@ -94,30 +96,37 @@ def refresh_feeds():
         refresh_all_pages()
 
         update_feeds()
+        response += "articles refreshed successfully; "
         if videoRefreshCycleCount is None or videoRefreshCycleCount == 0:
             update_videos()
             cache.set("videoRefreshCycleCount", 8, 60 * 60 * 24)
+            response += "videos refreshed successfully; "
         else:
             print(f"Refeshing videos in {videoRefreshCycleCount - 1} cycles")
             cache.set(
                 "videoRefreshCycleCount", videoRefreshCycleCount - 1, 60 * 60 * 24
             )
+            response += "video refresh not required; "
 
         refresh_all_pages()
 
         # Update marekt data
         scrape_market_data()
+        response += "market data refreshed successfully; "
 
         now = datetime.datetime.now()
         cache.set("lastRefreshed", now, 60 * 60 * 48)
 
+        response += "DONE"
         print("refreshing finished")
 
     except Exception as e:
-        raise Exception(e)
+        self.retry(countdown=30, exc=e)
+        response += f"ERROR: {e}"
 
     finally:
         cache.set("currentlyRefreshing", False, 60 * 60 * 2)
+        return response
 
 
 def homeView(request, article=None):
@@ -222,6 +231,7 @@ class RestHomeView(APIView):
 
 
 def RedirectView(request, article):
+    """view to redirect users to external article source url"""
     try:
         requested_article = Article.objects.get(pk=int(article))
         return HttpResponseRedirect(requested_article.link)
