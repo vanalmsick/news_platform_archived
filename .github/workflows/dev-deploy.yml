@@ -1,8 +1,8 @@
 name: Development Deployment
 on:
   push:
-    branches:
-      - 'dev'
+    branches: [ 'dev' ]
+    paths-ignore: [ 'docs/**', 'README.md' ]
 
 jobs:
 
