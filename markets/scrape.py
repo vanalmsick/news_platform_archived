@@ -144,7 +144,7 @@ def scrape_market_data():
                 order_by="change_today_int",
             )
         )
-        .order_by("source__group__position", "-source__pinned", "-change_today")
+        .order_by("source__group__position", "-source__pinned", "change_today")
     )
 
     # Notify user of large daily changes
