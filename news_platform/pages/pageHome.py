@@ -6,7 +6,7 @@ import urllib.parse
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Count
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaulttags import register
 from rest_framework.response import Response
@@ -237,3 +237,23 @@ def RedirectView(request, article):
         return HttpResponseRedirect(requested_article.link)
     except Exception:
         return HttpResponseRedirect("/")
+
+
+def TriggerManualRefreshView(request):
+    """view to tigger manual news refresh"""
+    task = refresh_feeds.delay()
+
+    HTML_RESPONSE = f"""
+    <html>
+        <head>
+            <meta http-equiv="refresh" content="5;url=/" />
+        </head>
+        <body>
+            <h1>Successfully triggered manual news refresh. ID: {task.task_id}</h1>
+            <p><i>Redirecting in 5 seconds...</i></p>
+        </body>
+    </html>
+    """
+
+    print(f"Manual news refresh triggered. Id: {task.task_id}")
+    return HttpResponse(HTML_RESPONSE)

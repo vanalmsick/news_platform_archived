@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """Django's command-line utility for administrative tasks."""
 import datetime
 import os
@@ -18,6 +19,13 @@ def __ensure_db_migration_folders_exist():
         "data/db_migrations/feeds/__init__.py",
         "data/db_migrations/preferences/__init__.py",
         "data/db_migrations/markets/__init__.py",
+        "data/db_migrations/django_celery_beat/__init__.py",
+        "data/db_migrations/webpush/__init__.py",
+        "data/db_migrations/sessions/__init__.py",
+        "data/db_migrations/auth/__init__.py",
+        "data/db_migrations/authtoken/__init__.py",
+        "data/db_migrations/admin/__init__.py",
+        "data/db_migrations/contenttypes/__init__.py",
     ]
 
     if all([os.path.isfile(i) for i in init_files]) is False:
