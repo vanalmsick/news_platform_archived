@@ -22,6 +22,7 @@ supervisor
 celery
 flower
 celery[redis]
+django_celery_beat
 django-webpush
 django-pwa
 pillow
