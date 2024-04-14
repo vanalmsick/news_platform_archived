@@ -2,7 +2,7 @@ name: Development Deployment
 on:
   push:
     branches: [ 'dev' ]
-    paths-ignore: [ 'docs/**', 'README.md' ]
+    paths-ignore: [ '.github/**', 'docs/**', 'README.md' ]
 
 jobs:
 
