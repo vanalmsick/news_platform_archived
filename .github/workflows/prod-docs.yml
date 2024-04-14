@@ -1,8 +1,8 @@
 name: Publish Docs
 on:
   push:
-    branches:
-      - main
+    branches: [ 'main' ]
+    paths: [ 'docs/**' ]
 permissions:
   contents: write
 jobs:
