@@ -35,6 +35,9 @@ SECRET_KEY = os.environ.get(
 DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
 DEBUG = True
 TESTING = os.environ.get("TESTING", "false").lower() == "true"
+CELERY_TASK_ALWAYS_EAGER = (
+    False  # true to run tasks synchronously for testing and development
+)
 print(f'Debug modus is turned {"on" if DEBUG else "off"}')
 
 MAIN_HOST = os.environ.get("MAIN_HOST", "http://localhost")
@@ -65,6 +68,7 @@ INSTALLED_APPS = [
     "feeds",
     "preferences",
     "markets",
+    "django_celery_beat",
 ]
 
 
@@ -214,7 +218,7 @@ ALLOWED_LANGUAGES = os.getenv("ALLOWED_LANGUAGES", "*")
 LOGOUT_REDIRECT_URL = "/"
 SIDEBAR_TITLE = os.getenv("SIDEBAR_TITLE", "Latest News")
 
-TIME_ZONE = os.getenv("TIME_ZONE", "Europe/London")
+TIME_ZONE = CELERY_TIMEZONE = os.getenv("TIME_ZONE", "Europe/London")
 TIME_ZONE_OBJ = pytz.timezone(TIME_ZONE)
 
 USE_I18N = True
