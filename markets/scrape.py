@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Data scraping for Market Data i.e. Stock/FX/Comm prices"""
 import datetime
+import traceback
 from io import StringIO
 
 import numpy as np
@@ -118,21 +119,32 @@ def scrape_market_data():
     print("Refreshing Market Data...")
 
     all_scources = DataSource.objects.exclude(data_source="yfin")
-    latest_data = __get_bonds(all_scources)
+    latest_data = []
+    try:
+        latest_data = __get_bonds(all_scources)
+    except Exception as e:
+        print(traceback.format_exc())
+        print(f"Error fetching bond market data {e}")
 
     all_scources = DataSource.objects.filter(data_source="yfin")
     for data_src in all_scources:
-        summary_box = __get_quote_table(data_src.ticker)
-        obj = DataEntry(
-            source=data_src,
-            price=summary_box["regularMarketPrice"],
-            change_today=summary_box["regularMarketChangePercent"] * 100,
-            market_closed=(
-                True if "close" in summary_box["quote-market-notice"].lower() else False
-            ),
-        )
-        obj.save()
-        latest_data.append(obj.pk)
+        try:
+            summary_box = __get_quote_table(data_src.ticker)
+            obj = DataEntry(
+                source=data_src,
+                price=summary_box["regularMarketPrice"],
+                change_today=summary_box["regularMarketChangePercent"] * 100,
+                market_closed=(
+                    True
+                    if "close" in summary_box["quote-market-notice"].lower()
+                    else False
+                ),
+            )
+            obj.save()
+            latest_data.append(obj.pk)
+        except Exception as e:
+            print(traceback.format_exc())
+            print(f"Error fetching yahoo market data for {data_src} {e}")
 
     latest_data = (
         DataEntry.objects.filter(pk__in=latest_data)
