@@ -4,7 +4,6 @@ import datetime
 import traceback
 from io import StringIO
 
-import numpy as np
 import pandas as pd
 import requests  # type: ignore
 from bs4 import BeautifulSoup
@@ -80,17 +79,18 @@ def __get_quote_table(ticker, headers={"User-agent": "Mozilla/5.0"}):
 
     site = "https://finance.yahoo.com/quote/" + ticker + "?p=" + ticker
 
-    reponse = requests.get(site, headers=headers).text
+    reponse = requests.get(site, headers=headers)
+    soup = BeautifulSoup(reponse.text, "html.parser")
+    data_points = soup.find_all("fin-streamer")
 
-    tables = pd.read_html(StringIO(reponse))
-    one_table = np.concatenate(tables, axis=0)
-    data = {x: y for x, y in one_table}
-
-    soup = BeautifulSoup(reponse, "lxml")
-    data["quote-market-notice"] = soup.find(id="quote-market-notice").text
-    items = soup.find(id="quote-market-notice").find_parent().find_all("fin-streamer")
-    for i in items:
-        if hasattr(i, "data-field") and hasattr(i, "value"):
+    data = {}
+    for i in data_points:
+        if (
+            hasattr(i, "data-field")
+            and hasattr(i, "value")
+            and hasattr(i, "data-symbol")
+            and i["data-symbol"].upper() in ticker.upper()
+        ):
             data[i["data-field"]] = i["value"]
 
     converted_data = {}
@@ -134,11 +134,7 @@ def scrape_market_data():
                 source=data_src,
                 price=summary_box["regularMarketPrice"],
                 change_today=summary_box["regularMarketChangePercent"] * 100,
-                market_closed=(
-                    True
-                    if "close" in summary_box["quote-market-notice"].lower()
-                    else False
-                ),
+                market_closed=True,
             )
             obj.save()
             latest_data.append(obj.pk)
