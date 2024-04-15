@@ -2,6 +2,7 @@
 """Responaible for home view at base url / """
 import datetime
 import urllib.parse
+import traceback
 
 from django.conf import settings
 from django.core.cache import cache
@@ -118,14 +119,16 @@ def refresh_feeds(self):
         cache.set("lastRefreshed", now, 60 * 60 * 48)
 
         response += "DONE"
+        cache.set("currentlyRefreshing", False, 60 * 60 * 2)
         print("refreshing finished")
 
     except Exception as e:
-        self.retry(countdown=30, exc=e)
         response += f"ERROR: {e}"
+        cache.set("currentlyRefreshing", False, 60 * 60 * 2)
+        print(traceback.format_exc())
+        raise self.retry(countdown=30, exc=e)
 
     finally:
-        cache.set("currentlyRefreshing", False, 60 * 60 * 2)
         return response
 
 
