@@ -86,12 +86,12 @@ def __get_quote_table(ticker, headers={"User-agent": "Mozilla/5.0"}):
     data = {}
     for i in data_points:
         if (
-            hasattr(i, "data-field")
-            and hasattr(i, "value")
-            and hasattr(i, "data-symbol")
-            and i["data-symbol"].upper() in ticker.upper()
+            "data-field" in i.attrs
+            and "data-value" in i.attrs
+            and "data-symbol" in i.attrs
+            and ticker.upper() in i.attrs["data-symbol"].upper()
         ):
-            data[i["data-field"]] = i["value"]
+            data[i.attrs["data-field"]] = i.attrs["data-value"]
 
     converted_data = {}
     for k, v in data.items():
