@@ -133,7 +133,7 @@ def scrape_market_data():
             obj = DataEntry(
                 source=data_src,
                 price=summary_box["regularMarketPrice"],
-                change_today=summary_box["regularMarketChangePercent"] * 100,
+                change_today=summary_box["regularMarketChangePercent"],
                 market_closed=False,
             )
             obj.save()
