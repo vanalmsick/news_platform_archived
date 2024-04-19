@@ -1036,6 +1036,7 @@ class ScrapedArticle:
             "liveticker",
             "liveblog",
             "live blog",
+            "live update",
             "developing story",
         ]
         if (
