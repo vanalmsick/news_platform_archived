@@ -1031,16 +1031,48 @@ class ScrapedArticle:
             self.final_has_full_text = False
 
         # News type
-        BREAKING_NEWS_KEYWORDS = [
-            "breaking news",
+        LIVE_TICKER_KEYWORDS = [
             "liveticker",
             "liveblog",
             "live blog",
             "live news",
             "live update",
+        ]
+        BREAKING_NEWS_KEYWORDS = [
+            "breaking news",
             "developing story",
         ]
         if (
+            (
+                hasattr(self, "final_title")
+                and any([i in self.final_title.lower() for i in LIVE_TICKER_KEYWORDS])
+            )
+            or (
+                hasattr(self, "scrape_article_title")
+                and any(
+                    [
+                        i in self.scrape_article_title.lower()
+                        for i in LIVE_TICKER_KEYWORDS
+                    ]
+                )
+            )
+            or (
+                hasattr(self, "final_extract")
+                and any([i in self.final_extract.lower() for i in LIVE_TICKER_KEYWORDS])
+            )
+            or (any([i in body_text.lower() for i in LIVE_TICKER_KEYWORDS]))
+        ):
+            self.final_content_type = "ticker"
+            self.final_importance_type = "breaking"
+            if (
+                hasattr(self, "scrape_article_title")
+                and self.scrape_article_title is not None
+                and self.scrape_article_title != ""
+            ):
+                self.final_title = self.scrape_article_title
+            if body_cnt < 250:
+                self.final_has_full_text = False
+        elif (
             (
                 hasattr(self, "final_title")
                 and any([i in self.final_title.lower() for i in BREAKING_NEWS_KEYWORDS])
@@ -1062,7 +1094,7 @@ class ScrapedArticle:
             )
             or (any([i in body_text.lower() for i in BREAKING_NEWS_KEYWORDS]))
         ):
-            self.final_content_type = "ticker"
+            self.final_content_type = "article"
             self.final_importance_type = "breaking"
         else:
             self.final_content_type = "article"
