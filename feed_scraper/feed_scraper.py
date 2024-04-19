@@ -1036,6 +1036,7 @@ class ScrapedArticle:
             "liveticker",
             "liveblog",
             "live blog",
+            "live news",
             "live update",
             "developing story",
         ]
@@ -1043,6 +1044,15 @@ class ScrapedArticle:
             (
                 hasattr(self, "final_title")
                 and any([i in self.final_title.lower() for i in BREAKING_NEWS_KEYWORDS])
+            )
+            or (
+                hasattr(self, "scrape_article_title")
+                and any(
+                    [
+                        i in self.scrape_article_title.lower()
+                        for i in BREAKING_NEWS_KEYWORDS
+                    ]
+                )
             )
             or (
                 hasattr(self, "final_extract")
