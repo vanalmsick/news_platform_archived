@@ -408,6 +408,25 @@
 
         }
 
+        /* binking dot */
+        @keyframes blink {
+            0%, 100% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .dot {
+            animation: blink 2s infinite;
+            height: 8px;
+            width: 8px;
+            margin: 2px 1px 2px 0px;
+            background-color: #990f3d;
+            border-radius: 50%;
+            display: inline-block;
+        }
 
         /* visited link */
         .link-trace:visited {

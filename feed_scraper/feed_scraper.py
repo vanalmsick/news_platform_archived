@@ -1030,6 +1030,12 @@ class ScrapedArticle:
         else:
             self.final_has_full_text = False
 
+        # if no artcile extract but has full text use shortened ful text as extract
+        if self.final_has_extract is False and body_cnt > 5:
+            self.final_extract = self.final_full_text_text
+            if len(self.final_extract) > 300:
+                self.final_extract = self.final_extract[:300]
+
         # News type
         LIVE_TICKER_KEYWORDS = [
             "liveticker",
