@@ -408,6 +408,15 @@ def fetch_feed_new(feed):
                     and full_text_fetch
                     and article_obj.image_url is None
                 )
+                or (
+                    hasattr(ScrapedArticle_obj, "feed_article_updated_date")
+                    and settings.TIME_ZONE_OBJ.localize(
+                        datetime.datetime.fromtimestamp(
+                            time.mktime(ScrapedArticle_obj.feed_article_updated_date)
+                        )
+                    )
+                    > article_obj.last_updated_date
+                )
             ):
                 if full_text_fetch:
                     ScrapedArticle_obj.scrape_source()
