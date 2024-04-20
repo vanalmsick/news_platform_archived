@@ -410,11 +410,7 @@ def fetch_feed_new(feed):
                 )
                 or (
                     hasattr(ScrapedArticle_obj, "feed_article_updated_date")
-                    and settings.TIME_ZONE_OBJ.localize(
-                        datetime.datetime.fromtimestamp(
-                            time.mktime(ScrapedArticle_obj.feed_article_updated_date)
-                        )
-                    )
+                    and ScrapedArticle_obj.feed_article_updated_date
                     > article_obj.last_updated_date
                 )
             ):
@@ -655,6 +651,18 @@ class ScrapedArticle:
         }.items():
             if hasattr(self.feed_article_obj, obj_attr):
                 setattr(self, target_attr, getattr(self.feed_article_obj, obj_attr))
+
+        # if article has url parse it
+        if hasattr(self, "feed_article_updated_date"):
+            self.feed_article_updated_date = settings.TIME_ZONE_OBJ.localize(
+                datetime.datetime.fromtimestamp(
+                    time.mktime(self.feed_article_updated_date)
+                )
+            )
+        else:
+            self.feed_article_updated_date = settings.TIME_ZONE_OBJ.localize(
+                datetime.datetime.now()
+            )
 
         # if article has url parse it
         if hasattr(self, "feed_article_url_str"):
@@ -1200,6 +1208,7 @@ class ScrapedArticle:
                 datetime.datetime.now()
             )
             print(f"Warning no pub_date for {self.final_publisher}")
+        self.final_last_updated_date = self.feed_article_updated_date
 
         # Categories
         feed_article_categories = (
