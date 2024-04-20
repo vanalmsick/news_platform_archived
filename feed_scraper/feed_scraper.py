@@ -1060,7 +1060,6 @@ class ScrapedArticle:
                 hasattr(self, "final_extract")
                 and any([i in self.final_extract.lower() for i in LIVE_TICKER_KEYWORDS])
             )
-            or (any([i in body_text.lower() for i in LIVE_TICKER_KEYWORDS]))
         ):
             self.final_content_type = "ticker"
             self.final_importance_type = "breaking"
@@ -1092,7 +1091,14 @@ class ScrapedArticle:
                     [i in self.final_extract.lower() for i in BREAKING_NEWS_KEYWORDS]
                 )
             )
-            or (any([i in body_text.lower() for i in BREAKING_NEWS_KEYWORDS]))
+            or (
+                any(
+                    [
+                        i in body_text.lower()
+                        for i in BREAKING_NEWS_KEYWORDS + LIVE_TICKER_KEYWORDS
+                    ]
+                )
+            )
         ):
             self.final_content_type = "article"
             self.final_importance_type = "breaking"
