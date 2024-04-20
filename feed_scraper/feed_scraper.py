@@ -66,8 +66,12 @@ def update_feeds():
 
     added_articles = 0
     for feed in feeds:
-        # added_articles += fetch_feed(feed)
-        added_articles += fetch_feed_new(feed)
+        add_articles, feed__last_fetched = fetch_feed_new(feed)
+        added_articles += add_articles
+        setattr(
+            feed, "last_fetched", settings.TIME_ZONE_OBJ.localize(feed__last_fetched)
+        )
+        feed.save()
 
     # apply publisher feed position
     publishers = Publisher.objects.all()
@@ -349,6 +353,21 @@ def fetch_feed_new(feed):
         feed_url = feed_url.replace("http://FULL-TEXT.local", settings.FULL_TEXT_URL)
 
     fetched_feed = feedparser.parse(feed_url)
+    if hasattr(fetched_feed.feed, "updated_parsed"):
+        fetched_feed__last_updated = datetime.datetime.fromtimestamp(
+            time.mktime(fetched_feed.feed.updated_parsed)
+        )
+    else:
+        fetched_feed__last_updated = datetime.datetime.now()
+
+    if (
+        feed.last_fetched is not None
+        and feed.last_fetched >= fetched_feed__last_updated
+    ):
+        fetched_feed.entries = []
+        print(
+            f"Feed {feed} does not require refreshing - already up-to-date ({fetched_feed__last_updated})"
+        )
 
     if len(fetched_feed.entries) > 0:
         delete_feed_positions(feed)
@@ -538,7 +557,7 @@ def fetch_feed_new(feed):
         f"Refreshed {feed} with {added_articles} new articles out of"
         f" {len(fetched_feed.entries)}"
     )
-    return added_articles
+    return added_articles, fetched_feed__last_updated
 
 
 @ratelimit.sleep_and_retry
