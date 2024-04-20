@@ -357,6 +357,10 @@ def fetch_feed_new(feed):
         fetched_feed__last_updated = datetime.datetime.fromtimestamp(
             time.mktime(fetched_feed.feed.updated_parsed)
         )
+    elif hasattr(fetched_feed.feed, "published_parsed"):
+        fetched_feed__last_updated = datetime.datetime.fromtimestamp(
+            time.mktime(fetched_feed.feed.published_parsed)
+        )
     else:
         fetched_feed__last_updated = datetime.datetime.now()
 
