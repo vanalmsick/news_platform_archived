@@ -68,9 +68,7 @@ def update_feeds():
     for feed in feeds:
         add_articles, feed__last_fetched = fetch_feed_new(feed)
         added_articles += add_articles
-        setattr(
-            feed, "last_fetched", settings.TIME_ZONE_OBJ.localize(feed__last_fetched)
-        )
+        setattr(feed, "last_fetched", feed__last_fetched)
         feed.save()
 
     # apply publisher feed position
@@ -363,6 +361,9 @@ def fetch_feed_new(feed):
         )
     else:
         fetched_feed__last_updated = datetime.datetime.now()
+    fetched_feed__last_updated = settings.TIME_ZONE_OBJ.localize(
+        fetched_feed__last_updated
+    )
 
     if (
         feed.last_fetched is not None
