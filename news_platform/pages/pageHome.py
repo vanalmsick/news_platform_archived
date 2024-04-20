@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Responaible for home view at base url / """
 import datetime
-import urllib.parse
 import traceback
+import urllib.parse
 
 from django.conf import settings
 from django.core.cache import cache
@@ -115,7 +115,7 @@ def refresh_feeds(self):
         scrape_market_data()
         response += "market data refreshed successfully; "
 
-        now = datetime.datetime.now()
+        now = settings.TIME_ZONE_OBJ.localize(datetime.datetime.now())
         cache.set("lastRefreshed", now, 60 * 60 * 48)
 
         response += "DONE"
