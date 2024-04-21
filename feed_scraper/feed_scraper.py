@@ -546,7 +546,7 @@ def fetch_feed_new(feed):
                             )
                         ),
                         "body": f"{article_obj.title}",
-                        "url": f"/view/{article_obj.pk}/",
+                        "url": f"/{'view' if article_obj.has_full_text else 'redirect'}/{article_obj.pk}/",
                     },
                     ttl=60 * 90,  # keep 90 minutes on server
                 )
