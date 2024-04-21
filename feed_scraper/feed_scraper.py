@@ -468,7 +468,7 @@ def fetch_feed_new(feed):
             feed_position=article_feed_position,
             hash=guid,
             pub_date=ScrapedArticle_obj.final_pub_date,
-            article_type=ScrapedArticle_obj.content_type,
+            article_type=article_obj.content_type,
         )
         new_categories = getattr(ScrapedArticle_obj, "final_categories", None)
         current_categories = getattr(article_obj, "categories", None)
