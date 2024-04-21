@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """This file is doing the video scraping"""
 
 import datetime
@@ -37,7 +38,9 @@ def update_videos():
     feeds = Feed.objects.filter(active=True).exclude(feed_type="rss")
     if settings.TESTING:
         # when testing is turned on only fetch 10% of feeds to not having to wait too long
-        feeds = [feeds[i] for i in range(0, len(feeds), len(feeds) // (len(feeds) // 10))]
+        feeds = [
+            feeds[i] for i in range(0, len(feeds), len(feeds) // (len(feeds) // 10))
+        ]
 
     added_videos = 0
     for feed in feeds:
@@ -85,7 +88,18 @@ def fetch_feed(feed, max_per_feed=200):
         article_kwargs["min_feed_position"] = article__feed_position
         article_kwargs["publisher"] = feed.publisher
         article_kwargs["content_type"] = "video"
-        article_kwargs["categories"] = ";".join([str(i) for i in ["Video"] + ([] if feed.source_categories is None else feed.source_categories.split(";")) + [""]])
+        article_kwargs["categories"] = ";".join(
+            [
+                str(i)
+                for i in ["Video"]
+                + (
+                    []
+                    if feed.source_categories is None
+                    else feed.source_categories.split(";")
+                )
+                + [""]
+            ]
+        )
         article_kwargs["title"] = (
             video["title"]["runs"][0]["text"] if "title" in video else None
         )
@@ -94,7 +108,11 @@ def fetch_feed(feed, max_per_feed=200):
             if "descriptionSnippet" in video
             else ""
         )
-        if "lengthText" in video and "viewCountText" in video and "simpleText" in video["viewCountText"]:
+        if (
+            "lengthText" in video
+            and "viewCountText" in video
+            and "simpleText" in video["viewCountText"]
+        ):
             article_kwargs["extract"] = (
                 video["lengthText"]["simpleText"]
                 + (" h" if len(video["lengthText"]["simpleText"]) > 5 else " min")
@@ -149,7 +167,9 @@ def fetch_feed(feed, max_per_feed=200):
         article_kwargs["hash"] = f"youtube_{video['videoId']}"
         article_kwargs["language"] = feed.publisher.language
         article_kwargs["link"] = f"https://www.youtube.com/watch?v={video['videoId']}"
-        article_kwargs["full_text_html"] = f"""
+        article_kwargs[
+            "full_text_html"
+        ] = f"""
         <iframe style="width: 100%; height: auto; min-height: 30vw; max-height:400px; aspect-ratio: 16 / 9;"
         referrerpolicy="no-referrer"
         src="https://www.youtube-nocookie.com/embed/{video['videoId']}?rel=0&autoplay=1"
@@ -177,6 +197,7 @@ def fetch_feed(feed, max_per_feed=200):
             feed_position=article__feed_position,
             hash=article_kwargs["hash"],
             pub_date=article_kwargs["pub_date"],
+            article_type=article_kwargs["content_type"],
         )
         for k, v in article_kwargs.items():
             value = getattr(article_obj, k)
