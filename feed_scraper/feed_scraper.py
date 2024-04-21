@@ -1011,24 +1011,7 @@ class ScrapedArticle:
             if potential_inluded_name in self.final_title:
                 self.final_title = self.final_title.replace(potential_inluded_name, "")
 
-            # Summary / Extract
-        self.__calculate_final_value__(
-            final_attr_name="final_extract",
-            feed_attr_name="feed_article_extract_text",
-            scrape_attr_name="scrape_article_extract_text",
-        )
-        self.final_has_extract = (
-            (
-                self.final_extract is None
-                or self.final_extract == ""
-                or self.final_extract == "None"
-            )
-            if hasattr(self, "final_extract")
-            else False
-        )
-
         # Full text / Body
-
         scrape_article_body_cnt = (
             self.scrape_article_body_cnt
             if hasattr(self, "scrape_article_body_cnt")
@@ -1071,11 +1054,25 @@ class ScrapedArticle:
         else:
             self.final_has_full_text = False
 
-        # if no artcile extract but has full text use shortened ful text as extract
-        if self.final_has_extract is False and body_cnt > 5:
-            self.final_extract = self.final_full_text_text
-            if len(self.final_extract) > 300:
-                self.final_extract = self.final_extract[:300]
+        # Summary / Extract
+        self.__calculate_final_value__(
+            final_attr_name="final_extract",
+            feed_attr_name="feed_article_extract_text",
+            scrape_attr_name="scrape_article_extract_text",
+        )
+        if (
+            hasattr(self, "final_extract")
+            and self.final_extract is not None
+            and self.final_extract != ""
+            and self.final_extract != "None"
+        ):
+            self.final_has_extract = True
+        else:
+            self.final_has_extract = False
+            if body_cnt > 5:
+                self.final_extract = self.final_full_text_text
+                if len(self.final_extract) > 300:
+                    self.final_extract = self.final_extract[:300]
 
         # News type
         LIVE_TICKER_KEYWORDS = [
