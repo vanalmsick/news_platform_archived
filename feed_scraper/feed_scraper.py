@@ -166,7 +166,7 @@ def update_feeds():
     # connection.close()
 
 
-def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
+def calcualte_relevance(publisher, feed, feed_position, hash, pub_date, article_type):
     """
     This function calsucates the relvanec score for all artciles and videos depensing on user
     settings and article positions
@@ -224,6 +224,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date):
         * factor_article_normalization
         * factor_feed__importance
         * factor_age
+        * (0.5 if article_type == "ticker" else 1.0)
         + random_int,
         6,
     )
@@ -467,6 +468,7 @@ def fetch_feed_new(feed):
             feed_position=article_feed_position,
             hash=guid,
             pub_date=ScrapedArticle_obj.final_pub_date,
+            article_type=ScrapedArticle_obj.content_type,
         )
         new_categories = getattr(ScrapedArticle_obj, "final_categories", None)
         current_categories = getattr(article_obj, "categories", None)
