@@ -1,9 +1,9 @@
+# -*- coding: utf-8 -*-
 """Containing all Django models related to an indiviual artcile/video"""
 
-from django.db import models
-from django.db.models import Max, Min
-from django.forms.models import model_to_dict
 import urllib
+
+from django.db import models
 
 from feeds.models import NEWS_IMPORTANCE, Feed, Publisher
 
@@ -38,7 +38,9 @@ class Article(models.Model):
     """Django Model Class for each single article or video"""
 
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
-    article_group = models.ForeignKey(ArticleGroup, on_delete=models.SET_NULL, null=True, blank=True)
+    article_group = models.ForeignKey(
+        ArticleGroup, on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     title = models.CharField(max_length=200, null=True)
 
@@ -46,10 +48,22 @@ class Article(models.Model):
     link = models.URLField()
     image_url = models.URLField(max_length=300, null=True, blank=True)
 
-    INPORTANCE_TYPES = [("breaking", "Breaking/Live News"), ("normal", "Normal Article")]
-    importance_type = models.CharField(choices=INPORTANCE_TYPES, max_length=8, default="normal")
-    CONTENT_TYPES = [("article", "Article"), ("ticker", "Live News/Ticker"), ("video", "Video")]
-    content_type = models.CharField(max_length=10, choices=CONTENT_TYPES, default="article")
+    INPORTANCE_TYPES = [
+        ("breaking", "Breaking/Live News"),
+        ("normal", "Normal Article"),
+    ]
+    importance_type = models.CharField(
+        choices=INPORTANCE_TYPES, max_length=8, default="normal"
+    )
+    CONTENT_TYPES = [
+        ("article", "Article"),
+        ("ticker", "Live News/Ticker"),
+        ("briefing", "Briefing/Newsletter"),
+        ("video", "Video"),
+    ]
+    content_type = models.CharField(
+        max_length=10, choices=CONTENT_TYPES, default="article"
+    )
 
     extract = models.CharField(max_length=500, null=True, blank=True)
     has_extract = models.BooleanField(default=True)
@@ -75,10 +89,13 @@ class Article(models.Model):
 
     publisher_article_position = models.SmallIntegerField(null=True)
     min_feed_position = models.SmallIntegerField(null=True)
-    min_article_relevance = models.DecimalField(decimal_places=6, max_digits=12, null=True)
+    min_article_relevance = models.DecimalField(
+        decimal_places=6, max_digits=12, null=True
+    )
     max_importance = models.SmallIntegerField(choices=NEWS_IMPORTANCE, null=True)
 
     mailto_link = models.CharField(max_length=300, null=True)
+
     def __calc_mailto_link(self):
         SHARE_EMAIL_SUBJECT = f"{self.publisher.name}: {self.title}"
         SHARE_EMAIL_BODY = (
@@ -88,19 +105,21 @@ class Article(models.Model):
             "Best wishes,\n\n"
         )
         return (
-                "mailto:?subject="
-                + urllib.parse.quote(SHARE_EMAIL_SUBJECT)
-                + "&body="
-                + urllib.parse.quote(SHARE_EMAIL_BODY)
+            "mailto:?subject="
+            + urllib.parse.quote(SHARE_EMAIL_SUBJECT)
+            + "&body="
+            + urllib.parse.quote(SHARE_EMAIL_BODY)
         )
 
     def __init__(self, *args, **kwargs):
-        args = [None if i in ['', ' '] else i for i in args]  # ensure blanks '' or ' ' are replaced with None/Null
+        args = [
+            None if i in ["", " "] else i for i in args
+        ]  # ensure blanks '' or ' ' are replaced with None/Null
         super(Article, self).__init__(*args, **kwargs)
-        #self.__original = self._dict
+        # self.__original = self._dict
 
-    #@property
-    #def _dict(self):
+    # @property
+    # def _dict(self):
     #    return model_to_dict(self, fields=[field.name for field in self._meta.fields])
 
     def save(self, *args, **kwargs):
@@ -128,14 +147,22 @@ class FeedPosition(models.Model):
     def __calc_min__max__(self):
         if self.article is not None:
             was_updated = False
-            for article_key, position_key in dict(max_importance='importance', min_feed_position='position', min_article_relevance='relevance').items():
+            for article_key, position_key in dict(
+                max_importance="importance",
+                min_feed_position="position",
+                min_article_relevance="relevance",
+            ).items():
                 if getattr(self.article, article_key) is None:
                     setattr(self.article, article_key, getattr(self, position_key))
                     was_updated = True
-                elif 'max' in article_key and getattr(self.article, article_key) < getattr(self, position_key):
+                elif "max" in article_key and getattr(
+                    self.article, article_key
+                ) < getattr(self, position_key):
                     setattr(self.article, article_key, getattr(self, position_key))
                     was_updated = True
-                elif 'min' in article_key and getattr(self.article, article_key) > getattr(self, position_key):
+                elif "min" in article_key and getattr(
+                    self.article, article_key
+                ) > getattr(self, position_key):
                     setattr(self.article, article_key, getattr(self, position_key))
                     was_updated = True
             if was_updated:

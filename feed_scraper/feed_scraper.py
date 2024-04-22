@@ -225,6 +225,7 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date, article_
         * factor_feed__importance
         * factor_age
         * (0.5 if article_type == "ticker" else 1.0)
+        * (0.25 if article_type == "briefing" and article_age < 10 else 1.0)
         + random_int,
         6,
     )
@@ -1081,10 +1082,16 @@ class ScrapedArticle:
             "live blog",
             "live news",
             "live update",
+            "live: ",
         ]
         BREAKING_NEWS_KEYWORDS = [
             "breaking news",
             "developing story",
+        ]
+        BRIEFING_NEWS_KEYWORDS = [
+            "start your day: ",
+            "list of key events",
+            "firstft",
         ]
         if (
             (
@@ -1146,6 +1153,17 @@ class ScrapedArticle:
         ):
             self.final_content_type = "article"
             self.final_importance_type = "breaking"
+        elif (
+            hasattr(self, "final_title")
+            and any([i in self.final_title.lower() for i in BRIEFING_NEWS_KEYWORDS])
+        ) or (
+            hasattr(self, "scrape_article_title")
+            and any(
+                [i in self.scrape_article_title.lower() for i in BRIEFING_NEWS_KEYWORDS]
+            )
+        ):
+            self.final_content_type = "briefing"
+            self.final_importance_type = "normal"
         else:
             self.final_content_type = "article"
             self.final_importance_type = "normal"
