@@ -493,9 +493,9 @@
 
                                                     <div class="mb-1 text-muted"
                                                          style="font-family: Georgia, serif;">
-                                                        {% if article.importance_type == 'breaking' %}<span class="label label-breaking">breaking</span>
-                                                        {% elif article.content_type == 'ticker' %}<span class="label label-live">live</span>
+                                                        {% if article.content_type == 'ticker' %}<span class="label label-live">live</span>
                                                         {% elif article.content_type == 'briefing' %}<span class="label label-briefing">briefing</span>
+                                                        {% elif article.importance_type == 'breaking' %}<span class="label label-breaking">breaking</span>
                                                         {% endif %}
                                                         {{ article.publisher.name }}
                                                         -
