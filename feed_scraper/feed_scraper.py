@@ -1089,9 +1089,13 @@ class ScrapedArticle:
             "developing story",
         ]
         BRIEFING_NEWS_KEYWORDS = [
-            "start your day: ",
+            "start your day:",
+            "briefing:",
+            "newsletter:",
+            "markets wrap",
             "list of key events",
             "firstft",
+            "power on",
         ]
         if (
             (
