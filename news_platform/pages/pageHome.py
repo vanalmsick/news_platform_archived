@@ -269,7 +269,7 @@ def WebappRedirectView(request, article):
     <html>
         <head>
             <meta http-equiv="refresh" content="3;url=/" />
-            <script>window.open("{requested_article.link}");</script>
+            <script>window.open("{requested_article.link}", '_blank');</script>
         </head>
         <body>
             <h1>Redirecting back</h1>
