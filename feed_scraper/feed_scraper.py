@@ -1088,6 +1088,10 @@ class ScrapedArticle:
             "breaking news",
             "developing story",
         ]
+        HEADLINE_NEWS_KEYWORDS = [
+            "big read",
+            "news in depth",
+        ]
         BRIEFING_NEWS_KEYWORDS = [
             "start your day:",
             "briefing:",
@@ -1099,6 +1103,7 @@ class ScrapedArticle:
             "firstft",
             "power on",
         ]
+
         if (
             (
                 hasattr(self, "final_title")
@@ -1119,16 +1124,28 @@ class ScrapedArticle:
             )
         ):
             self.final_content_type = "ticker"
-            self.final_importance_type = "breaking"
             if (
                 hasattr(self, "scrape_article_title")
                 and self.scrape_article_title is not None
                 and self.scrape_article_title != ""
             ):
                 self.final_title = self.scrape_article_title
-            if body_cnt < 250:
+            if body_cnt < 500:
                 self.final_has_full_text = False
         elif (
+            hasattr(self, "final_title")
+            and any([i in self.final_title.lower() for i in BRIEFING_NEWS_KEYWORDS])
+        ) or (
+            hasattr(self, "scrape_article_title")
+            and any(
+                [i in self.scrape_article_title.lower() for i in BRIEFING_NEWS_KEYWORDS]
+            )
+        ):
+            self.final_content_type = "briefing"
+        else:
+            self.final_content_type = "article"
+
+        if (
             (
                 hasattr(self, "final_title")
                 and any([i in self.final_title.lower() for i in BREAKING_NEWS_KEYWORDS])
@@ -1157,21 +1174,16 @@ class ScrapedArticle:
                 )
             )
         ):
-            self.final_content_type = "article"
             self.final_importance_type = "breaking"
         elif (
-            hasattr(self, "final_title")
-            and any([i in self.final_title.lower() for i in BRIEFING_NEWS_KEYWORDS])
-        ) or (
-            hasattr(self, "scrape_article_title")
+            hasattr(self, "final_categories")
+            and self.final_categories is not None
             and any(
-                [i in self.scrape_article_title.lower() for i in BRIEFING_NEWS_KEYWORDS]
+                [i in self.final_categories.lower() for i in HEADLINE_NEWS_KEYWORDS]
             )
         ):
-            self.final_content_type = "briefing"
-            self.final_importance_type = "normal"
+            self.final_importance_type = "headline"
         else:
-            self.final_content_type = "article"
             self.final_importance_type = "normal"
 
         # Language

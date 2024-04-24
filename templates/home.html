@@ -400,7 +400,13 @@
                                          tabindex="{{ forloop.counter|add:"8" }}"
                                          style="cursor: pointer;-webkit-user-select: none;-webkit-touch-callout: none;-webkit-user-drag: none;"
                                          data-read-later="{{ article.read_later }}">
-                                        <div class="card mb-4 box-shadow h-100 {% if article.content_type == 'ticker' %} live{% elif article.content_type == 'briefing' %} briefing{% elif article.importance_type == 'breaking' or 'big read' in article.categories|lower or 'news in depth' in article.categories|lower %} breaking{% endif %}">
+                                        <div class="card mb-4 box-shadow h-100
+                                                {% if article.importance_type == 'breaking' %} breaking
+                                                {% elif article.importance_type == 'headline' %} headline
+                                                {% endif %}
+                                                {% if article.content_type == 'ticker' %} live
+                                                {% elif article.content_type == 'briefing' %} briefing
+                                                {% endif %}">
                                             {% if article.image_url != Null %}
                                                 <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
                                                      referrerpolicy="no-referrer"
