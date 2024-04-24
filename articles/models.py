@@ -48,12 +48,13 @@ class Article(models.Model):
     link = models.URLField()
     image_url = models.URLField(max_length=300, null=True, blank=True)
 
-    INPORTANCE_TYPES = [
+    IMPORTANCE_TYPES = [
         ("breaking", "Breaking/Live News"),
+        ("headline", "Headline/Top Articles"),
         ("normal", "Normal Article"),
     ]
     importance_type = models.CharField(
-        choices=INPORTANCE_TYPES, max_length=8, default="normal"
+        choices=IMPORTANCE_TYPES, max_length=8, default="normal"
     )
     CONTENT_TYPES = [
         ("article", "Article"),
