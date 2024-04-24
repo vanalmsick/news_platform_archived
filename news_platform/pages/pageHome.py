@@ -260,3 +260,22 @@ def TriggerManualRefreshView(request):
 
     print(f"Manual news refresh triggered. Id: {task.task_id}")
     return HttpResponse(HTML_RESPONSE)
+
+
+def WebappRedirectView(request, article):
+    """view to redicet user when receiving webpush notification"""
+    requested_article = Article.objects.get(pk=int(article))
+    HTML_RESPONSE = f"""
+    <html>
+        <head>
+            <meta http-equiv="refresh" content="3;url=/" />
+            <script>window.open("{requested_article.link}", '_blank');</script>
+        </head>
+        <body>
+            <h1>Redirecting back</h1>
+            <a href="/"><i>Redirecting back to Home in 3 seconds...</i></p>
+        </body>
+    </html>
+    """
+
+    return HttpResponse(HTML_RESPONSE)
