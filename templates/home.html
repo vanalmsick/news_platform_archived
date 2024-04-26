@@ -589,7 +589,7 @@
                         <a id="side_{{ side_article.pk }}"
                            class="context-card list-group-item list-group-item-action
                             {% if side_article.content_type == 'ticker' %} live
-                            {% elif side_article.content_type == 'headline' or 'headline' in side_article.categories|lower  %} headline
+                            {% elif side_article.publisher.renowned >= 2 or side_article.content_type == 'headline' or 'headline' in side_article.categories|lower  %} headline
                             {% endif %}"
                            aria-current="true"
                            onmouseover=showElement("extract_{{ side_article.pk }}")
