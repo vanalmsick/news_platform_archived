@@ -1075,6 +1075,83 @@ class ScrapedArticle:
                 if len(self.final_extract) > 300:
                     self.final_extract = self.final_extract[:300]
 
+        # Language
+        if (
+            hasattr(self, "feed_article_language")
+            and len(self.feed_article_language) > 0
+            and len(self.feed_article_language) < 6
+        ):
+            self.final_language = self.feed_article_language
+        elif (
+            hasattr(self, "scrape_article_language")
+            and len(self.scrape_article_language) > 0
+            and len(self.scrape_article_language) < 6
+        ):
+            self.final_language = self.scrape_article_language
+        elif (
+            hasattr(self, "source_publisher_language")
+            and len(self.source_publisher_language) > 0
+            and len(self.source_publisher_language) < 6
+        ):
+            self.final_language = self.source_publisher_language
+        else:
+            lang = langid.classify(f"{self.final_title}\n{self.final_extract}")
+            self.final_language = lang[0]
+
+        # URL/Link
+        self.__calculate_final_value__(
+            final_attr_name="final_link",
+            feed_attr_name="feed_article_url_str",
+            scrape_attr_name="true_article_url_str",
+        )
+
+        # Author
+        self.__calculate_final_value__(
+            final_attr_name="final_author",
+            feed_attr_name="feed_article_author",
+            scrape_attr_name="scrape_article_author",
+        )
+
+        # Image URL
+        self.__calculate_final_value__(
+            final_attr_name="final_image_url",
+            feed_attr_name="feed_article_image_url",
+            scrape_attr_name="scrape_article_image_url",
+        )
+
+        # Pub Date
+        self.__calculate_final_value__(
+            final_attr_name="final_pub_date",
+            feed_attr_name="feed_article_pub_date",
+            scrape_attr_name="scrape_article_pub_date",
+        )
+        if not hasattr(self, "final_pub_date"):
+            self.final_pub_date = settings.TIME_ZONE_OBJ.localize(
+                datetime.datetime.now()
+            )
+            print(f"Warning no pub_date for {self.final_publisher}")
+
+        # Categories
+        feed_article_categories = (
+            ";".join([i for i in self.feed_article_categories.split(";") if i != ""])
+            if hasattr(self, "feed_article_categories")
+            else ""
+        )
+        source_feed_categories = (
+            ";".join([i for i in self.source_feed_categories.split(";") if i != ""])
+            if hasattr(self, "source_feed_categories")
+            else ""
+        )
+        self.final_categories = (
+            source_feed_categories
+            + (
+                ";"
+                if len(feed_article_categories) > 0 and len(source_feed_categories) > 0
+                else ""
+            )
+            + feed_article_categories
+        )
+
         # News type
         LIVE_TICKER_KEYWORDS = [
             "liveticker",
@@ -1185,83 +1262,6 @@ class ScrapedArticle:
             self.final_importance_type = "headline"
         else:
             self.final_importance_type = "normal"
-
-        # Language
-        if (
-            hasattr(self, "feed_article_language")
-            and len(self.feed_article_language) > 0
-            and len(self.feed_article_language) < 6
-        ):
-            self.final_language = self.feed_article_language
-        elif (
-            hasattr(self, "scrape_article_language")
-            and len(self.scrape_article_language) > 0
-            and len(self.scrape_article_language) < 6
-        ):
-            self.final_language = self.scrape_article_language
-        elif (
-            hasattr(self, "source_publisher_language")
-            and len(self.source_publisher_language) > 0
-            and len(self.source_publisher_language) < 6
-        ):
-            self.final_language = self.source_publisher_language
-        else:
-            lang = langid.classify(f"{self.final_title}\n{self.final_extract}")
-            self.final_language = lang[0]
-
-        # URL/Link
-        self.__calculate_final_value__(
-            final_attr_name="final_link",
-            feed_attr_name="feed_article_url_str",
-            scrape_attr_name="true_article_url_str",
-        )
-
-        # Author
-        self.__calculate_final_value__(
-            final_attr_name="final_author",
-            feed_attr_name="feed_article_author",
-            scrape_attr_name="scrape_article_author",
-        )
-
-        # Image URL
-        self.__calculate_final_value__(
-            final_attr_name="final_image_url",
-            feed_attr_name="feed_article_image_url",
-            scrape_attr_name="scrape_article_image_url",
-        )
-
-        # Pub Date
-        self.__calculate_final_value__(
-            final_attr_name="final_pub_date",
-            feed_attr_name="feed_article_pub_date",
-            scrape_attr_name="scrape_article_pub_date",
-        )
-        if not hasattr(self, "final_pub_date"):
-            self.final_pub_date = settings.TIME_ZONE_OBJ.localize(
-                datetime.datetime.now()
-            )
-            print(f"Warning no pub_date for {self.final_publisher}")
-
-        # Categories
-        feed_article_categories = (
-            ";".join([i for i in self.feed_article_categories.split(";") if i != ""])
-            if hasattr(self, "feed_article_categories")
-            else ""
-        )
-        source_feed_categories = (
-            ";".join([i for i in self.source_feed_categories.split(";") if i != ""])
-            if hasattr(self, "source_feed_categories")
-            else ""
-        )
-        self.final_categories = (
-            source_feed_categories
-            + (
-                ";"
-                if len(feed_article_categories) > 0 and len(source_feed_categories) > 0
-                else ""
-            )
-            + feed_article_categories
-        )
 
         self.__html_body_clean_up__()
         self.final_guid = self.calculate_guid()

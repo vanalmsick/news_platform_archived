@@ -587,7 +587,10 @@
                 {% for side_article in sidebar %}
                     {% if side_article is not None and side_article.publisher is not None %}
                         <a id="side_{{ side_article.pk }}"
-                           class="context-card list-group-item list-group-item-action  {% if side_article.content_type == 'ticker' %} live{% elif 'financial times' in side_article.publisher.name|lower or 'bloomberg' in side_article.publisher.name|lower or 'hedgeweek' in side_article.publisher.name|lower or 'reuters' in side_article.publisher.name|lower or 'the wall street journal' in side_article.publisher.name|lower %} breaking{% endif %}"
+                           class="context-card list-group-item list-group-item-action
+                            {% if side_article.content_type == 'ticker' %} live
+                            {% elif side_article.content_type == 'headline' %} headline
+                            {% endif %}"
                            aria-current="true"
                            onmouseover=showElement("extract_{{ side_article.pk }}")
                            onmouseout=hideElement("extract_{{ side_article.pk }}")
