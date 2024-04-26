@@ -30,7 +30,6 @@ from news_platform.pages.pageHome import (
     RedirectView,
     RestHomeView,
     TriggerManualRefreshView,
-    WebappRedirectView,
     homeView,
 )
 from news_platform.pages.pageLogin import LoginView
@@ -50,11 +49,6 @@ urlpatterns = [
     path("refresh/", TriggerManualRefreshView, name="refresh_news"),
     path("view/<int:article>/", articleView, name="view_article"),
     path("redirect/<int:article>/", RedirectView, name="redirect_article"),
-    path(
-        "redirect-webapp/<int:article>/",
-        WebappRedirectView,
-        name="redirect_article_webapp",
-    ),
     path("", homeView, name="home"),
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
