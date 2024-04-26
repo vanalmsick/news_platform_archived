@@ -402,7 +402,7 @@
                                          data-read-later="{{ article.read_later }}">
                                         <div class="card mb-4 box-shadow h-100
                                                 {% if article.importance_type == 'breaking' %} breaking
-                                                {% elif article.importance_type == 'headline' %} headline
+                                                {% elif article.importance_type == 'headline' or 'headline' in article.categories|lower %} headline
                                                 {% endif %}
                                                 {% if article.content_type == 'ticker' %} live
                                                 {% elif article.content_type == 'briefing' %} briefing
@@ -589,7 +589,7 @@
                         <a id="side_{{ side_article.pk }}"
                            class="context-card list-group-item list-group-item-action
                             {% if side_article.content_type == 'ticker' %} live
-                            {% elif side_article.content_type == 'headline' %} headline
+                            {% elif side_article.content_type == 'headline' or 'headline' in side_article.categories|lower  %} headline
                             {% endif %}"
                            aria-current="true"
                            onmouseover=showElement("extract_{{ side_article.pk }}")
