@@ -401,11 +401,11 @@
                                          style="cursor: pointer;-webkit-user-select: none;-webkit-touch-callout: none;-webkit-user-drag: none;"
                                          data-read-later="{{ article.read_later }}">
                                         <div class="card mb-4 box-shadow h-100
-                                                {% if article.importance_type == 'breaking' %} breaking
+                                                {% if article.importance_type == 'breaking' or 'breaking' in article.categories|lower %} breaking
                                                 {% elif article.importance_type == 'headline' or 'headline' in article.categories|lower %} headline
                                                 {% endif %}
-                                                {% if article.content_type == 'ticker' %} live
-                                                {% elif article.content_type == 'briefing' %} briefing
+                                                {% if article.content_type == 'ticker' or 'ticker' in article.categories|lower %} live
+                                                {% elif article.content_type == 'briefing' or 'briefing' in article.categories|lower %} briefing
                                                 {% endif %}">
                                             {% if article.image_url != Null %}
                                                 <img class="card-img-top" alt="Thumbnail" style="width: 100%;"
@@ -499,9 +499,9 @@
 
                                                     <div class="mb-1 text-muted"
                                                          style="font-family: Georgia, serif;">
-                                                        {% if article.content_type == 'ticker' %}<span class="label label-live">live</span>
-                                                        {% elif article.content_type == 'briefing' %}<span class="label label-briefing">briefing</span>
-                                                        {% elif article.importance_type == 'breaking' %}<span class="label label-breaking">breaking</span>
+                                                        {% if article.content_type == 'ticker' or 'ticker' in article.categories|lower %}<span class="label label-live">live</span>
+                                                        {% elif article.content_type == 'briefing' or 'briefing' in article.categories|lower %}<span class="label label-briefing">briefing</span>
+                                                        {% elif article.importance_type == 'breaking' or 'breaking' in article.categories|lower %}<span class="label label-breaking">breaking</span>
                                                         {% endif %}
                                                         {{ article.publisher.name }}
                                                         -
@@ -588,9 +588,12 @@
                     {% if side_article is not None and side_article.publisher is not None %}
                         <a id="side_{{ side_article.pk }}"
                            class="context-card list-group-item list-group-item-action
-                            {% if side_article.content_type == 'ticker' %} live
-                            {% elif side_article.publisher.renowned >= 2 or side_article.content_type == 'headline' or 'headline' in side_article.categories|lower  %} headline
-                            {% endif %}"
+                                {% if side_article.importance_type == 'breaking' or 'breaking' in side_article.categories|lower %} breaking
+                                {% elif side_article.importance_type == 'headline' or 'headline' in side_article.categories|lower or side_article.publisher.renowned >= 2 %} headline
+                                {% endif %}
+                                {% if side_article.content_type == 'ticker' or 'ticker' in side_article.categories|lower %} live
+                                {% elif side_article.content_type == 'briefing' or 'briefing' in side_article.categories|lower %} briefing
+                                {% endif %}"
                            aria-current="true"
                            onmouseover=showElement("extract_{{ side_article.pk }}")
                            onmouseout=hideElement("extract_{{ side_article.pk }}")
@@ -622,7 +625,13 @@
                                 </div>
                             </div>
                             <div class="d-flex w-100 justify-content-between">
-                                <div class="text-muted">{{ side_article.publisher.name }}</div>
+                                <div class="text-muted">
+                                    {% if side_article.content_type == 'ticker' or 'ticker' in side_article.categories|lower %}<span class="label label-live">live</span>
+                                    {% elif side_article.content_type == 'briefing' or 'briefing' in side_article.categories|lower %}<span class="label label-briefing">briefing</span>
+                                    {% elif side_article.importance_type == 'breaking' or 'breaking' in side_article.categories|lower %}<span class="label label-breaking">breaking</span>
+                                    {% endif %}
+                                    {{ side_article.publisher.name }}
+                                </div>
                                 <div class="text-muted">
                                     <script>document.write(createDateStr("{{ side_article.pub_date|date:"c" }}", "{{ side_article.added_date|date:"c" }}", "short"));</script>
                                     <noscript>{{ side_article.added_date|date:"D H:i" }}
