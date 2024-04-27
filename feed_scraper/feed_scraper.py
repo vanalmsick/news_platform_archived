@@ -1161,7 +1161,7 @@ class ScrapedArticle:
             "live blog",
             "live news",
             "live update",
-            "live: ",
+            "live:",
         ]
         BREAKING_NEWS_KEYWORDS = [
             "breaking news",
@@ -1181,6 +1181,9 @@ class ScrapedArticle:
             "list of key events",
             "firstft",
             "power on",
+            "this week in",
+            "weekly recap",
+            "brief",
         ]
 
         if (
