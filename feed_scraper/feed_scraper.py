@@ -219,8 +219,8 @@ def calcualte_relevance(publisher, feed, feed_position, hash, pub_date, article_
         factor_age = 4 / (1 + math.exp(-0.25 * article_age + 4)) + 1
 
     article_relevance = round(
-        # feed_position *
         factor_publisher__renowned
+        * (feed_position if article_type == "video" else 1)
         * factor_article_normalization
         * factor_feed__importance
         * factor_age
