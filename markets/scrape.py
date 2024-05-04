@@ -202,6 +202,7 @@ def scrape_market_data():
                     f"Web Push Notification sent for ({notification.source.pk}) Market"
                     f" Alert - {notification.source.name}"
                 )
+                print('Debug infos:', notification, notification.source.pk, notifications_sent, notification.source.pk not in notifications_sent, notification.source.group.name, notification.change_today)
                 notifications_sent[notification.source.pk] = datetime.date.today()
                 cache.set("market_notifications_sent", notifications_sent, 3600 * 1000)
             except Exception as e:
