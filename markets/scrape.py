@@ -172,37 +172,47 @@ def scrape_market_data():
             datetime.date.today() != notifications_sent[notification.source.pk]
         ):
             try:
+                payload = {
+                    "head": "Market Alert",
+                    "body": (
+                        f"{notification.source.group.name}: {notification.source.name} "
+                        f" {'{0:+.2f}'.format(notification.change_today)}"
+                        f"{'%' if notification.source.data_source == 'yfin' else 'bps'} "
+                        "up"
+                        if notification.change_today > 0
+                        else "down"
+                    ),
+                    "url": (
+                        "https://finance.yahoo.com/quote/"
+                        + notification.source.ticker
+                        + "?p="
+                        + notification.source.ticker
+                        if notification.source.data_source == "yfin"
+                        else (
+                            f"https://tradingeconomics.com/{notification.source.ticker.lower().replace(' ', '-')}"
+                            "/government-bond-yield"
+                        )
+                    ),
+                }
                 send_group_notification(
                     group_name="all",
-                    payload={
-                        "head": "Market Alert",
-                        "body": (
-                            f"{notification.source.group.name}: {notification.source.name} "
-                            f" {'{0:+.2f}'.format(notification.change_today)}"
-                            f"{'%' if notification.source.data_source == 'yfin' else 'bps'} "
-                            "up"
-                            if notification.change_today > 0
-                            else "down"
-                        ),
-                        "url": (
-                            "https://finance.yahoo.com/quote/"
-                            + notification.source.ticker
-                            + "?p="
-                            + notification.source.ticker
-                            if notification.source.data_source == "yfin"
-                            else (
-                                f"https://tradingeconomics.com/{notification.source.ticker.lower().replace(' ', '-')}"
-                                "/government-bond-yield"
-                            )
-                        ),
-                    },
+                    payload=payload,
                     ttl=60 * 90,  # keep 90 minutes on server
                 )
                 print(
                     f"Web Push Notification sent for ({notification.source.pk}) Market"
                     f" Alert - {notification.source.name}"
                 )
-                print('Debug infos:', notification, notification.source.pk, notifications_sent, notification.source.pk not in notifications_sent, notification.source.group.name, notification.change_today)
+                print(
+                    "Debug infos:",
+                    notification,
+                    notification.source.pk,
+                    notifications_sent,
+                    notification.source.pk not in notifications_sent,
+                    notification.source.group.name,
+                    notification.change_today,
+                    payload,
+                )
                 notifications_sent[notification.source.pk] = datetime.date.today()
                 cache.set("market_notifications_sent", notifications_sent, 3600 * 1000)
             except Exception as e:
