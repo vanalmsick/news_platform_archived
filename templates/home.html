@@ -200,11 +200,9 @@
                             </div>
                             <div class="
                             {% if data.market_closed or data.change_today == 0 %}text-muted
-                            {% elif data.change_today > 25 %}bg-success bg-opacity-25 text-success
-                            {% elif data.change_today > 5 and data.source.data_source != 'te' %}bg-success bg-opacity-25 text-success
+                            {% elif data.change_today > data.source.notification_threshold %}bg-success bg-opacity-25 text-success
                             {% elif data.change_today > 0 %}text-success
-                            {% elif data.change_today < -25 %}bg-danger bg-opacity-25 text-danger
-                            {% elif data.change_today < -5 and data.source.data_source != 'te' %}bg-danger bg-opacity-25 text-danger
+                            {% elif data.change_today < 0 and data.change_today_abs > data.source.notification_threshold %}bg-danger bg-opacity-25 text-danger
                             {% else %}text-danger
                             {% endif %} text-right">
                                 {% if data.change_today > 0 %}+{% endif %}{{ data.change_today|floatformat:"2g" }}
@@ -270,11 +268,9 @@
                                             </div>
                                             <div class="text-end d-inline-block
                                         {% if entry.market_closed or entry.change_today == 0 %}text-muted
-                                        {% elif entry.change_today > 25 %}bg-success bg-opacity-25 text-success
-                                        {% elif entry.change_today > 5 and entry.source.data_source != 'te' %}bg-success bg-opacity-25 text-success
+                                        {% elif entry.change_today > entry.source.notification_threshold %}bg-success bg-opacity-25 text-success
                                         {% elif entry.change_today > 0 %}text-success
-                                        {% elif entry.change_today < -25 %}bg-danger bg-opacity-25 text-danger
-                                        {% elif entry.change_today < -5 and entry.source.data_source != 'te' %}bg-danger bg-opacity-25 text-danger
+                                        {% elif entry.change_today < 0 and entry.change_today_abs > entry.source.notification_threshold %}bg-danger bg-opacity-25 text-danger
                                         {% else %}text-danger
                                         {% endif %} text-right">{% if entry.change_today > 0 %}
                                                 +{% endif %}{{ entry.change_today|floatformat:"2g" }}
@@ -362,11 +358,9 @@
                                         </div>
                                         <div class="text-end d-inline-block
                                         {% if data.market_closed or data.change_today == 0 %}text-muted
-                                        {% elif data.change_today > 25 %}bg-success bg-opacity-25 text-success
-                                        {% elif data.change_today > 5 and data.source.data_source != 'te' %}bg-success bg-opacity-25 text-success
+                                        {% elif data.change_today > data.source.notification_threshold %}bg-success bg-opacity-25 text-success
                                         {% elif data.change_today > 0 %}text-success
-                                        {% elif data.change_today < -25 %}bg-danger bg-opacity-25 text-danger
-                                        {% elif data.change_today < -5 and data.source.data_source != 'te' %}bg-danger bg-opacity-25 text-danger
+                                        {% elif data.change_today < 0 and data.change_today_abs > data.source.notification_threshold %}bg-danger bg-opacity-25 text-danger
                                         {% else %}text-danger
                                         {% endif %} text-right">{% if data.change_today > 0 %}
                                             +{% endif %}{{ data.change_today|floatformat:"2g" }}
