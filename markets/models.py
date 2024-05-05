@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
 """All Market Data Models"""
 from django.db import models
 
 
 # Create your models here.
 class DataGroup(models.Model):
+    """Django Model to group market data sources e.g. equities, bonds etc."""
+
     name = models.CharField(max_length=200)
     position = models.IntegerField()
 
@@ -25,6 +28,9 @@ class DataSource(models.Model):
     ]
     data_source = models.CharField(max_length=4, choices=DATA_SRC, default="yfin")
     ticker = models.CharField(max_length=20)
+    notification_threshold = models.DecimalField(
+        default=5.0, decimal_places=2, max_digits=5
+    )
 
     def __str__(self):
         """print-out representation of individual model entry"""

@@ -10,11 +10,17 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import F, Q, SmallIntegerField
-from django.db.models.expressions import Window
+from django.db.models.expressions import Func, Window
 from django.db.models.functions import Cast, RowNumber
 from webpush import send_group_notification
 
 from .models import DataEntry, DataSource
+
+
+class ABS(Func):
+    """abs() function for django querysets"""
+
+    function = "ABS"
 
 
 def __get_bonds(tickers, headers={"User-agent": "Mozilla/5.0"}):
@@ -145,6 +151,7 @@ def scrape_market_data():
     latest_data = (
         DataEntry.objects.filter(pk__in=latest_data)
         .annotate(change_today_int=Cast(F("change_today") * 1000, SmallIntegerField()))
+        .annotate(change_today_abs=ABS(F("change_today")))
         .annotate(
             worst_perf_idx=Window(
                 expression=RowNumber(),
@@ -159,12 +166,8 @@ def scrape_market_data():
     notifications_sent = cache.get("market_notifications_sent", {})
     notifications = latest_data.filter(market_closed=False).filter(
         (
-            Q(source__data_source="yfin")
-            & (Q(change_today__gte=5) | Q(change_today__lte=-5))
-        )
-        | (
-            Q(source__data_source="te")
-            & (Q(change_today__gte=25) | Q(change_today__lte=-25))
+            Q(change_today__gte=F("source__notification_threshold"))
+            | Q(change_today__lte=-F("source__notification_threshold"))
         )
     )
     for notification in notifications:
