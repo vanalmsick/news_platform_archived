@@ -179,10 +179,9 @@ def scrape_market_data():
                     "head": "Market Alert",
                     "body": (
                         f"{notification.source.group.name}: {notification.source.name} "
-                        f" {'{0:+.2f}'.format(notification.change_today)}"
-                        f"{'%' if notification.source.data_source == 'yfin' else 'bps'} "(
-                            "up" if notification.change_today > 0 else "down"
-                        )
+                        + f" {'{0:+.2f}'.format(notification.change_today)}"
+                        + f"{'%' if notification.source.data_source == 'yfin' else 'bps'} "
+                        + ("up" if notification.change_today > 0 else "down")
                     ),
                     "url": (
                         "https://finance.yahoo.com/quote/"
