@@ -76,7 +76,7 @@ def get_stats():
 
 
 # @postpone
-@app.task(bind=True, time_limit=60 * 60 * 2, max_retries=5)  # 2 hour time limit
+@app.task(bind=True, time_limit=60 * 60 * 3, max_retries=5)  # 3 hour time limit
 def refresh_feeds(self):
     """Main function to refresh all articles and videos"""
     print("refreshing started")
