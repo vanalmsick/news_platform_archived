@@ -15,7 +15,9 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import pytz  # type: ignore
+import sentry_sdk
 from dotenv import load_dotenv
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,6 +48,16 @@ CSRF_TRUSTED_ORIGINS = HOSTS
 ALLOWED_HOSTS = [urlparse(url).netloc for url in HOSTS]
 CORS_ALLOWED_ORIGINS = HOSTS
 
+if (sentry_sdk_url := os.environ.get("SENTRY_URL", None)) is not None:
+    sentry_sdk.init(
+        dsn=sentry_sdk_url,
+        enable_tracing=True,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+        integrations=[
+            CeleryIntegration(monitor_beat_tasks=True),
+        ],
+    )
 
 # Application definition
 
