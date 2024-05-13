@@ -34,6 +34,12 @@ from news_platform.pages.pageHome import (
 )
 from news_platform.pages.pageLogin import LoginView
 
+
+def trigger_error(request):
+    """To intentionally trigger error when user opens url /sentry-debug/ to test if Sentry error monitoring works"""
+    print(1 / 0)
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("login/", LoginView, name="login"),
@@ -54,6 +60,7 @@ urlpatterns = [
     path("auth/", include("djoser.urls.jwt")),
     path("webpush/", include("webpush.urls")),
     path("", include("pwa.urls")),
+    path("sentry-debug/", trigger_error),
     # path('restapi/v1/accounts/', transactions.api_views.AccountList.as_view()),
     # path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('favicon.ico')))
 ]
