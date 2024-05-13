@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth import authenticate, login
@@ -65,6 +67,13 @@ def LoginView(request):
             "form": form,
             "message": message,
             "meta": meta,
+            "sentry_sdk": ""
+            if os.environ.get("SENTRY_URL", None) is None
+            else (
+                '<script src="https://browser.sentry-cdn.com/8.0.0/bundle.tracing.replay.min.js" '
+                'integrity="sha384-DIp1noZ8K3g+Eyo/7tMTZQNCQrsBen2/q9RIV2OhfLLfZ8yDxAtG5zvXK+PFbQCI" '
+                'crossorigin="anonymous"></script>'
+            ),
             "platform_name": settings.CUSTOM_PLATFORM_NAME,
         },
     )
