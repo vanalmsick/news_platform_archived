@@ -58,6 +58,19 @@ if (sentry_sdk_url := os.environ.get("SENTRY_URL", None)) is not None:
             CeleryIntegration(monitor_beat_tasks=True),
         ],
     )
+    SENTRY_SCRIPT_HEAD = """
+        <script
+            src="https://browser.sentry-cdn.com/8.0.0/bundle.tracing.replay.min.js"
+            integrity="sha384-DIp1noZ8K3g+Eyo/7tMTZQNCQrsBen2/q9RIV2OhfLLfZ8yDxAtG5zvXK+PFbQCI"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://js-de.sentry-cdn.com/bc344a8b7ea1a4ed090dfec87006eac8.min.js"
+            crossorigin="anonymous"
+        ></script>
+    """
+else:
+    SENTRY_SCRIPT_HEAD = ""
 
 # Application definition
 
@@ -154,6 +167,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "data/db.sqlite3",
+        "OPTIONS": {
+            "timeout": 20,  # seconds
+        },
     }
 }
 
