@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Responaible for home view at base url / """
 import datetime
-import os
 import traceback
 import urllib.parse
 
@@ -192,13 +191,7 @@ def homeView(request, article=None):
                 " articles from several RSS feeds and videos from different YouTube"
                 ' channels.">'
             ),
-            "sentry_sdk": ""
-            if os.environ.get("SENTRY_URL", None) is None
-            else (
-                '<script src="https://browser.sentry-cdn.com/8.0.0/bundle.tracing.replay.min.js" '
-                'integrity="sha384-DIp1noZ8K3g+Eyo/7tMTZQNCQrsBen2/q9RIV2OhfLLfZ8yDxAtG5zvXK+PFbQCI" '
-                'crossorigin="anonymous"></script>'
-            ),
+            "sentry_sdk": settings.SENTRY_SCRIPT_HEAD,
         },
     )
 
