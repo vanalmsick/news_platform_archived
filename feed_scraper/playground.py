@@ -537,9 +537,10 @@ class ScrapedArticle:
                 "article_summary_text__feed",
             ]
         elif (
-            lxml.html.fromstring(getattr(self, "article_summary__feed", "empty")).find(
-                ".//*"
-            )
+            getattr(self, "article_summary__feed", "") != ""
+            and lxml.html.fromstring(
+                getattr(self, "article_summary__feed", "empty")
+            ).find(".//*")
             is not None
         ):
             # if summary from feed is html prefer <meta> tag summary
