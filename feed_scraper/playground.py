@@ -260,9 +260,9 @@ class ScrapedArticle:
             new_content_html = ""
             for content_i in content_lst:
                 content_i_value = content_i.get("value", "")
-                content_i_is_html = (
-                    "html" in content_i.get("type", "")
-                    or lxml.html.fromstring(content_i_value).find(".//*") is not None
+                content_i_is_html = "html" in content_i.get("type", "") or (
+                    content_i_value != ""
+                    and lxml.html.fromstring(content_i_value).find(".//*") is not None
                 )
                 new_content_html += (
                     f"{content_i_value}<br>\n"
