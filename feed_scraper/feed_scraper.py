@@ -26,6 +26,7 @@ from articles.models import Article, FeedPosition
 from feeds.models import Feed, Publisher
 
 from .google_news_decode import decode_google_news_url
+from .playground import ScrapedArticle as ScrapedArticleNew
 
 
 def postpone(function):
@@ -66,7 +67,7 @@ def update_feeds():
 
     added_articles = 0
     for feed in feeds:
-        add_articles, feed__last_fetched = fetch_feed_new(feed)
+        add_articles, feed__last_fetched = fetch_feed_new_new(feed)
         added_articles += add_articles
         setattr(feed, "last_fetched", feed__last_fetched)
         feed.save()
@@ -338,6 +339,288 @@ def add_ai_summary(article_obj_lst):
             f" {THIS_RUN_API_COST} GBP. Total API cost since container launch"
             f" {TOTAL_API_COST} GBP."
         )
+
+
+def fetch_feed_new_new(feed):
+    """Fetch/update/scrape all articles for a specific source feed"""
+    added_articles = 0
+    updated_articles = 0
+    no_change_articles = 0
+
+    feed_url = feed.url
+    if "http://FEED-CREATOR.local" in feed_url:
+        feed_url = feed_url.replace(
+            "http://FEED-CREATOR.local", settings.FEED_CREATOR_URL
+        )
+
+    fetched_feed = feedparser.parse(feed_url)
+    if hasattr(fetched_feed.feed, "updated_parsed"):
+        fetched_feed__last_updated = datetime.datetime.fromtimestamp(
+            time.mktime(fetched_feed.feed.updated_parsed)
+        )
+    elif hasattr(fetched_feed.feed, "published_parsed"):
+        fetched_feed__last_updated = datetime.datetime.fromtimestamp(
+            time.mktime(fetched_feed.feed.published_parsed)
+        )
+    else:
+        fetched_feed__last_updated = datetime.datetime.now()
+    fetched_feed__last_updated = settings.TIME_ZONE_OBJ.localize(
+        fetched_feed__last_updated
+    )
+
+    if (
+        feed.last_fetched is not None
+        and feed.last_fetched >= fetched_feed__last_updated
+    ):
+        fetched_feed.entries = []
+        print(
+            f"Feed {feed} does not require refreshing - already up-to-date ({fetched_feed__last_updated})"
+        )
+
+    if len(fetched_feed.entries) > 0:
+        delete_feed_positions(feed)
+
+    for article_feed_position, feed_article in enumerate(fetched_feed.entries, 1):
+        scraped_article = ScrapedArticleNew(feed_model=feed)
+        scraped_article.add_feed_attrs(
+            feed_obj=fetched_feed.feed, article_obj=feed_article
+        )
+
+        scraped_article__url = scraped_article.article_link__final
+        scraped_article__hash = scraped_article.article_hash__final
+        scraped_article__guid = scraped_article.article_id__final
+        scraped_article__last_updated = scraped_article.article_last_updated__final
+
+        # check if article already exists
+        matches = Article.objects.filter(guid=scraped_article__guid)
+        if len(matches) == 0:
+            matches = Article.objects.filter(hash=scraped_article__hash)
+
+        # check if additional data fetching required
+        fetch = False
+        full_text_scraping = feed.full_text_fetch == "Y"
+        if len(matches) > 0:
+            article_obj = matches[0]
+            # if article was updated or
+            # article is missing image or extract and was published in the last 4 hours try getting content or
+            # is ticker content type
+            if (
+                (
+                    scraped_article__last_updated is not None
+                    and article_obj.last_updated_date < scraped_article__last_updated
+                )
+                or (article_obj.content_type == "ticker")
+                or (
+                    (
+                        (
+                            settings.TIME_ZONE_OBJ.localize(datetime.datetime.now())
+                            - article_obj.pub_date
+                        ).total_seconds()
+                        / (60 * 60)
+                        < 4
+                    )
+                    and (
+                        article_obj.image_url is None
+                        or article_obj.image_url == ""
+                        or article_obj.extract is None
+                        or article_obj.extract == ""
+                    )
+                )
+            ):
+                fetch = True
+        else:
+            fetch = True
+
+        if fetch:
+            # fetch <meta> data
+            try:
+                article_html_response = requests.get(scraped_article__url, timeout=5)
+                scraped_article.parse_meta_attrs(response_obj=article_html_response)
+            except Exception as e:
+                print(
+                    f'Error fetching meta for "{scraped_article.article_title__final}": {e}'
+                )
+            if full_text_scraping and settings.FULL_TEXT_URL is not None:
+                # fetch full-text data
+                try:
+                    full_text_request_url = (
+                        f"{settings.FULL_TEXT_URL}extract.php?"
+                        f'url={urllib.parse.quote(scraped_article__url, safe="")}'
+                    )
+                    full_text_response = requests.get(full_text_request_url, timeout=5)
+                    if full_text_response.status_code == 200:
+                        full_text_json = full_text_response.json()
+                        scraped_article.parse_scrape_attrs(json_dict=full_text_json)
+                except Exception as e:
+                    print(
+                        f'Error fetching full-text for "{scraped_article.article_title__final}": {e}'
+                    )
+
+        # create new entry
+        if len(matches) == 0:
+            article_kwargs = scraped_article.get_final_attrs()
+            # if feed is news aggregator - find correct article publisher
+            if type((publisher := article_kwargs["publisher"])) is dict:
+                if "link" in publisher:
+                    url = ".".join(publisher["link"].split(".")[-2:])
+                    matching_publishers = Publisher.objects.filter(link__icontains=url)
+                    # existing matching publisher found
+                    if len(matching_publishers) > 0:
+                        article_kwargs["publisher"] = matching_publishers[0]
+                    # no existing found - create new
+                    else:
+                        publisher_obj = Publisher(
+                            **article_kwargs["publisher"], renowned=-2
+                        )
+                        publisher_obj.save()
+                        article_kwargs["publisher"] = publisher_obj
+                else:
+                    article_kwargs["publisher"] = feed.publisher
+            # create article
+            article_obj = Article(**article_kwargs)
+            article_obj.save()
+            added_articles += 1
+
+        # update entry
+        elif fetch and len(matches) > 0:
+            article_kwargs = scraped_article.get_final_attrs()
+            _ = article_kwargs.pop("publisher")
+            for prop, new_value in article_kwargs.items():
+                if "categories" == prop and new_value is not None:
+                    curr_value = (
+                        ""
+                        if getattr(article_obj, prop) is None
+                        else getattr(article_obj, prop)
+                    )
+                    for new_cat in new_value.split(";"):
+                        if new_cat.lower() not in curr_value.lower() and new_cat != "":
+                            curr_value += ";" + new_cat
+                    if len(curr_value) > 0 and curr_value[0] == ";":
+                        curr_value = curr_value[1:]
+                    new_value = curr_value
+                setattr(article_obj, prop, new_value)
+            article_obj.save()
+            updated_articles += 1
+
+        # don't update entire entry - just categories
+        else:
+            curr_categories = (
+                ""
+                if getattr(article_obj, "categories") is None
+                else getattr(article_obj, "categories")
+            )
+            new_categories = scraped_article.article_tags__final
+            updated_categories = curr_categories
+            for new_cat in new_categories.split(";"):
+                if new_cat.lower() not in curr_categories.lower() and new_cat != "":
+                    updated_categories += ";" + new_cat
+            if len(updated_categories) > 0 and updated_categories[0] == ";":
+                updated_categories = updated_categories[1:]
+            if updated_categories != curr_categories:
+                setattr(article_obj, "categories", curr_categories)
+                article_obj.save()
+            no_change_articles += 1
+
+        # Update article metrics
+        (new_max_importance, new_min_article_relevance) = calcualte_relevance(
+            publisher=feed.publisher,
+            feed=feed,
+            feed_position=article_feed_position,
+            hash=scraped_article__guid,
+            pub_date=article_obj.pub_date,
+            article_type=article_obj.content_type,
+        )
+
+        # Add feed position linking
+        feed_position = FeedPosition(
+            feed=feed,
+            article=article_obj,
+            position=article_feed_position,
+            importance=new_max_importance,
+            relevance=new_min_article_relevance,
+        )
+        feed_position.save()
+
+        # check if important news for push notification
+        now = datetime.datetime.now()
+        notifications_sent = cache.get("notifications_sent", [])
+        if (
+            article_obj.pk not in notifications_sent
+            and (
+                article_obj.categories is None
+                or "no push" not in str(article_obj.categories).lower()
+            )
+            and (
+                (
+                    "sidebar" in str(article_obj.categories).lower()
+                    and article_obj.publisher.renowned >= 2
+                )
+                or (
+                    "frontpage" in str(article_obj.categories).lower()
+                    and article_obj.importance_type == "breaking"
+                )
+                or (
+                    feed.importance == 4
+                    and article_feed_position <= 3
+                    and article_obj.publisher.renowned >= 2
+                    and now.hour >= 5
+                    and now.hour <= 19
+                )
+            )
+            and (
+                settings.TIME_ZONE_OBJ.localize(datetime.datetime.now())
+                - article_obj.added_date
+            ).total_seconds()
+            / 60
+            < 15  # added less than 15min ago
+            and (
+                settings.TIME_ZONE_OBJ.localize(datetime.datetime.now())
+                - article_obj.pub_date
+            ).total_seconds()
+            / (60 * 60)
+            < 72  # published less than 72h/3d ago
+        ):
+            try:
+                send_group_notification(
+                    group_name="all",
+                    payload={
+                        "head": (
+                            f"{article_obj.publisher.name} "
+                            + (
+                                "#Breaking"
+                                if article_obj.importance_type == "breaking"
+                                else "#Ticker"
+                                if "sidebar" in str(article_obj.categories).lower()
+                                else "#Headline"
+                            )
+                        ),
+                        "body": f"{article_obj.title}",
+                        "url": f"/view/{article_obj.pk}/"
+                        if article_obj.has_full_text
+                        else article_obj.link,
+                    },
+                    ttl=60 * 90,  # keep 90 minutes on server
+                )
+                cache.set(
+                    "notifications_sent",
+                    notifications_sent + [article_obj.pk],
+                    3600 * 1000,
+                )
+                print(
+                    f"Web Push Notification sent for ({article_obj.pk})"
+                    f" {article_obj.publisher.name} - {article_obj.title}"
+                )
+            except Exception as e:
+                print(
+                    "Error sending Web Push Notification for "
+                    f"({article_obj.pk}) {article_obj.publisher.name} - {article_obj.title}: {e}"
+                )
+
+    print(
+        f"Refreshed {feed} with {added_articles} new, {updated_articles} changes and {no_change_articles} not changed"
+        f" articles out of {len(fetched_feed.entries)}"
+    )
+    return added_articles, fetched_feed__last_updated
 
 
 def fetch_feed_new(feed):
