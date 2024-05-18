@@ -8,6 +8,7 @@ import urllib
 import feedparser
 import langid
 import lxml
+import lxml.html
 import pytz  # type: ignore
 import requests  # type: ignore
 from bs4 import BeautifulSoup
