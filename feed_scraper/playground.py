@@ -243,7 +243,7 @@ class ScrapedArticle:
         self.__parse_attrs(article_obj, ARTICLE_MAPPING)
 
         # check if summary is html or text
-        if (html := getattr(self, "article_summary__feed", None)) is not None:
+        if (html := getattr(self, "article_summary__feed", None)) not in [None, ""]:
             if lxml.html.fromstring(html).find(".//*") is not None:  # html
                 (
                     self.article_summary_html__feed,
