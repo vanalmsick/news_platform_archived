@@ -266,8 +266,8 @@ def add_ai_summary(article_obj_lst):
             if cache.get("OPENAI_API_COST_LAUNCH") is None
             else cache.get("OPENAI_API_COST_LAUNCH")
         )
-        COST_TOKEN_INPUT = 0.0015
-        COST_TOKEN_OUTPUT = 0.002
+        COST_TOKEN_INPUT = 0.0005
+        COST_TOKEN_OUTPUT = 0.0015
         NET_USD_TO_GROSS_GBP = 1.2 * 0.785
         token_cost = 0
         articles_summarized = 0
@@ -300,23 +300,24 @@ def add_ai_summary(article_obj_lst):
                     model="gpt-3.5-turbo",
                     messages=[
                         {
+                            "role": "system",
+                            "content": f"Summarize this article in {bullets} bulletpoints",
+                        },
+                        {
                             "role": "user",
-                            "content": (
-                                f"Summarize this article in {bullets} bullet"
-                                f' points:\n"{article_text}"'
-                            ),
-                        }
+                            "content": article_text,
+                        },
                     ],
                 )
-                article_summary = completion["choices"][0]["message"]["content"]
+                article_summary = completion.choices[0].message.content
                 article_summary = article_summary.replace("- ", "<li>").replace(
                     "\n", "</li>\n"
                 )
                 article_summary = "<ul>\n" + article_summary + "</li>\n</ul>"
                 token_cost += round(
-                    (completion["usage"]["prompt_tokens"] * COST_TOKEN_INPUT)
-                    + (completion["usage"]["completion_tokens"] * COST_TOKEN_OUTPUT),
-                    4,
+                    (completion.usage.prompt_tokens * COST_TOKEN_INPUT)
+                    + (completion.usage.completion_tokens * COST_TOKEN_OUTPUT),
+                    6,
                 )
                 setattr(article_obj, "ai_summary", article_summary)
                 article_obj.save()
@@ -331,7 +332,7 @@ def add_ai_summary(article_obj_lst):
             ) as myfile:
                 myfile.write(";".join(logging) + "\n")
 
-        THIS_RUN_API_COST = round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 4)
+        THIS_RUN_API_COST = round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 6)
         TOTAL_API_COST += THIS_RUN_API_COST
         cache.set("OPENAI_API_COST_LAUNCH", TOTAL_API_COST, 3600 * 1000)
         print(
