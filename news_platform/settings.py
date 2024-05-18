@@ -305,7 +305,9 @@ WEBPUSH_SETTINGS = {
 }
 
 # Custom Variables
-FULL_TEXT_URL = os.environ.get("FULL_TEXT_URL", "http://ftr.fivefilters.org/")
+FULL_TEXT_URL = os.environ.get(
+    "FULL_TEXT_URL"
+)  # Instnace "http://ftr.fivefilters.org/"
 FEED_CREATOR_URL = os.environ.get("FEED_CREATOR_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 PWA_APP_DESCRIPTION = PWA_APP_NAME = CUSTOM_PLATFORM_NAME = os.getenv(
