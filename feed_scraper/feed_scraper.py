@@ -282,10 +282,10 @@ def add_ai_summary(article_obj_lst):
                 str(datetime.datetime.now().isoformat()),
                 str(article_obj.pk),
                 str(article_obj.publisher.name),
-                str(article_obj.title),
+                f'"{article_obj.title}"',
                 str(article_obj.pub_date.isoformat()),
                 str(article_obj.min_article_relevance),
-                str(article_obj.categories),
+                f'"{article_obj.categories}"',
             ]
             try:
                 soup = BeautifulSoup(article_obj.full_text_html, "html5lib")
@@ -388,7 +388,8 @@ def fetch_feed_new_new(feed):
     ):
         fetched_feed.entries = []
         print(
-            f"Feed {feed} does not require refreshing - already up-to-date ({fetched_feed__last_updated})"
+            f"Feed '{feed}' does not require refreshing - already up-to-date "
+            f"(lastest change at {fetched_feed__last_updated})"
         )
 
     if len(fetched_feed.entries) > 0:
@@ -631,8 +632,8 @@ def fetch_feed_new_new(feed):
                 )
 
     print(
-        f"Refreshed {feed} with {added_articles} new, {updated_articles} changed, and {no_change_articles} not changed"
-        f" articles (total {len(fetched_feed.entries)})"
+        f"Refreshed '{feed}' feed with {added_articles} added, {updated_articles} changed, and {no_change_articles} "
+        f"not modified articles (total feed {len(fetched_feed.entries)})"
     )
     return added_articles, fetched_feed__last_updated
 
