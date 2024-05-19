@@ -84,7 +84,7 @@ def html_clean_up(html):
     soup = BeautifulSoup(html, "html.parser")
     for i, img in enumerate(soup.find_all("img")):
         img["style"] = "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
-        if img["src"] == "src":
+        if img["src"].lower() in ["src", "None", ""]:
             if hasattr(img, "data-url"):
                 img["src"] = str(getattr(img, "data-url")).replace("${formatId}", "906")
             elif hasattr(img, "data-src"):
@@ -92,6 +92,11 @@ def html_clean_up(html):
         if hasattr(img, "srcset"):
             img["srcset"] = ""
         img["referrerpolicy"] = "no-referrer"
+
+    for own_class in ["headline", "breaking", "live", "briefing"]:
+        matches = soup.find_all(class_=own_class)
+        for match in matches:
+            match["class"].remove(own_class)
 
     for figure in soup.find_all("figure"):
         figure["class"] = "figure"
@@ -136,6 +141,16 @@ def html_clean_up(html):
         ("div", "trial_print_message"),
         ("div", "print_blocked_message"),
         ("div", "copy_blocked_message"),
+        ("div", "posted-in"),
+        ("div", "related-articles"),
+        ("div", "video-html5-playlist"),
+        ("div", "article-meta"),
+        ("div", "hidden"),
+        ("p", "vjs-no-js"),
+        ("section", "ad"),
+        ("blockquote", "twitter-tweet"),
+        ("aside", "read-more"),
+        ("nav", "breadcrumbs"),
         ("button", "toolbar-item-parent-share-2909"),
         ("button", "CreateFreeAccountButton-buttonContainer"),
         ("ul", "toolbar-item-dropdown-share-2909"),
@@ -447,7 +462,7 @@ class ScrapedArticle:
     @property
     def article_importance_type__final(self):
         title_texts = [
-            getattr(self, "feed_title__feed", "").lower(),
+            getattr(self, "article_title__feed", "").lower(),
             getattr(self, "article_title__meta", "").lower(),
             getattr(self, "article_title__scrape", "").lower(),
         ]
