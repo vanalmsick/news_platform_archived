@@ -27,7 +27,7 @@ from .pageAPI import get_articles
 def split(value, key):
     """Django filter 'split'"""
     value.split("key")
-    return value.split(key)[:-1]
+    return value.split(key)
 
 
 def refresh_all_pages():
