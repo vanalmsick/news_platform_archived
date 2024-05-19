@@ -18,7 +18,7 @@ import requests  # type: ignore
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Count, F, Max, Q
+from django.db.models import Count, F, Q
 from openai import OpenAI
 from webpush import send_group_notification
 
@@ -122,24 +122,33 @@ def update_feeds():
     else:
         min_article_relevance = (
             Article.objects.filter(
-                has_full_text=True, categories__icontains="FRONTPAGE"
+                categories__icontains="FRONTPAGE", min_article_relevance__isnull=False
             )
-            .exclude(publisher__name__in=["Risk.net", "The Economist"])
-            .exclude(min_article_relevance__isnull=True)
-            .order_by("min_article_relevance")[:20]
-            .aggregate(Max("min_article_relevance"))["min_article_relevance__max"]
+            .order_by("min_article_relevance")[20]
+            .min_article_relevance
         )
-        articles_add_ai_summary = (
-            Article.objects.filter(
-                has_full_text=True,
-                ai_summary__isnull=True,
-                categories__icontains="FRONTPAGE",
-                min_article_relevance__lte=min_article_relevance,
+
+        articles_add_ai_summary = Article.objects.filter(
+            has_full_text=True,
+            ai_summary__isnull=True,
+            min_article_relevance__isnull=False,
+            content_type="article",
+        ).filter(
+            Q(
+                Q(categories__icontains="FRONTPAGE")
+                & Q(min_article_relevance__lte=min_article_relevance)
             )
-            .exclude(publisher__name__in=["Risk.net", "The Economist"])
-            .exclude(min_article_relevance__isnull=True)
-            .order_by("min_article_relevance")
+            | Q(
+                Q(categories__icontains="SIDEBAR")
+                & Q(publisher__renowned__gte=2)
+                & Q(
+                    pub_date__gte=settings.TIME_ZONE_OBJ.localize(
+                        datetime.datetime.now() - datetime.timedelta(days=2)
+                    )
+                )
+            )
         )
+
         add_ai_summary(article_obj_lst=articles_add_ai_summary)
 
     old_articles = (
@@ -261,24 +270,22 @@ def add_ai_summary(article_obj_lst):
         # openai.api_key = settings.OPENAI_API_KEY
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-        TOTAL_API_COST = (
-            0
-            if cache.get("OPENAI_API_COST_LAUNCH") is None
-            else cache.get("OPENAI_API_COST_LAUNCH")
-        )
+        TOTAL_API_COST = float(cache.get("OPENAI_API_COST_LAUNCH", 0.0))
         COST_TOKEN_INPUT = 0.0005
         COST_TOKEN_OUTPUT = 0.0015
         NET_USD_TO_GROSS_GBP = 1.2 * 0.785
-        token_cost = 0
+        THIS_RUN_API_COST = 0
         articles_summarized = 0
 
         for article_obj in article_obj_lst:
             logging = [
                 str(datetime.datetime.now().isoformat()),
-                str(article_obj.publisher.name),
                 str(article_obj.pk),
-                str(article_obj.min_article_relevance),
+                str(article_obj.publisher.name),
                 str(article_obj.title),
+                str(article_obj.pub_date.isoformat()),
+                str(article_obj.min_article_relevance),
+                str(article_obj.categories),
             ]
             try:
                 soup = BeautifulSoup(article_obj.full_text_html, "html5lib")
@@ -314,15 +321,22 @@ def add_ai_summary(article_obj_lst):
                     "\n", "</li>\n"
                 )
                 article_summary = "<ul>\n" + article_summary + "</li>\n</ul>"
-                token_cost += round(
-                    (completion.usage.prompt_tokens * COST_TOKEN_INPUT)
-                    + (completion.usage.completion_tokens * COST_TOKEN_OUTPUT),
-                    6,
+                this_article_cost = round(
+                    float(
+                        (
+                            (completion.usage.prompt_tokens * COST_TOKEN_INPUT)
+                            + (completion.usage.completion_tokens * COST_TOKEN_OUTPUT)
+                        )
+                        / 1000
+                        * NET_USD_TO_GROSS_GBP
+                    ),
+                    8,
                 )
+                THIS_RUN_API_COST += this_article_cost
                 setattr(article_obj, "ai_summary", article_summary)
                 article_obj.save()
                 articles_summarized += 1
-                logging.extend(["SUCCESS", str(token_cost)])
+                logging.extend(["SUCCESS", str(this_article_cost)])
             except Exception as e:
                 print(f"Error getting AI article summary for {article_obj}:", e)
                 logging.extend(["ERROR", str(0)])
@@ -332,7 +346,6 @@ def add_ai_summary(article_obj_lst):
             ) as myfile:
                 myfile.write(";".join(logging) + "\n")
 
-        THIS_RUN_API_COST = round(float(token_cost / 1000 * NET_USD_TO_GROSS_GBP), 6)
         TOTAL_API_COST += THIS_RUN_API_COST
         cache.set("OPENAI_API_COST_LAUNCH", TOTAL_API_COST, 3600 * 1000)
         print(
@@ -618,8 +631,8 @@ def fetch_feed_new_new(feed):
                 )
 
     print(
-        f"Refreshed {feed} with {added_articles} new, {updated_articles} changes and {no_change_articles} not changed"
-        f" articles out of {len(fetched_feed.entries)}"
+        f"Refreshed {feed} with {added_articles} new, {updated_articles} changed, and {no_change_articles} not changed"
+        f" articles (total {len(fetched_feed.entries)})"
     )
     return added_articles, fetched_feed__last_updated
 
