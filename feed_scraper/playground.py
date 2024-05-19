@@ -176,6 +176,7 @@ class ScrapedArticle:
         self.feed_obj__model = feed_model
         self.paywall = False
         self.aggregator_source = False
+        self.current_categories = None
 
     ################################# PARSE AND STANDARDIZE ATTRIBUTES #################################
 
@@ -724,14 +725,19 @@ class ScrapedArticle:
     @property
     def article_tags__final(self):
         tags = (
-            (
-                []
-                if self.feed_obj__model.source_categories is None
-                else [
-                    {"term": i}
-                    for i in self.feed_obj__model.source_categories.split(";")
-                ]
-            )
+            [
+                {"term": i}
+                for i in (
+                    []
+                    if self.current_categories is None
+                    else self.current_categories.split(";")
+                )
+                + (
+                    []
+                    if self.feed_obj__model is None
+                    else self.feed_obj__model.source_categories.split(";")
+                )
+            ]
             + getattr(self, "feed_tag_lst__feed", [])
             + getattr(self, "article_tag_lst__feed", [])
             + [
@@ -740,6 +746,7 @@ class ScrapedArticle:
                 .replace(", ", ";")
                 .replace(",", ";")
                 .split(";")
+                if i != ""
             ]
         )
         new_tags = ";"

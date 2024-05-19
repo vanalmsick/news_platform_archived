@@ -416,6 +416,7 @@ def fetch_feed_new_new(feed):
         full_text_scraping = feed.full_text_fetch == "Y"
         if len(matches) > 0:
             article_obj = matches[0]
+            scraped_article.current_categories = article_obj.categories
             # if article was updated or
             # article is missing image or extract and was published in the last 4 hours try getting content or
             # is ticker content type
@@ -501,38 +502,16 @@ def fetch_feed_new_new(feed):
             article_kwargs = scraped_article.get_final_attrs()
             _ = article_kwargs.pop("publisher")
             for prop, new_value in article_kwargs.items():
-                if "categories" == prop and new_value is not None:
-                    curr_value = (
-                        ""
-                        if getattr(article_obj, prop) is None
-                        else getattr(article_obj, prop)
-                    )
-                    for new_cat in new_value.split(";"):
-                        if new_cat.lower() not in curr_value.lower() and new_cat != "":
-                            curr_value += ";" + new_cat
-                    if len(curr_value) > 0 and curr_value[0] == ";":
-                        curr_value = curr_value[1:]
-                    new_value = curr_value
                 setattr(article_obj, prop, new_value)
             article_obj.save()
             updated_articles += 1
 
         # don't update entire entry - just categories
         else:
-            curr_categories = (
-                ""
-                if getattr(article_obj, "categories") is None
-                else getattr(article_obj, "categories")
-            )
-            new_categories = scraped_article.article_tags__final
-            updated_categories = curr_categories
-            for new_cat in new_categories.split(";"):
-                if new_cat.lower() not in curr_categories.lower() and new_cat != "":
-                    updated_categories += ";" + new_cat
-            if len(updated_categories) > 0 and updated_categories[0] == ";":
-                updated_categories = updated_categories[1:]
+            curr_categories = getattr(article_obj, "categories", None)
+            updated_categories = scraped_article.article_tags__final
             if updated_categories != curr_categories:
-                setattr(article_obj, "categories", curr_categories)
+                setattr(article_obj, "categories", updated_categories)
                 article_obj.save()
             no_change_articles += 1
 
