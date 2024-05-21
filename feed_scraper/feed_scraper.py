@@ -502,7 +502,8 @@ def fetch_feed_new_new(feed):
             article_kwargs = scraped_article.get_final_attrs()
             _ = article_kwargs.pop("publisher")
             for prop, new_value in article_kwargs.items():
-                setattr(article_obj, prop, new_value)
+                if new_value is not None and new_value != "":
+                    setattr(article_obj, prop, new_value)
             article_obj.save()
             updated_articles += 1
 
