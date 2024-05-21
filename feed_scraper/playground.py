@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import html
 import os
+import re
 import time
 import urllib
 
@@ -79,17 +81,17 @@ def ensure_dt_is_tz_aware(dt):
     return dt
 
 
-def html_clean_up(html):
+def html_clean_up(article_html):
     """helper function to clean-up html code and remove unwanted parts"""
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(article_html, "html.parser")
     for i, img in enumerate(soup.find_all("img")):
         img["style"] = "max-width: 100%; max-height: 80vh; width: auto; height: auto;"
-        if img["src"].lower() in ["src", "None", ""]:
-            if hasattr(img, "data-url"):
-                img["src"] = str(getattr(img, "data-url")).replace("${formatId}", "906")
-            elif hasattr(img, "data-src"):
-                img["src"] = getattr(img, "data-src")
-        if hasattr(img, "srcset"):
+        if img["src"].lower() in ["src", "none", ""]:
+            if "data-url" in img.attrs:
+                img["src"] = str(img["data-url"]).replace("${formatId}", "906")
+            elif "data-src" in img.attrs:
+                img["src"] = img["data-src"]
+        if "srcset" in img.attrs:
             img["srcset"] = ""
         img["referrerpolicy"] = "no-referrer"
 
@@ -155,14 +157,19 @@ def html_clean_up(html):
         ("button", "CreateFreeAccountButton-buttonContainer"),
         ("ul", "toolbar-item-dropdown-share-2909"),
     ]:
-        div = soup.find(div_type, id=id)
-        if div is not None:
-            div.decompose()
+        divs = soup.find_all(div_type, id=id)
+        if divs is None:
+            divs = soup.find_all(div_type, class_=id)
+        if divs is not None:
+            for div in divs:
+                div.decompose()
 
-    html = soup.prettify()
-    text = soup.text
+    article_html = soup.prettify()
+    article_text = soup.text
+    # article_text = " ".join(html.unescape(article_text).split())
+    article_text = re.sub(r"\n+", "\n", article_text).strip()
 
-    return html, text
+    return article_html, article_text
 
 
 class ScrapedArticle:
@@ -259,15 +266,21 @@ class ScrapedArticle:
         self.__parse_attrs(article_obj, ARTICLE_MAPPING)
 
         # check if summary is html or text
-        if (html := getattr(self, "article_summary__feed", None)) not in [None, ""]:
-            if lxml.html.fromstring(html).find(".//*") is not None:  # html
+        if (article_html := getattr(self, "article_summary__feed", None)) not in [
+            None,
+            "",
+        ]:
+            if lxml.html.fromstring(article_html).find(".//*") is not None:  # html
                 (
                     self.article_summary_html__feed,
                     self.article_summary_text__feed,
-                ) = html_clean_up(html)
+                ) = html_clean_up(article_html)
+                self.article_summary_text__feed = " ".join(
+                    html.unescape(self.article_summary_text__feed).split()
+                )
             else:
-                self.article_summary_text__feed = html
-                self.article_summary_html__feed = f"<p>{html}</p>"
+                self.article_summary_text__feed = article_html
+                self.article_summary_html__feed = f"<p>{article_html}</p>"
 
         # convert content list to html and text
         if (
@@ -339,11 +352,13 @@ class ScrapedArticle:
             value = datetime.datetime.fromisoformat(value)
             value = ensure_dt_is_tz_aware(value)
             setattr(self, "article_last_updated__scrape", value)
-        if (html := getattr(self, "article_content_html__scrape", None)) is not None:
+        if (
+            article_html := getattr(self, "article_content_html__scrape", None)
+        ) is not None:
             (
                 self.article_content_html__scrape,
                 self.article_content_text__scrape,
-            ) = html_clean_up(html)
+            ) = html_clean_up(article_html)
 
     ################################# SELECT BEST ATTRIBUTES FROM ALL AVAILABLE #################################
 
