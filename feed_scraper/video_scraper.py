@@ -63,13 +63,11 @@ def fetch_feed(feed, max_per_feed=200):
             limit=max_per_feed,
             sort_by="popular" if feed.feed_ordering == "r" else "newest",
         )
-        delete_feed_positions(feed)
     elif feed.feed_type == "y-playlist":
         parsed_url = urllib.parse.parse_qs(urllib.parse.urlparse(feed.url).query)
         if "list" in parsed_url:
             playlist = parsed_url["list"][0]
             videos = scrapetube.get_playlist(playlist)
-            delete_feed_positions(feed)
         else:
             print(f'Error: Invalid URL "{feed.url}" for YouTube Playlist "{feed.name}"')
             videos = []
@@ -77,6 +75,23 @@ def fetch_feed(feed, max_per_feed=200):
         videos = []
 
     for i, video in enumerate(videos):
+        if i == 0:
+            matches = Article.objects.filter(
+                hash=f"youtube_{video['videoId']}", feedposition__position=1
+            )
+            if (
+                feed.feed_type == "y-channel"
+                and feed.feed_ordering != "r"
+                and len(matches) > 0
+            ):
+                print(
+                    f"Feed '{feed}' does not require refreshing - "
+                    f"already up-to-date as same first video and chronological order."
+                )
+                break
+            else:
+                delete_feed_positions(feed)
+
         no_new_video = 0
         if no_new_video > 50:
             print(
@@ -225,5 +240,5 @@ def fetch_feed(feed, max_per_feed=200):
         if "article__feed_position" in vars() or "article__feed_position" in globals()
         else "Unknown"
     )
-    print(f"Refreshed {feed} with {added_vids} new videos out of {total_articles}")
+    print(f"Refreshed '{feed}' with {added_vids} new videos out of {total_articles}")
     return added_vids
