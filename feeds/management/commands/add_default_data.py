@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """mange.py command add_defaullt_feeds to add default data to database"""
 from django.core.management import BaseCommand
 
@@ -154,7 +155,7 @@ class Command(BaseCommand):
             {
                 "name": "Bloomberg",
                 "link": "https://www.bloomberg.com",
-                "renowned": 2,
+                "renowned": 3,
                 "paywall": "Y",
                 "unique_article_id": "url",
                 "language": "en",
@@ -194,6 +195,14 @@ class Command(BaseCommand):
             {
                 "name": "TechCrunch",
                 "link": "https://techcrunch.com",
+                "renowned": 1,
+                "paywall": "N",
+                "unique_article_id": "guid",
+                "language": "en",
+            },
+            {
+                "name": "Futurity",
+                "link": "https://www.futurity.org/",
                 "renowned": 1,
                 "paywall": "N",
                 "unique_article_id": "guid",
@@ -325,7 +334,7 @@ class Command(BaseCommand):
                 "url": "https://www.ft.com/rss/home/international",
                 "active": True,
                 "feed_ordering": "r",
-                "full_text_fetch": "Y",
+                "full_text_fetch": "N",
                 "source_categories": "frontpage",
                 "importance": 4,
             },
@@ -335,7 +344,7 @@ class Command(BaseCommand):
                 "url": "https://www.ft.com/markets?format=rss",
                 "active": True,
                 "feed_ordering": "r",
-                "full_text_fetch": "Y",
+                "full_text_fetch": "N",
                 "source_categories": "frontpage;markets",
                 "importance": 1,
             },
@@ -345,8 +354,8 @@ class Command(BaseCommand):
                 "url": "https://www.ft.com/news-in-depth?format=rss",
                 "active": True,
                 "feed_ordering": "d",
-                "full_text_fetch": "Y",
-                "source_categories": "frontpage;News In Depth",
+                "full_text_fetch": "N",
+                "source_categories": "frontpage;News In Depth;headline",
                 "importance": 2,
             },
             {
@@ -355,8 +364,8 @@ class Command(BaseCommand):
                 "url": "https://www.ft.com/the-big-read?format=rss",
                 "active": True,
                 "feed_ordering": "d",
-                "full_text_fetch": "Y",
-                "source_categories": "frontpage;The Big Read",
+                "full_text_fetch": "N",
+                "source_categories": "frontpage;The Big Read;headline",
                 "importance": 2,
             },
             {
@@ -365,7 +374,7 @@ class Command(BaseCommand):
                 "url": "https://www.ft.com/us?format=rss",
                 "active": True,
                 "feed_ordering": "d",
-                "full_text_fetch": "Y",
+                "full_text_fetch": "N",
                 "source_categories": "frontpage;usa",
                 "importance": 0,
             },
@@ -375,7 +384,7 @@ class Command(BaseCommand):
                 "url": "https://www.ft.com/world-uk?format=rss",
                 "active": True,
                 "feed_ordering": "d",
-                "full_text_fetch": "Y",
+                "full_text_fetch": "N",
                 "source_categories": "frontpage;uk",
                 "importance": 0,
             },
@@ -385,7 +394,7 @@ class Command(BaseCommand):
                 "url": "https://www.ft.com/europe?format=rss",
                 "active": True,
                 "feed_ordering": "d",
-                "full_text_fetch": "Y",
+                "full_text_fetch": "N",
                 "source_categories": "frontpage;europe",
                 "importance": 0,
             },
@@ -395,14 +404,18 @@ class Command(BaseCommand):
                 "url": "https://www.ft.com/asia-pacific?format=rss",
                 "active": True,
                 "feed_ordering": "d",
-                "full_text_fetch": "Y",
+                "full_text_fetch": "N",
                 "source_categories": "asia",
                 "importance": 0,
             },
             {
                 "name": "Region Asia",
                 "publisher": Publisher.objects.get(name="CNN"),
-                "url": "http://FEED-CREATOR.local/extract.php?url=https%3A%2F%2Fedition.cnn.com%2Fworld%2Fasia&item=a.container__link&item_title=span.container__headline-text&max=13&order=document&guid=url",
+                "url": (
+                    "http://FEED-CREATOR.local/extract.php?url=https%3A%2F%2Fedition.cnn.com%2Fworld%2Fasia"
+                    "&item=a.container__link&item_title=span.container__headline-text"
+                    "&max=13&order=document&guid=url"
+                ),
                 "active": True,
                 "feed_ordering": "d",
                 "full_text_fetch": "Y",
@@ -555,7 +568,7 @@ class Command(BaseCommand):
                 "active": True,
                 "feed_ordering": "d",
                 "full_text_fetch": "Y",
-                "source_categories": "hedge funds;sidebar",
+                "source_categories": "hedge funds;sidebar;breaking",
                 "importance": 2,
             },
             {
@@ -577,6 +590,16 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "google news;hedge funds;funds;sidebar",
                 "importance": 0,
+            },
+            {
+                "name": "Search Publisher:Bloomberg.com",
+                "publisher": Publisher.objects.get(name="Google News"),
+                "url": "https://news.google.com/rss/search?q=site%3ABloomberg.com%20when%3A1d",
+                "active": True,
+                "feed_ordering": "r",
+                "full_text_fetch": "N",
+                "source_categories": "google news",
+                "importance": 1,
             },
             ########################### German News ###########################
             {
@@ -734,6 +757,26 @@ class Command(BaseCommand):
                 "source_categories": "tech",
                 "importance": 0,
             },
+            {
+                "name": "@Python In Plain English",
+                "publisher": Publisher.objects.get(name="Medium"),
+                "url": "https://medium.com/feed/python-in-plain-english",
+                "active": True,
+                "feed_ordering": "d",
+                "full_text_fetch": "N",
+                "source_categories": "tech;python",
+                "importance": 1,
+            },
+            {
+                "name": "@Towards Data Science",
+                "publisher": Publisher.objects.get(name="Medium"),
+                "url": "https://medium.com/feed/towards-data-science",
+                "active": True,
+                "feed_ordering": "d",
+                "full_text_fetch": "N",
+                "source_categories": "tech;python;data science",
+                "importance": 1,
+            },
             ########################### Magazine Articles ###########################
             {
                 "name": "Management",
@@ -764,6 +807,16 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "source_categories": "magazine;finance",
                 "importance": 0,
+            },
+            {
+                "name": "Futurity",
+                "publisher": Publisher.objects.get(name="Futurity"),
+                "url": "https://www.futurity.org/feed/",
+                "active": True,
+                "feed_ordering": "r",
+                "full_text_fetch": "Y",
+                "source_categories": "magazine;science",
+                "importance": 1,
             },
             {
                 "name": "HBR",
@@ -826,7 +879,7 @@ class Command(BaseCommand):
                 "full_text_fetch": "Y",
                 "feed_type": "y-channel",
                 "source_categories": "business",
-                "importance": 2,
+                "importance": 0,
             },
             {
                 "name": "YouTube Channel",
@@ -893,7 +946,7 @@ class Command(BaseCommand):
                 "feed_type": "y-channel",
                 "source_categories": "travel;sailing",
                 "importance": 3,
-                },
+            },
             {
                 "name": "YouTube Channel",
                 "publisher": Publisher.objects.get(name="Deutsche Welle"),
@@ -1097,22 +1150,20 @@ class Command(BaseCommand):
                     '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" '
                     'fill="currentColor" class="bi bi-book" viewBox="0 0 16 16" '
                     'style="margin: 0px 5px 0px 0px;"><path d="M1 2.828c.885-.37 '
-                    '2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.'
-                    '935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-'
-                    '.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.38'
-                    '8.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.'
-                    '039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153'
-                    '-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.45'
-                    '5c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a'
-                    '.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.'
-                    '8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-'
+                    "2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-."
+                    "935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-"
+                    ".141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.38"
+                    "8.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-."
+                    "039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153"
+                    "-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.45"
+                    "5c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a"
+                    ".5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2."
+                    "8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-"
                     '.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"'
-                    '/></svg>'
-                    ),
-                "name": "In Depth Articles",
-                "url_parameters": (
-                    "categories=news+in+depth,the+big+read,magazine"
+                    "/></svg>"
                 ),
+                "name": "In Depth Articles",
+                "url_parameters": ("categories=news+in+depth,the+big+read,magazine"),
             },
             {
                 "position_index": 6,
