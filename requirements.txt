@@ -28,5 +28,6 @@ django-pwa
 pillow
 sentry-sdk[django]
 sentry-sdk[celery]
+psycopg2-binary
 psycopg2
 #Werkzeug
