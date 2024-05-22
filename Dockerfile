@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl libpcre3 mime-support nano lsb-release curl gpg python3-dev libpq-dev postgresql-dev gcc \
+    && apt-get install -y --no-install-recommends curl libpcre3 mime-support nano lsb-release curl gpg python3-dev libpq-dev postgresql postgresql-contrib gcc \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
