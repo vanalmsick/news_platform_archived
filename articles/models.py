@@ -154,7 +154,7 @@ def truncate_long_fields(sender, instance, **kwargs):
     for field_name in fields_to_check:
         field = getattr(instance, field_name)
         max_length = instance._meta.get_field(field_name).max_length
-        if len(field) > max_length:
+        if field is not None and len(field) > max_length:
             setattr(instance, field_name, field[:max_length])
 
 
