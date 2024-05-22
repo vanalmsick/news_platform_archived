@@ -149,7 +149,7 @@ def truncate_long_fields(sender, instance, **kwargs):
         "guid",
         "hash",
         "mailto_link",
-    ]  # Add more fields as needed
+    ]  # all fields with max_length limit and not filled by code
 
     for field_name in fields_to_check:
         field = getattr(instance, field_name)
