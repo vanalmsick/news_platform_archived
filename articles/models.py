@@ -4,6 +4,8 @@
 import urllib
 
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from feeds.models import NEWS_IMPORTANCE, Feed, Publisher
 
@@ -98,6 +100,7 @@ class Article(models.Model):
     mailto_link = models.CharField(max_length=300, null=True)
 
     def __calc_mailto_link(self):
+        """Create the caluclated field that stores the mailto link to share an artcile via email"""
         SHARE_EMAIL_SUBJECT = f"{self.publisher.name}: {self.title}"
         SHARE_EMAIL_BODY = (
             "Hi,\n\nHave you seen this article:\n\n"
@@ -124,11 +127,35 @@ class Article(models.Model):
     #    return model_to_dict(self, fields=[field.name for field in self._meta.fields])
 
     def save(self, *args, **kwargs):
+        """Make sure the min and max fields are refreshed on every update"""
         self.mailto_link = self.__calc_mailto_link()
         super(Article, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.publisher.name} - {self.title}"
+
+
+@receiver(pre_save, sender=Article)
+def truncate_long_fields(sender, instance, **kwargs):
+    """Make sure fields with a max_length attr are truncated if too long"""
+    # Define a list of fields you want to check and truncate
+    fields_to_check = [
+        "title",
+        "author",
+        "image_url",
+        "extract",
+        "ai_summary",
+        "categories",
+        "guid",
+        "hash",
+        "mailto_link",
+    ]  # Add more fields as needed
+
+    for field_name in fields_to_check:
+        field = getattr(instance, field_name)
+        max_length = instance._meta.get_field(field_name).max_length
+        if len(field) > max_length:
+            setattr(instance, field_name, field[:max_length])
 
 
 class FeedPosition(models.Model):
@@ -170,5 +197,6 @@ class FeedPosition(models.Model):
                 self.article.save()
 
     def save(self, *args, **kwargs):
+        """Make sure the min and max fields are refreshed on every update"""
         self.__calc_min__max__()
         super(FeedPosition, self).save(*args, **kwargs)
