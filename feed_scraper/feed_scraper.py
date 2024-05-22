@@ -407,9 +407,18 @@ def fetch_feed_new_new(feed):
         scraped_article__last_updated = scraped_article.article_last_updated__final
 
         # check if article already exists
-        matches = Article.objects.filter(guid=scraped_article__guid)
+        matches = Article.objects.filter(
+            guid=scraped_article__guid[:95]
+            if type(scraped_article__guid) is str and len(scraped_article__guid) > 95
+            else scraped_article__guid
+        )
         if len(matches) == 0:
-            matches = Article.objects.filter(hash=scraped_article__hash)
+            matches = Article.objects.filter(
+                hash=scraped_article__hash[:100]
+                if type(scraped_article__hash) is str
+                and len(scraped_article__hash) > 100
+                else scraped_article__hash
+            )
 
         # check if additional data fetching required
         fetch = False
