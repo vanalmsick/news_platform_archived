@@ -92,7 +92,7 @@ def get_articles(max_length=72, force_recache=False, **kwargs):
                 test_condition = []
             if len(test_condition) > 0:
                 conditions &= sub_conditions
-        articles = Article.objects.filter(conditions)
+        articles = Article.objects.prefetch_related("publisher").filter(conditions)
         articles = articles.order_by(
             F("min_article_relevance").asc(nulls_last=True),
             "-pub_date__date",
