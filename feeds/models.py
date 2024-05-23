@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 NEWS_IMPORTANCE = [
     (4, "Lead Articles News"),
@@ -37,6 +40,22 @@ class Publisher(models.Model):
     def __str__(self):
         """print-out representation of individual model entry"""
         return f"{self.name}"
+
+
+@receiver(pre_save, sender=Publisher)
+def truncate_long_fields(sender, instance, **kwargs):
+    """Make sure fields with a max_length attr are truncated if too long"""
+    # Define a list of fields you want to check and truncate
+    fields_to_check = [
+        "name",
+        "link",
+    ]  # all fields with max_length limit and not filled by code
+
+    for field_name in fields_to_check:
+        field = getattr(instance, field_name)
+        max_length = instance._meta.get_field(field_name).max_length
+        if field is not None and len(field) > max_length:
+            setattr(instance, field_name, field[:max_length])
 
 
 class Feed(models.Model):
