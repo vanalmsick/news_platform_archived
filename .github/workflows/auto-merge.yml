@@ -1,14 +1,16 @@
 name: Auto-merge master/main back to dev branch
 
 on:
-  pull_request:
-    branches: [ main ]
-    types: [ closed ]
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - master
+      - main
 
 jobs:
   merge-master-back-to-dev:
     if: github.event.pull_request.merged == true
-    timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,5 +23,5 @@ jobs:
           git fetch --unshallow
           git checkout dev
           git pull
-          git merge --no-ff main -m "Auto-merge master/main back to dev branch"
+          git merge --no-ff main -m "Auto-merge master/main branch back to dev"
           git push

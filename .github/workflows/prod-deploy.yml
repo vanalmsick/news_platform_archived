@@ -6,11 +6,12 @@ on:
     branches:
       - master
       - main
-#    paths-ignore: [ '.github/**', 'docs/**', 'README.md' ]
+    paths-ignore: [ '.github/**', 'docs/**', 'README.md' ]
 
 jobs:
 
   autotag:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     permissions:
       contents: write
