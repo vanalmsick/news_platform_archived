@@ -1,9 +1,10 @@
 # Personal News Platform
 
-## <span style="color: red">[!!! This Repo was moved to the new URL *github.com/vanalmsick/news_platform/*](https://github.com/vanalmsick/news_platform/)</span>
-
+<a style="color: red; font-size: 16pt;" href="https://github.com/vanalmsick/news_platform/">!!! This Repo was moved to the new URL *github.com/vanalmsick/news_platform/*</a>
+<br><br>
 News Aggregator - Aggregates news articles from several RSS feeds, fetches full-text if possible, sorts them by
 relevance (based on user settings), and display on distraction-free homepage.
+<br>  
 
 ### PC Home Page:
 
