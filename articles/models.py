@@ -47,8 +47,8 @@ class Article(models.Model):
     title = models.CharField(max_length=200, null=True)
 
     author = models.CharField(max_length=90, null=True, blank=True)
-    link = models.URLField(max_length=200)
-    image_url = models.URLField(max_length=300, null=True, blank=True)
+    link = models.URLField(max_length=300)
+    image_url = models.URLField(max_length=400, null=True, blank=True)
 
     IMPORTANCE_TYPES = [
         ("breaking", "Breaking/Live News"),
