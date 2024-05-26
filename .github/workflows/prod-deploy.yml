@@ -32,9 +32,9 @@ jobs:
           DEFAULT_BUMP: patch
 
     outputs:
-      tag: ${{ steps.tagger.outputs.tag }}
-      new_tag: ${{ steps.tagger.outputs.new_tag }}
-      part: ${{ steps.tagger.outputs.part }}
+      out_tag: ${{ steps.tagger.outputs.tag }}
+      out_new_tag: ${{ steps.tagger.outputs.new_tag }}
+      out_part: ${{ steps.tagger.outputs.part }}
 
 
   docker:
@@ -58,4 +58,4 @@ jobs:
           context: .
           platforms: linux/arm64/v8,linux/amd64
           push: true
-          tags: ${{ secrets.DOCKER_USER }}/news_platform:latest,${{ secrets.DOCKER_USER }}/news_platform:${{ needs.autotag.outputs.tag }}
+          tags: ${{ secrets.DOCKER_USER }}/news_platform:latest,${{ secrets.DOCKER_USER }}/news_platform:${{ needs.autotag.outputs.out_tag }}
