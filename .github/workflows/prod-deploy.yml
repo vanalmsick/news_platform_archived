@@ -1,8 +1,6 @@
 name: Production Deployment
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
       - master
       - main
@@ -11,7 +9,7 @@ on:
 jobs:
 
   autotag:
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     permissions:
       contents: write
