@@ -12,7 +12,7 @@ services:
       - 9381:5555  # for Celery Flower Task Que
       - 9382:9001  # for Docker Supervisor Process Manager
     depends_on:
-      - news-platform-letsencrypt
+      - news-platform-postgres   # if using PostgreSQL Database
     volumes:
       - /mnt/ssd/news_platform:/news_platform/data
     environment:
@@ -42,6 +42,8 @@ services:
     image: linuxserver/letsencrypt
     container_name: news-platform-letsencrypt
     restart: always
+    depends_on:
+      - news-platform
     ports:
       - 9480:80  # for http
       - 9443:443 # for https
