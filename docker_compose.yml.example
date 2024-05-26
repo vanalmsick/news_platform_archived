@@ -21,6 +21,10 @@ services:
       SIDEBAR_TITLE: 'Latest News'
       TIME_ZONE: 'Europe/London'
       ALLOWED_LANGUAGES: 'en,de'
+      POSTGRESQL_HOST: news-platform-postgres  # Optional if using PostgreSQL Database: hostname/URL
+      POSTGRESQL_DB: postgres  # Optional if using PostgreSQL Database: db name
+      POSTGRESQL_USER: postgres  # Optional if using PostgreSQL Database: user name
+      POSTGRESQL_PASSWORD: postgres  # Optional if using PostgreSQL Database: user password
       # FULL_TEXT_URL: 'http://fivefilters:80/full-text-rss/'
       # FEED_CREATOR_URL: 'http://fivefilters:80/feed-creator/'
       # DEBUG: false
@@ -55,6 +59,25 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"  # if you use Watchtower for container updates
 
 
+  # Optional PostgreSQL Database instead of SQLite
+  news-platform-postgres:
+    image: postgres:16
+    container_name: news-platform-postgres
+    restart: always
+    volumes:
+      - /mnt/ssd/news_platform/postgresql:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres  # has to match above
+      POSTGRES_DB: postgres  # has to match above
+      POSTGRES_PASSWORD: postgres  # has to match above
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"  # if you use Watchtower for container updates
+
+
 volumes:
-  news_platform:
   news_platform_letsencrypt:
