@@ -24,7 +24,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    outputs:
-      out_tag: ${{ steps.tagger.outputs.tag }}
-      out_new_tag: ${{ steps.tagger.outputs.new_tag }}
-      out_part: ${{ steps.tagger.outputs.part }}
+
