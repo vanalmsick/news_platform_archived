@@ -1,6 +1,6 @@
 name: Production Deployment
 on:
-  pull_request_target:
+  pull_request:
     types:
       - closed
     branches:
@@ -27,9 +27,6 @@ jobs:
         uses: anothrNick/github-tag-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: false
-          PRERELEASE: false
-          DEFAULT_BUMP: patch
 
     outputs:
       out_tag: ${{ steps.tagger.outputs.tag }}
