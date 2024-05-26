@@ -89,7 +89,7 @@ if __name__ == "__main__":
         # Create Admin
         if len(User.objects.filter(username="admin")) == 0:
             print('Create super user "admin"')
-            User.objects.create_superuser("admin", "", "Sven1006")
+            User.objects.create_superuser("admin", "", "password")
         if len(User.objects.filter(username="user")) == 0:
             print('Create normal user "user"')
             sys.argv = [INITIAL_ARGV[0], "create_normal_user"]

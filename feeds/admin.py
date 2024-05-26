@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Definition of Publisher and Feed Views in Django Admin Space"""
 
 from django.contrib import admin

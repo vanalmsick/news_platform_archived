@@ -1,9 +1,8 @@
+# -*- coding: utf-8 -*-
 """models for App called Preferences"""
 from urllib.parse import parse_qs
 
-from django.core.cache import cache
 from django.db import models
-from django.db.models.signals import post_delete, post_save
 
 
 def url_parm_encode(**kwargs):
@@ -18,8 +17,9 @@ def url_parm_encode(**kwargs):
     kwargs_hash = "".join([i if i.isalnum() else "_" for i in kwargs_hash])
     return kwargs_hash, kwargs
 
+
 def get_page_lst():
-    queryset = Page.objects.all().only('url_hash', 'url_parameters_json')
+    queryset = Page.objects.all().only("url_hash", "url_parameters_json")
     return {i.url_hash: i.url_parameters_json for i in queryset}
 
 
@@ -44,6 +44,7 @@ class Page(models.Model):
 
     url_hash = models.CharField(max_length=300)
     url_parameters_json = models.JSONField()
+
     def __calc_url_hash(self):
         url_parameters = parse_qs(self.url_parameters)
         url_hash, _ = url_parm_encode(**url_parameters)
@@ -52,4 +53,3 @@ class Page(models.Model):
     def save(self, *args, **kwargs):
         self.url_hash, self.url_parameters_json = self.__calc_url_hash()
         super(Page, self).save(*args, **kwargs)
-

@@ -16,8 +16,8 @@
                         <h2 id="modalTitle"
                             style="font-family: Georgia, serif; font-weight: bold;">{{ article.title }}</h2>
                         {% if article.has_extract %}
-                        <div id="modalSummary" class="lead pb-2"
-                             style="font-family: Georgia, serif;">{{ article.extract|truncatechars:400|safe }}</div>
+                            <div id="modalSummary" class="lead pb-2"
+                                 style="font-family: Georgia, serif;">{{ article.extract|truncatechars:400|safe }}</div>
                         {% endif %}
                         <div id="modalDate" class="mb-1 text-muted" style="font-family: Georgia, serif;">
                             Published
@@ -50,7 +50,8 @@
                                     src="{{ article.image_url }}" referrerpolicy="no-referrer"
                                     style="max-width: 100%; max-height: 80vh; object-fit: cover;"></div>
                         {% endif %}
-                        <div id="modalFullText" style="font-family: Georgia, serif;">{{ article.full_text_html|safe }}</div>
+                        <div id="modalFullText"
+                             style="font-family: Georgia, serif;">{{ article.full_text_html|safe }}</div>
                     </div>
 
                     <div class="d-flex flex-wrap align-items-center justify-content-center mx-auto mb-2 ">

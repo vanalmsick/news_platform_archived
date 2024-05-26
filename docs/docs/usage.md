@@ -1,4 +1,5 @@
 ## Environmental Variables
+
 | ENV-KEY              | Default Value / Data Type                         | Description                                                                                                                                                                                                                                                                                                                       |
 |----------------------|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | MAIN_HOST            | "http://localhost" *(any str)*                    | Public/local-network facing main URL. Used for links e.g. for webpush push notifications e.g. "https://news.yourwebsite.com" or "http://19.168.172.100"                                                                                                                                                                           |
@@ -18,8 +19,11 @@
 | DEBUG                | True *(bool - currently only True working)*       | To run the news platform in production / dev modus. Currently the production modus does not work.                                                                                                                                                                                                                                 |
 | TESTING              | False *(bool)*                                    | To run the news platfrom in real-life testing modus - i.e. fetiching only 10% of news sources to avoid waiting.                                                                                                                                                                                                                   |
 
-These environmental variables can be  
+These environmental variables can be
 
--  included in the docker_compose.yml file in section "environment:" as arguments *(as above in the docker_compose.yml example)*,
--  saved as an .env file [*(example)*](https://github.com/vanalmsick/news_platform/blob/main//template.env) and passed to the docker_compose.yml file as argument "env_file: /your/local/dir/.env", or
--  saved as an .env file [*(example)*](https://github.com/vanalmsick/news_platform/blob/main//template.env) in the news plattform container's data directory e.g. "/your/local/data/dir/news_platform/.env"
+- included in the docker_compose.yml file in section "environment:" as arguments *(as above in the docker_compose.yml
+  example)*,
+- saved as an .env file [*(example)*](https://github.com/vanalmsick/news_platform/blob/main//template.env) and passed to
+  the docker_compose.yml file as argument "env_file: /your/local/dir/.env", or
+- saved as an .env file [*(example)*](https://github.com/vanalmsick/news_platform/blob/main//template.env) in the news
+  plattform container's data directory e.g. "/your/local/data/dir/news_platform/.env"

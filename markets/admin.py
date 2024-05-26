@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Django Admin Space for Market Data App/Models"""
 from django.contrib import admin
 from import_export import resources

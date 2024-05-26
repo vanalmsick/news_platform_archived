@@ -411,7 +411,8 @@
                                                         style="font-family: Georgia, serif;">{{ article.genre }}</strong>
                                                 <h3 class="mb-0  fs-5"
                                                     style="font-family: Georgia, serif; font-weight: bold;">
-                                                    {% if article.content_type == "ticker" %}<span class="dot"></span>{% endif %}
+                                                    {% if article.content_type == "ticker" %}
+                                                        <span class="dot"></span>{% endif %}
                                                     {{ article.title }}
                                                 </h3>
 
@@ -493,9 +494,12 @@
 
                                                     <div class="mb-1 text-muted"
                                                          style="font-family: Georgia, serif;">
-                                                        {% if article.content_type == 'ticker' or 'ticker' in article.categories|lower %}<span class="label label-live">live</span>
-                                                        {% elif article.content_type == 'briefing' or 'briefing' in article.categories|lower %}<span class="label label-briefing">briefing</span>
-                                                        {% elif article.importance_type == 'breaking' or 'breaking' in article.categories|lower %}<span class="label label-breaking">breaking</span>
+                                                        {% if article.content_type == 'ticker' or 'ticker' in article.categories|lower %}
+                                                            <span class="label label-live">live</span>
+                                                        {% elif article.content_type == 'briefing' or 'briefing' in article.categories|lower %}
+                                                            <span class="label label-briefing">briefing</span>
+                                                        {% elif article.importance_type == 'breaking' or 'breaking' in article.categories|lower %}
+                                                            <span class="label label-breaking">breaking</span>
                                                         {% endif %}
                                                         {{ article.publisher.name }}
                                                         -
@@ -599,7 +603,8 @@
                            style="font-family: Georgia, serif;cursor: pointer;"
                            data-read-later="{{ side_article.read_later }}">
                             <div class="d-flex w-100 justify-content-between" style="margin: 2px 0px 0px 0px;">
-                                <h6 style="margin: 0px 0px 2px 0px;">{% if side_article.content_type == "ticker" %}<span class="dot"></span>{% endif %}{{ side_article.title }}</h6>
+                                <h6 style="margin: 0px 0px 2px 0px;">{% if side_article.content_type == "ticker" %}
+                                    <span class="dot"></span>{% endif %}{{ side_article.title }}</h6>
                                 <div class="align-top">
                                     {% if side_article.has_full_text == False %}
                                         {% if 'publisher' in side_article and side_article.publisher.paywall == 'Y' %}
@@ -620,9 +625,12 @@
                             </div>
                             <div class="d-flex w-100 justify-content-between">
                                 <div class="text-muted">
-                                    {% if side_article.content_type == 'ticker' or 'ticker' in side_article.categories|lower %}<span class="label label-live">live</span>
-                                    {% elif side_article.content_type == 'briefing' or 'briefing' in side_article.categories|lower %}<span class="label label-briefing">briefing</span>
-                                    {% elif side_article.importance_type == 'breaking' or 'breaking' in side_article.categories|lower %}<span class="label label-breaking">breaking</span>
+                                    {% if side_article.content_type == 'ticker' or 'ticker' in side_article.categories|lower %}
+                                        <span class="label label-live">live</span>
+                                    {% elif side_article.content_type == 'briefing' or 'briefing' in side_article.categories|lower %}
+                                        <span class="label label-briefing">briefing</span>
+                                    {% elif side_article.importance_type == 'breaking' or 'breaking' in side_article.categories|lower %}
+                                        <span class="label label-breaking">breaking</span>
                                     {% endif %}
                                     {{ side_article.publisher.name }}
                                 </div>
