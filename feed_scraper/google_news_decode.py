@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Decode encoded Google News entry URLs."""
 import base64
 import functools

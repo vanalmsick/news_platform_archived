@@ -1,19 +1,29 @@
 # Personal News Platform
-[Go to **Documentation & How-To**](https://vanalmsick.github.io/news_platform/)  
-[Go to **DockerHub Container: vanalmsick/news_platform**](https://hub.docker.com/repository/docker/vanalmsick/news_platform)  
 
-News Aggregator - Aggregates news articles from several RSS feeds, fetches full-text if possible, sorts them by relevance (based on user settings), and display on distraction-free homepage.
+[Go to **Documentation & How-To**](https://vanalmsick.github.io/news_platform/)  
+[Go to **DockerHub Container: vanalmsick/news_platform
+**](https://hub.docker.com/repository/docker/vanalmsick/news_platform)
+
+News Aggregator - Aggregates news articles from several RSS feeds, fetches full-text if possible, sorts them by
+relevance (based on user settings), and display on distraction-free homepage.
 
 ### PC Home Page:
-<img src="docs/docs/imgs/home_pc.png" alt="PC Home Page" style="width:90%;"/><br>  
+
+<img src="docs/docs/imgs/home_pc.png" alt="PC Home Page" style="width:90%;"/><br>
+
 ### Article Reading View:
-<img src="docs/docs/imgs/article.png" alt="Article Reading View" style="width:65%;"/><br>  
+
+<img src="docs/docs/imgs/article.png" alt="Article Reading View" style="width:65%;"/><br>
+
 ### Phone Home Page:
-<img src="docs/docs/imgs/home_phone.jpeg" alt="Phone Home Page" style="height:700px;"/><br>  
+
+<img src="docs/docs/imgs/home_phone.jpeg" alt="Phone Home Page" style="height:700px;"/><br>
 
 ## Features:
+
 + News article fetching from RSS feeds and videos from YouTube channels
-+ Full-text article fetching where possible (currently using fivefilters.org full-text fetcher - later own full-text fetcher)
++ Full-text article fetching where possible (currently using fivefilters.org full-text fetcher - later own full-text
+  fetcher)
 + Market data fetching
 + Light/dark modus website
 + Responsive optimized for very large screens, large screens, tablets, phones
@@ -27,9 +37,11 @@ News Aggregator - Aggregates news articles from several RSS feeds, fetches full-
 + Optimized to run on low-power servers like RaspberryPi 3 and later
 
 ## Quick Start / TL;DR
-*(Make sure Docker is installed: [go to docker.com](https://www.docker.com/get-started/))*  
+
+*(Make sure Docker is installed: [go to docker.com](https://www.docker.com/get-started/))*
 
 **Minimal Docker Run Command (CMD):**
+
 ```
 docker run \
     -p 80:80 \
@@ -40,6 +52,7 @@ docker run \
 
 **All out [docker_compose.yml](/docker_compose.yml.example) setup:**  
 *docker_compose.yml:*
+
 ```
 version: "3.9"
 
@@ -101,12 +114,15 @@ volumes:
   news_platform:
   news_platform_letsencrypt:
 ```
+
 *start-up command (CMD):*
+
 ```
 docker compose -f "/your/local/path/docker_compose.yml" up --pull "always" -d
 ```
 
 ## Environmental Variables:
+
 | ENV-KEY              | Default Value / Data Type                         | Description                                                                                                                                                                                                                                                                                                                       |
 |----------------------|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | MAIN_HOST            | "http://localhost" *(any str)*                    | Public/local-network facing main URL. Used for links e.g. for webpush push notifications e.g. "https://news.yourwebsite.com" or "http://19.168.172.100"                                                                                                                                                                           |
@@ -127,10 +143,14 @@ docker compose -f "/your/local/path/docker_compose.yml" up --pull "always" -d
 | TESTING              | False *(bool)*                                    | To run the news platfrom in real-life testing modus - i.e. fetiching only 10% of news sources to avoid waiting.                                                                                                                                                                                                                   |
 
 These environmental variables can be
-+ included in the docker_compose.yml file in section "environment:" as arguments *(as above in the docker_compose.yml example)*,
-+ saved as an .env file [*(example)*](/.env.example) and passed to the docker_compose.yml file as argument "env_file: /your/local/dir/.env", or
-+ saved as an .env file [*(example)*](/.env.example) in the news plattform container's data directory e.g. "/your/local/data/dir/news_platform/.env"
 
++ included in the docker_compose.yml file in section "environment:" as arguments *(as above in the docker_compose.yml
+  example)*,
++ saved as an .env file [*(example)*](/.env.example) and passed to the docker_compose.yml file as argument "env_file:
+  /your/local/dir/.env", or
++ saved as an .env file [*(example)*](/.env.example) in the news plattform container's data directory e.g. "
+  /your/local/data/dir/news_platform/.env"
 
 ## More information available in the [Documentation](https://vanalmsick.github.io/news_platform/)
+
 ## How to [contribute & help add features](https://vanalmsick.github.io/news_platform/)

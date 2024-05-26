@@ -96,7 +96,6 @@ INSTALLED_APPS = [
     "django_celery_beat",
 ]
 
-
 REST_FRAMEWORK = {
     "DEFAULT_METADATA_CLASS": "rest_framework.metadata.SimpleMetadata",
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
@@ -108,7 +107,6 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("JWT",),
 }
-
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -159,7 +157,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "news_platform.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -182,7 +179,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -202,7 +198,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -232,8 +227,8 @@ PWA_APP_SPLASH_SCREEN = (
         {
             "rel": "apple-touch-startup-image",
             "media": (
-                f"(device-width: {min(int(width),int(height))}px) and (device-height:"
-                f" {max(int(width),int(height))}px) and (-webkit-device-pixel-ratio:"
+                f"(device-width: {min(int(width), int(height))}px) and (device-height:"
+                f" {max(int(width), int(height))}px) and (-webkit-device-pixel-ratio:"
                 f" {scale}) and (orientation:"
                 f" {'landscape' if int(width) > int(height) else 'portrait'})"
             ),
@@ -257,7 +252,6 @@ PWA_APP_SPLASH_SCREEN = (
 )
 PWA_APP_DIR = "ltr"
 
-
 PWA_APP_LANG = LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "en-UK")
 ALLOWED_LANGUAGES = os.getenv("ALLOWED_LANGUAGES", "*")
 LOGOUT_REDIRECT_URL = "/"
@@ -271,7 +265,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -297,7 +290,6 @@ CACHES = {
         "LOCATION": "redis://localhost:6379",
     }
 }
-
 
 # Webpush
 WEBPUSH_SETTINGS = {

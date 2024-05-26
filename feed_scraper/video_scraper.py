@@ -96,7 +96,7 @@ def fetch_feed(feed, max_per_feed=200):
         if no_new_video > 50:
             print(
                 f"{feed} no new video found for the last {no_new_video} videos at video"
-                f" {i+1} thus stop checking more."
+                f" {i + 1} thus stop checking more."
             )
         article_kwargs = {}
         article__feed_position = i + 1

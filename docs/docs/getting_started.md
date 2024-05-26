@@ -1,7 +1,9 @@
 ## Quick Start / TL;DR
-*(Make sure Docker is installed: [go to docker.com](https://www.docker.com/get-started/))*  
+
+*(Make sure Docker is installed: [go to docker.com](https://www.docker.com/get-started/))*
 
 **Minimal Docker Run Command (CMD):**
+
 ```
 docker run \
     -p 80:80 \
@@ -10,8 +12,10 @@ docker run \
     vanalmsick/news_platform
 ```
 
-**All out [docker_compose.yml](https://github.com/vanalmsick/news_platform/blob/main//docker_compose.yml.template) setup:**  
+**All out [docker_compose.yml](https://github.com/vanalmsick/news_platform/blob/main//docker_compose.yml.template)
+setup:**  
 *docker_compose.yml:*
+
 ```
 version: "3.9"
 
@@ -73,7 +77,9 @@ volumes:
   news_platform:
   news_platform_letsencrypt:
 ```
+
 *start-up command (CMD):*
+
 ```
 docker compose -f "/your/local/path/docker_compose.yml" up --pull "always" -d
 ```

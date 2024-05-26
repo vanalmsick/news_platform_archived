@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Admin view for PPreferences Section/App"""
 from django.contrib import admin
 

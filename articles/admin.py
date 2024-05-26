@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Definition of Article View in Django Admin Space"""
 
 from django.contrib import admin
@@ -12,8 +13,6 @@ class FeedPositionInline(admin.TabularInline):
     model = FeedPosition
     fk_name = "article"
     extra = 0
-    exclude = []
-
 
 
 @admin.register(Article)
@@ -42,4 +41,4 @@ class ArticleAdmin(admin.ModelAdmin):
     ordering = ("-added_date",)
     inlines = [
         FeedPositionInline,
-        ]
+    ]
