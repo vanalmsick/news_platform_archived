@@ -8,7 +8,6 @@ on:
 jobs:
 
   autotag:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     permissions:
       contents: write
