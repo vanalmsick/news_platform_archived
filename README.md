@@ -38,7 +38,7 @@ docker run \
     vanalmsick/news_platform
 ```
 
-**All out [docker_compose.yml](/docker_compose.yml.template) setup:**  
+**All out [docker_compose.yml](/docker_compose.yml.example) setup:**  
 *docker_compose.yml:*
 ```
 version: "3.9"
@@ -128,8 +128,8 @@ docker compose -f "/your/local/path/docker_compose.yml" up --pull "always" -d
 
 These environmental variables can be
 + included in the docker_compose.yml file in section "environment:" as arguments *(as above in the docker_compose.yml example)*,
-+ saved as an .env file [*(example)*](/template.env) and passed to the docker_compose.yml file as argument "env_file: /your/local/dir/.env", or
-+ saved as an .env file [*(example)*](/template.env) in the news plattform container's data directory e.g. "/your/local/data/dir/news_platform/.env"
++ saved as an .env file [*(example)*](/.env.example) and passed to the docker_compose.yml file as argument "env_file: /your/local/dir/.env", or
++ saved as an .env file [*(example)*](/.env.example) in the news plattform container's data directory e.g. "/your/local/data/dir/news_platform/.env"
 
 
 ## More information available in the [Documentation](https://vanalmsick.github.io/news_platform/)
