@@ -1,5 +1,5 @@
 # Personal News Platform
-<br>
+
 ### :rotating_light::rotating_light::rotating_light: This Repo was moved to the new URL <a  href="https://github.com/vanalmsick/news_platform/">*github.com/vanalmsick/news_platform/*</a></span>
 <br>
 News Aggregator - Aggregates news articles from several RSS feeds, fetches full-text if possible, sorts them by
