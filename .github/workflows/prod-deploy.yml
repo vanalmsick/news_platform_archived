@@ -1,15 +1,17 @@
 name: Production Deployment
 on:
-  push:
+  pull_request_target:
+    types:
+      - closed
     branches:
       - master
       - main
-    paths-ignore: [ '.github/**', 'docs/**', 'README.md' ]
+#    paths-ignore: [ '.github/**', 'docs/**', 'README.md' ]
 
 jobs:
 
   autotag:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -28,6 +30,7 @@ jobs:
           WITH_V: false
           PRERELEASE: false
           DEFAULT_BUMP: patch
+
     outputs:
       tag: ${{ steps.tagger.outputs.tag }}
       new_tag: ${{ steps.tagger.outputs.new_tag }}
