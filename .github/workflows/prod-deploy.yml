@@ -27,6 +27,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: false
           PRERELEASE: false
+          DEFAULT_BUMP: patch
 
 
   docker:
@@ -50,4 +51,4 @@ jobs:
           context: .
           platforms: linux/arm64/v8,linux/amd64
           push: true
-          tags: ${{ secrets.DOCKER_USER }}/news_platform:latest,${{ secrets.DOCKER_USER }}/news_platform:${{ jobs.autotag.outputs.tag }}
+          tags: ${{ secrets.DOCKER_USER }}/news_platform:latest,${{ secrets.DOCKER_USER }}/news_platform:${{ needs.autotag.outputs.tag }}

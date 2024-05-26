@@ -24,7 +24,6 @@ celery[redis]
 django_celery_beat
 django-webpush
 django-pwa
-pillow
 sentry-sdk[django]
 sentry-sdk[celery]
 psycopg2-binary
